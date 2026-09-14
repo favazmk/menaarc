@@ -34,12 +34,19 @@ function chapterOpacity(progress: number, from: number, to: number) {
 }
 
 /**
- * `overlay` sets the type on top of a full-bleed frame — the desktop case.
- * `stacked` puts it beneath a letterboxed strip, which is what a landscape
- * master needs on a portrait phone: overlaying there buries the copy in the
- * picture and strands dead space above and below it.
+ * How the chapter type sits against the frame:
+ *
+ * - `overlay`  — centred over a full-bleed frame. The desktop case, where a
+ *                wide frame leaves empty architecture on the left to set into.
+ * - `bottom`   — anchored low over a full-bleed frame. A portrait master on a
+ *                phone fills the screen edge to edge, so centred type lands in
+ *                the middle of the picture; the lower third is where the eye
+ *                expects copy and where a scrim reads as deliberate.
+ * - `stacked`  — beneath a letterboxed strip. The fallback when the master is
+ *                landscape and the viewport is portrait, where overlaying
+ *                would bury the copy and strand dead space around it.
  */
-export type ChapterLayout = 'overlay' | 'stacked';
+export type ChapterLayout = 'overlay' | 'bottom' | 'stacked';
 
 export function FilmChapters({
   chapters,
@@ -59,6 +66,12 @@ export function FilmChapters({
   );
 
   const stacked = layout === 'stacked';
+  const low = layout === 'bottom';
+  // Both the strip and the phone-sized full-bleed frame want tighter type than
+  // the desktop ramp, which is sized for a 1440px-wide composition.
+  const compact = stacked || low;
+
+  const align = stacked ? 'items-start pt-9' : low ? 'items-end pb-20' : 'items-center';
 
   return (
     <div className="pointer-events-none absolute inset-0">
@@ -66,9 +79,7 @@ export function FilmChapters({
         className="u-shell absolute inset-x-0 bottom-0"
         style={{ top: stacked ? bandBottom : '0px' }}
       >
-        <div
-          className={`relative flex h-full w-full ${stacked ? 'items-start pt-9' : 'items-center'}`}
-        >
+        <div className={`relative flex h-full w-full ${align}`}>
           <div className="relative w-full max-w-[40rem]">
             {active.map(({ c, o }) => (
               <article
@@ -76,12 +87,12 @@ export function FilmChapters({
                 // Chapters occupy one position, not a sequence, so a cross-fade
                 // never reflows the layout mid-scroll.
                 className={`absolute inset-x-0 text-[var(--color-paper)] ${
-                  stacked ? 'top-0' : 'top-1/2'
+                  stacked ? 'top-0' : low ? 'bottom-0' : 'top-1/2'
                 }`}
                 style={{
                   opacity: o,
                   // A small rise on entry, settling as the chapter holds.
-                  transform: stacked
+                  transform: compact
                     ? `translateY(${(1 - o) * 14}px)`
                     : `translateY(calc(-50% + ${(1 - o) * 14}px))`,
                   visibility: o <= 0.01 ? 'hidden' : 'visible',
@@ -96,14 +107,14 @@ export function FilmChapters({
                 <h2
                   className="mt-4 whitespace-pre-line font-[family-name:var(--font-display)] leading-[0.98] tracking-[-0.025em]"
                   style={{
-                    fontSize: stacked ? 'clamp(1.6rem, 7.4vw, 2.4rem)' : 'var(--text-headline)',
+                    fontSize: compact ? 'clamp(1.6rem, 7.4vw, 2.4rem)' : 'var(--text-headline)',
                   }}
                 >
                   {c.headline}
                 </h2>
                 <p
                   className="u-lede mt-5 max-w-[38ch] text-[var(--color-paper)]/70"
-                  style={stacked ? { fontSize: '0.9375rem', lineHeight: 1.5 } : undefined}
+                  style={compact ? { fontSize: '0.9375rem', lineHeight: 1.5 } : undefined}
                 >
                   {c.body}
                 </p>

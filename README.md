@@ -47,10 +47,11 @@ The home page hero is a **canvas frame sequence**, not a scrubbed `<video>`.
 `video.currentTime` seeking stutters badly on iOS Safari and low-end Android;
 frames always paint.
 
-**The current film is a placeholder** — a 10-second, 720p clip generated on
-Gemini's free tier. It carries the right narrative (villa exterior → living
-volume → travertine corridor → terrace → Burj Khalifa) but it is soft on a
-large display. No paid generation credits have been spent on this project.
+**Both masters are placeholders** — 10-second clips generated on Gemini's free
+tier, one landscape and one vertical, carrying the same narrative (villa
+exterior → living volume → corridor → terrace → Burj Khalifa). The landscape
+master is 720p and looks soft on a large display; a 4K version exists and can
+replace it. No paid generation credits have been spent on this project.
 
 ### Replacing it
 
@@ -64,17 +65,18 @@ That regenerates both tiers and `public/film/manifest.json`. **No application
 code changes.** If the new master has no watermark, drop `--delogo` from the
 `film:*` scripts in `package.json`.
 
-If you commission a true 9:16 vertical master, point `film:mobile` at it. The
-`ScrollFilm` component detects the aspect ratio from the manifest and switches
-from the letterboxed strip layout to full-bleed automatically.
+Each tier has its own master and its own `--delogo` box, set in the `film:*`
+scripts. `ScrollFilm` reads each tier's aspect ratio from the manifest and picks
+its layout from that — no flags to set. Swap in a landscape-only master and the
+mobile tier falls back to the strip layout on its own.
 
 ### How it behaves
 
 | Condition | Result |
 |---|---|
-| Desktop | 240 frames @ 1280px, full-bleed, type overlaid |
-| Narrow / low-memory / save-data | 160 frames @ 828px |
-| Landscape master, portrait viewport | Cinematic strip, type stacked beneath |
+| Desktop | 16:9 master, 240 frames @ 1280px, full-bleed, type centred |
+| Narrow / low-memory / save-data | 9:16 master, 160 frames @ 720px, full-bleed, type anchored low |
+| Landscape master in a portrait viewport | Cinematic strip, type stacked beneath — the fallback when no vertical master exists |
 | `prefers-reduced-motion` | Static poster, no pin, all chapter copy as normal text |
 
 Chapter copy and its scroll positions live in `content/film-chapters.json`.

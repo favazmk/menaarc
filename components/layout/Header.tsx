@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Wordmark } from '@/components/brand/Wordmark';
 import { Magnetic } from '@/components/ui/Magnetic';
@@ -22,16 +22,27 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [onDark, setOnDark] = useState(pathname === '/');
   const [lifted, setLifted] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     let frame = 0;
 
     const sample = () => {
       frame = 0;
-      // Probe just below the header's own band, at the left gutter where the
-      // wordmark sits.
-      const el = document.elementFromPoint(24, 30);
-      const themed = el?.closest<HTMLElement>('[data-theme]');
+      const header = headerRef.current;
+
+      // Find what is behind the header, not the header itself. elementsFromPoint
+      // returns the whole z-order stack, so the first entry outside the header
+      // subtree is the section actually underneath.
+      //
+      // A single elementFromPoint is not enough: the gutter shrinks to 20px on
+      // a phone, so a fixed probe near the left edge lands on the wordmark,
+      // finds no [data-theme] ancestor, and the header silently falls back to
+      // its light palette over a dark film.
+      const stack = document.elementsFromPoint(24, 30);
+      const behind = stack.find((el) => !header || !header.contains(el));
+      const themed = behind?.closest<HTMLElement>('[data-theme]');
+
       setOnDark(themed?.dataset.theme === 'dark');
       setLifted(window.scrollY > 16);
     };
@@ -60,6 +71,7 @@ export function Header() {
 
   return (
     <header
+      ref={headerRef}
       // The header must not carry data-theme itself, or the probe above would
       // find the header instead of the section behind it.
       className="pointer-events-none fixed inset-x-0 top-0 z-50 transition-colors duration-500"

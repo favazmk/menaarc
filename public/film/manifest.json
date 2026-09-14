@@ -12,9 +12,9 @@
     },
     "mobile": {
       "frameCount": 160,
-      "width": 828,
-      "height": 466,
-      "aspect": 1.7768,
+      "width": 720,
+      "height": 1280,
+      "aspect": 0.5625,
       "pattern": "/film/mobile/{n}.avif",
       "patternFallback": "/film/mobile/{n}.webp",
       "pad": 4
@@ -23,8 +23,8 @@
   "source": {
     "duration": 10,
     "fps": 24,
-    "width": 1280,
-    "height": 720
+    "width": 720,
+    "height": 1280
   },
-  "generatedAt": "2026-09-14T06:36:18.033Z"
+  "generatedAt": "2026-09-14T07:55:12.236Z"
 }

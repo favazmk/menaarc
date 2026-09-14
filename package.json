@@ -10,8 +10,8 @@
     "film": "npm run film:desktop && npm run film:mobile",
     "ingest": "node scripts/ingest-projects.mjs",
     "typecheck": "tsc --noEmit",
-    "film:desktop": "node scripts/build-film.mjs --tier desktop --frames 240 --width 1280 --delogo 1132:556:72:78",
-    "film:mobile": "node scripts/build-film.mjs --tier mobile --frames 160 --width 828 --delogo 1132:556:72:78",
+    "film:desktop": "node scripts/build-film.mjs --in assets/masters/villa-journey-16x9.mp4 --tier desktop --frames 240 --width 1280 --delogo 1132:556:72:78",
+    "film:mobile": "node scripts/build-film.mjs --in assets/masters/villa-journey-9x16.mp4 --tier mobile --frames 160 --width 720 --delogo 574:1131:56:58",
     "check:content": "node scripts/check-content.mjs",
     "optimize:images": "node scripts/optimize-images.mjs",
     "prebuild": "node scripts/check-content.mjs"

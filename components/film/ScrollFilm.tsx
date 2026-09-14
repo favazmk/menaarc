@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-import { useIsClient, usePrefersReducedMotion } from '@/lib/use-media-query';
+import { useIsClient, useMediaQuery, usePrefersReducedMotion } from '@/lib/use-media-query';
 
 import { useFrameLoader, type FilmManifest, type TierSpec } from './useFrameLoader';
 import { FilmChapters, type Chapter } from './FilmChapters';
@@ -51,6 +51,7 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
   const [progress, setProgress] = useState(0);
   const reduced = usePrefersReducedMotion();
   const mounted = useIsClient();
+  const narrow = useMediaQuery('(max-width: 900px)');
 
   // Tier selection reads the device, so it cannot run during SSR.
   const tier = useMemo(
@@ -78,6 +79,10 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
     if (aspect / viewport <= 1.45) return null;
     return { aspect };
   }, [spec, mounted]);
+
+  // Full-bleed on a phone puts the frame edge to edge, so centred type would
+  // land in the middle of the picture. Anchor it low instead.
+  const layout = strip ? 'stacked' : narrow ? 'bottom' : 'overlay';
 
   /**
    * Paint one frame, cropped to fill the canvas it is given.
@@ -232,17 +237,21 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
           style={{ opacity: primed ? 1 : 0 }}
         />
 
-        {/* Legibility scrim. Over a full-bleed frame the type needs ground
-            under it; over a strip the type sits on ink already, so only a
-            light vertical grade is used to seat the image. */}
+        {/* Legibility scrim, shaped to wherever the type actually sits.
+            A left-weighted grade under centred desktop copy; a bottom-weighted
+            one under low-anchored phone copy; barely anything over a strip,
+            where the type is already on ink. */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
           style={{
-            background: strip
-              ? 'linear-gradient(to bottom, rgb(10 10 10 / 0.35) 0%, transparent 22%, transparent 100%)'
-              : 'linear-gradient(to right, rgb(10 10 10 / 0.78) 0%, rgb(10 10 10 / 0.45) 34%, rgb(10 10 10 / 0.05) 66%, transparent 100%),' +
-                'linear-gradient(to bottom, rgb(10 10 10 / 0.6) 0%, rgb(10 10 10 / 0.1) 28%, rgb(10 10 10 / 0.14) 64%, rgb(10 10 10 / 0.72) 100%)',
+            background:
+              layout === 'stacked'
+                ? 'linear-gradient(to bottom, rgb(10 10 10 / 0.35) 0%, transparent 22%, transparent 100%)'
+                : layout === 'bottom'
+                  ? 'linear-gradient(to bottom, rgb(10 10 10 / 0.5) 0%, transparent 20%, transparent 42%, rgb(10 10 10 / 0.72) 78%, rgb(10 10 10 / 0.9) 100%)'
+                  : 'linear-gradient(to right, rgb(10 10 10 / 0.78) 0%, rgb(10 10 10 / 0.45) 34%, rgb(10 10 10 / 0.05) 66%, transparent 100%),' +
+                    'linear-gradient(to bottom, rgb(10 10 10 / 0.6) 0%, rgb(10 10 10 / 0.1) 28%, rgb(10 10 10 / 0.14) 64%, rgb(10 10 10 / 0.72) 100%)',
           }}
         />
       </div>
@@ -250,7 +259,7 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
       <FilmChapters
         chapters={chapters}
         progress={progress}
-        layout={strip ? 'stacked' : 'overlay'}
+        layout={layout}
         bandBottom={strip ? `calc(20svh + 100vw / ${strip.aspect})` : '0px'}
       />
 
