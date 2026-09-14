@@ -1,0 +1,25 @@
+{
+  "slug": "bateel-kiosk",
+  "title": "Bateel Kiosk",
+  "headingAtSource": "Bateel Kiosk",
+  "client": "",
+  "location": "",
+  "sector": "F&B",
+  "year": "",
+  "area": "",
+  "scope": [],
+  "photographer": "",
+  "summary": "We design compact, expressive kiosks that elevate product presentation while supporting efficient service and a premium customer experience.",
+  "body": [],
+  "images": [
+    "/projects/bateel-kiosk/01.webp",
+    "/projects/bateel-kiosk/02.webp",
+    "/projects/bateel-kiosk/03.webp"
+  ],
+  "featured": false,
+  "status": "pending-client-approval",
+  "source": {
+    "url": "https://righteousgrp.com/projects/bateel-kiosk/",
+    "ingestedAt": "2026-09-14T06:42:36.884Z"
+  }
+}

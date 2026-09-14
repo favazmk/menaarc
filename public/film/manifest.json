@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "tiers": {
+    "desktop": {
+      "frameCount": 240,
+      "width": 1280,
+      "height": 720,
+      "aspect": 1.7778,
+      "pattern": "/film/desktop/{n}.avif",
+      "patternFallback": "/film/desktop/{n}.webp",
+      "pad": 4
+    },
+    "mobile": {
+      "frameCount": 160,
+      "width": 828,
+      "height": 466,
+      "aspect": 1.7768,
+      "pattern": "/film/mobile/{n}.avif",
+      "patternFallback": "/film/mobile/{n}.webp",
+      "pad": 4
+    }
+  },
+  "source": {
+    "duration": 10,
+    "fps": 24,
+    "width": 1280,
+    "height": 720
+  },
+  "generatedAt": "2026-09-14T06:36:18.033Z"
+}

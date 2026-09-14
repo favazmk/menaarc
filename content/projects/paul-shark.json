@@ -1,0 +1,29 @@
+{
+  "slug": "paul-shark",
+  "title": "Paul & Shark",
+  "headingAtSource": "Paul & Shark",
+  "client": "",
+  "location": "",
+  "sector": "Retail",
+  "year": "",
+  "area": "",
+  "scope": [],
+  "photographer": "",
+  "summary": "We create bold retail settings that mirror the brand’s confidence, using structure, lighting, and proportion to strengthen product storytelling.",
+  "body": [],
+  "images": [
+    "/projects/paul-shark/01.webp",
+    "/projects/paul-shark/02.webp",
+    "/projects/paul-shark/03.webp",
+    "/projects/paul-shark/04.webp",
+    "/projects/paul-shark/05.webp",
+    "/projects/paul-shark/06.webp",
+    "/projects/paul-shark/07.webp"
+  ],
+  "featured": false,
+  "status": "pending-client-approval",
+  "source": {
+    "url": "https://righteousgrp.com/projects/paul-shark/",
+    "ingestedAt": "2026-09-14T06:42:37.339Z"
+  }
+}

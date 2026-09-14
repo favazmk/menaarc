@@ -1,0 +1,50 @@
+{
+  "$comment": "Progress ranges are 0-1 across the pinned scroll distance. Copy is written against the actual frames of the current master; re-check the ranges if the master changes.",
+  "chapters": [
+    {
+      "id": "arrival",
+      "index": "01",
+      "label": "Arrival",
+      "headline": "Every building begins\nbefore the door.",
+      "body": "Approach, threshold, orientation. We design the sequence a person moves through, not the elevation they photograph.",
+      "from": 0.0,
+      "to": 0.16
+    },
+    {
+      "id": "volume",
+      "index": "02",
+      "label": "Volume",
+      "headline": "Space is the\nonly material\nthat is free.",
+      "body": "Ceiling height, sightline, the distance between two walls. Proportion does more for a room than any finish specified into it.",
+      "from": 0.22,
+      "to": 0.44
+    },
+    {
+      "id": "material",
+      "index": "03",
+      "label": "Material",
+      "headline": "Travertine,\noak, light.",
+      "body": "A restrained palette, detailed properly. Fewer materials, held to a tighter tolerance, read as more expensive than more materials held loosely.",
+      "from": 0.5,
+      "to": 0.68
+    },
+    {
+      "id": "passage",
+      "index": "04",
+      "label": "Passage",
+      "headline": "The corridor\nis not\nleftover space.",
+      "body": "Circulation is where a building either earns its calm or loses it. We draw it first, not last.",
+      "from": 0.72,
+      "to": 0.86
+    },
+    {
+      "id": "dubai",
+      "index": "05",
+      "label": "Dubai",
+      "headline": "Built for\nthis skyline.",
+      "body": "Design and project management for retail, hospitality and residential across the UAE.",
+      "from": 0.9,
+      "to": 1.0
+    }
+  ]
+}

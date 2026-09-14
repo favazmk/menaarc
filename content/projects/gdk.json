@@ -1,0 +1,28 @@
+{
+  "slug": "gdk",
+  "title": "GDK",
+  "headingAtSource": "GDK",
+  "client": "",
+  "location": "",
+  "sector": "F&B",
+  "year": "",
+  "area": "",
+  "scope": [],
+  "photographer": "",
+  "summary": "We deliver energetic food service environments designed for speed, durability, and consistency across high-traffic customer settings.",
+  "body": [],
+  "images": [
+    "/projects/gdk/01.webp",
+    "/projects/gdk/02.webp",
+    "/projects/gdk/03.webp",
+    "/projects/gdk/04.webp",
+    "/projects/gdk/05.webp",
+    "/projects/gdk/06.webp"
+  ],
+  "featured": false,
+  "status": "pending-client-approval",
+  "source": {
+    "url": "https://righteousgrp.com/projects/gdk/",
+    "ingestedAt": "2026-09-14T06:42:37.438Z"
+  }
+}

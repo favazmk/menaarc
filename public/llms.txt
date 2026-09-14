@@ -1,0 +1,28 @@
+# MENAARC
+
+> Architectural consultancy in Dubai, United Arab Emirates. Design and project
+> management for retail, food and beverage, hospitality and residential
+> projects across the Emirates. Founded by Ar. Rashid Ahamed.
+
+MENAARC takes projects from first sketch through authority approval and onto
+site. Design and delivery are run by the same studio on the same programme,
+rather than handed between separate teams.
+
+## Pages
+
+- [Home](https://www.menaarc.com/): Scroll-controlled architectural film and studio overview.
+- [Work](https://www.menaarc.com/work): Completed projects, filterable by sector.
+- [Studio](https://www.menaarc.com/studio): How the practice is structured, and who runs it.
+- [Services](https://www.menaarc.com/services): Design and project management capabilities in detail.
+- [Contact](https://www.menaarc.com/contact): Enquiries.
+
+## Services
+
+- Design: concept and schematic design, design development, interior architecture, detailed drawings and specification, material and finishes schedules, 3D visualisation.
+- Project management: programme and cost planning, tendering and contractor selection, authority approvals and NOCs, site supervision and snagging, MEP and specialist coordination, handover and close-out.
+
+## Contact
+
+- Email: rashidahamed@menaarc.com
+- Phone: +971 50 087 7781
+- Location: Dubai, United Arab Emirates

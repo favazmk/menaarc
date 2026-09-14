@@ -1,0 +1,30 @@
+{
+  "slug": "reiss-abu-dhabi",
+  "title": "Reiss",
+  "headingAtSource": "Reiss – Abu Dhabi",
+  "client": "",
+  "location": "Abu Dhabi",
+  "sector": "Retail",
+  "year": "",
+  "area": "",
+  "scope": [],
+  "photographer": "",
+  "summary": "We curate contemporary retail spaces that reflect understated confidence, enhancing flow, display, and the overall shopping experience.",
+  "body": [],
+  "images": [
+    "/projects/reiss-abu-dhabi/01.webp",
+    "/projects/reiss-abu-dhabi/02.webp",
+    "/projects/reiss-abu-dhabi/03.webp",
+    "/projects/reiss-abu-dhabi/04.webp",
+    "/projects/reiss-abu-dhabi/05.webp",
+    "/projects/reiss-abu-dhabi/06.webp",
+    "/projects/reiss-abu-dhabi/07.webp",
+    "/projects/reiss-abu-dhabi/08.webp"
+  ],
+  "featured": false,
+  "status": "pending-client-approval",
+  "source": {
+    "url": "https://righteousgrp.com/projects/reiss-abu-dhabi/",
+    "ingestedAt": "2026-09-14T06:42:37.175Z"
+  }
+}
