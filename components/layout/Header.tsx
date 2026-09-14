@@ -163,9 +163,12 @@ export function Header() {
         )}
       </div>
 
+      {/* Not merely hidden: `hidden` leaves the links in the document, and on a
+          home-only build those four routes do not exist. */}
+      {isTrial ? null : (
       <div
         id="mobile-nav"
-        hidden={!open || isTrial}
+        hidden={!open}
         className="pointer-events-auto fixed inset-0 bg-[var(--color-ink)] text-[var(--color-paper)] md:hidden"
       >
         <nav aria-label="Primary" className="u-shell flex h-full flex-col justify-center gap-2">
@@ -187,6 +190,7 @@ export function Header() {
           </a>
         </nav>
       </div>
+      )}
     </header>
   );
 }
