@@ -164,6 +164,13 @@ export default nextConfig;
     );
 
     fs.rmSync(OUT, { recursive: true, force: true });
+
+    // Next writes route-type validators into .next from whatever routes existed
+    // at the time. Left in place from a dev run they still reference the routes
+    // this script just moved aside, and the build fails type-checking against
+    // files that are no longer there.
+    fs.rmSync('.next', { recursive: true, force: true });
+
     run('npx', ['next', 'build'], { NEXT_PUBLIC_TRIAL: '1' });
   } finally {
     fs.writeFileSync(configPath, originalConfig);
