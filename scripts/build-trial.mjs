@@ -213,16 +213,19 @@ export default nextConfig;
     [
       '-NoProfile',
       '-Command',
+      // No pipe in here on purpose: with shell:true on Windows, cmd.exe splits
+      // the argument on "|" and tries to run Where-Object as its own command.
+      // -contains does the same job without one.
       `Add-Type -AssemblyName System.IO.Compression.FileSystem; ` +
         `$z=[System.IO.Compression.ZipFile]::OpenRead((Resolve-Path '${winZip}')); ` +
         `$n=$z.Entries.Count; ` +
-        `$h=[bool]($z.Entries | Where-Object { $_.FullName -eq '.htaccess' }); ` +
-        `$z.Dispose(); Write-Output "$n|$h"`,
+        `$h=$z.Entries.FullName -contains '.htaccess'; ` +
+        `$z.Dispose(); Write-Output ("{0};{1}" -f $n, $h)`,
     ],
     { encoding: 'utf8', shell: process.platform === 'win32' },
   ).trim();
 
-  const [count, hasHtaccess] = entries.split('|');
+  const [count, hasHtaccess] = entries.split(';');
   if (hasHtaccess !== 'True') {
     console.error('\nThe archive is missing .htaccess — AVIF would not be served correctly.');
     process.exit(1);
