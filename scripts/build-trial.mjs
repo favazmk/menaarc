@@ -231,47 +231,69 @@ export default nextConfig;
   const zipPath = path.join(DIST, ZIP_NAME);
   fs.rmSync(zipPath, { force: true });
 
-  // Compress-Archive does include .htaccess: a leading dot is not the Hidden
-  // attribute on Windows, so Get-ChildItem picks it up like any other file.
-  // Verified below rather than assumed, because a zip missing .htaccess would
-  // deploy and then silently fail to serve AVIF.
   const winOut = path.resolve(OUT);
   const winZip = path.resolve(zipPath);
 
-  // These two run WITHOUT shell:true. Routed through cmd.exe, a PowerShell
-  // -Command argument gets mangled — cmd splits it on "|" and strips its double
-  // quotes — so the script is handed to powershell.exe directly instead.
+  // Run WITHOUT shell:true. Routed through cmd.exe a PowerShell -Command
+  // argument gets mangled — cmd splits it on "|" and strips its double quotes.
   const ps = (script, opts = {}) =>
     execFileSync('powershell', ['-NoProfile', '-Command', script], {
       encoding: 'utf8',
+      maxBuffer: 1 << 26,
       ...opts,
     });
 
+  /**
+   * Entries are named explicitly, with forward slashes.
+   *
+   * Compress-Archive writes Windows separators into the archive
+   * ("film\\desktop\\0001.avif"). The ZIP spec requires "/", and Linux
+   * extractors — cPanel's included — read a backslash as part of the filename
+   * rather than a directory. The upload would appear to succeed and then every
+   * asset would 404. Asserted below so it cannot come back.
+   */
   ps(
     `$ErrorActionPreference='Stop'; ` +
-      `Compress-Archive -Path '${winOut}${path.sep}*' -DestinationPath '${winZip}' -Force`,
-    { stdio: 'inherit' },
+      `Add-Type -AssemblyName System.IO.Compression.FileSystem; ` +
+      `$src='${winOut}'; ` +
+      `$z=[System.IO.Compression.ZipFile]::Open('${winZip}','Create'); ` +
+      `Get-ChildItem -Path $src -Recurse -File -Force | ForEach-Object { ` +
+      `  $rel=$_.FullName.Substring($src.Length+1).Replace('\\','/'); ` +
+      `  [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($z,$_.FullName,$rel,'Optimal') | Out-Null ` +
+      `}; ` +
+      `$z.Dispose()`,
   );
 
-  const entries = ps(
+  const report = ps(
     `Add-Type -AssemblyName System.IO.Compression.FileSystem; ` +
       `$z=[System.IO.Compression.ZipFile]::OpenRead('${winZip}'); ` +
-      `$n=$z.Entries.Count; ` +
-      `$h=$z.Entries.FullName -contains '.htaccess'; ` +
-      `$z.Dispose(); Write-Output $n; Write-Output $h`,
+      `$names=$z.Entries.FullName; ` +
+      `Write-Output $names.Count; ` +
+      `Write-Output ($names -contains '.htaccess'); ` +
+      `Write-Output ($names -contains 'index.html'); ` +
+      `Write-Output (@($names | Where-Object { $_ -like '*\\*' }).Count); ` +
+      `$z.Dispose()`,
   ).trim();
 
-  const [count, hasHtaccess] = entries.split(/\r?\n/).map((l) => l.trim());
-  if (hasHtaccess !== 'True') {
-    console.error('\nThe archive is missing .htaccess — AVIF would not be served correctly.');
+  const [count, hasHtaccess, hasIndex, backslashes] = report
+    .split(/\r?\n/)
+    .map((l) => l.trim());
+
+  const fail = (msg) => {
+    console.error(`\n${msg}`);
     process.exit(1);
+  };
+  if (hasHtaccess !== 'True') fail('Archive is missing .htaccess — AVIF would not be served.');
+  if (hasIndex !== 'True') fail('Archive is missing index.html at the top level.');
+  if (backslashes !== '0') {
+    fail(`${backslashes} entries use backslash separators — they will not extract as folders.`);
   }
 
   const after2 = dirSize(OUT);
   console.log('\n--- home-only trial build ---');
   console.log(`  pruned ${pruned.removed} unused project images, kept ${pruned.kept}`);
   console.log(`  output  ${mb(before)} -> ${mb(after2)}`);
-  console.log(`  zip     ${zipPath}  (${mb(fs.statSync(zipPath).size)}, ${count} entries, .htaccess included)`);
+  console.log(`  zip     ${zipPath}  (${mb(fs.statSync(zipPath).size)}, ${count} entries, forward-slash paths, .htaccess included)`);
   console.log('\n  Upload the CONTENTS of the zip into public_html (including .htaccess).');
 }
 
