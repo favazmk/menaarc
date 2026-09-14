@@ -202,30 +202,31 @@ export default nextConfig;
   // deploy and then silently fail to serve AVIF.
   const winOut = path.resolve(OUT);
   const winZip = path.resolve(zipPath);
-  run('powershell', [
-    '-NoProfile',
-    '-Command',
-    `$ErrorActionPreference='Stop'; Compress-Archive -Path '${winOut}${path.sep}*' -DestinationPath '${winZip}' -Force`,
-  ]);
 
-  const entries = execFileSync(
-    'powershell',
-    [
-      '-NoProfile',
-      '-Command',
-      // No pipe in here on purpose: with shell:true on Windows, cmd.exe splits
-      // the argument on "|" and tries to run Where-Object as its own command.
-      // -contains does the same job without one.
-      `Add-Type -AssemblyName System.IO.Compression.FileSystem; ` +
-        `$z=[System.IO.Compression.ZipFile]::OpenRead((Resolve-Path '${winZip}')); ` +
-        `$n=$z.Entries.Count; ` +
-        `$h=$z.Entries.FullName -contains '.htaccess'; ` +
-        `$z.Dispose(); Write-Output ("{0};{1}" -f $n, $h)`,
-    ],
-    { encoding: 'utf8', shell: process.platform === 'win32' },
+  // These two run WITHOUT shell:true. Routed through cmd.exe, a PowerShell
+  // -Command argument gets mangled — cmd splits it on "|" and strips its double
+  // quotes — so the script is handed to powershell.exe directly instead.
+  const ps = (script, opts = {}) =>
+    execFileSync('powershell', ['-NoProfile', '-Command', script], {
+      encoding: 'utf8',
+      ...opts,
+    });
+
+  ps(
+    `$ErrorActionPreference='Stop'; ` +
+      `Compress-Archive -Path '${winOut}${path.sep}*' -DestinationPath '${winZip}' -Force`,
+    { stdio: 'inherit' },
+  );
+
+  const entries = ps(
+    `Add-Type -AssemblyName System.IO.Compression.FileSystem; ` +
+      `$z=[System.IO.Compression.ZipFile]::OpenRead('${winZip}'); ` +
+      `$n=$z.Entries.Count; ` +
+      `$h=$z.Entries.FullName -contains '.htaccess'; ` +
+      `$z.Dispose(); Write-Output $n; Write-Output $h`,
   ).trim();
 
-  const [count, hasHtaccess] = entries.split(';');
+  const [count, hasHtaccess] = entries.split(/\r?\n/).map((l) => l.trim());
   if (hasHtaccess !== 'True') {
     console.error('\nThe archive is missing .htaccess — AVIF would not be served correctly.');
     process.exit(1);
