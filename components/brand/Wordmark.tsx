@@ -128,7 +128,7 @@ export function Wordmark({
           <span aria-hidden="true" className="h-px flex-1 bg-current opacity-40" />
           <span
             className="u-arabic whitespace-nowrap font-light"
-            style={{ fontSize: `calc(${font} * 0.5)`, letterSpacing: '0.14em' }}
+            style={{ fontSize: `max(0.8125rem, calc(${font} * 0.55))`, letterSpacing: '0.14em' }}
             lang="ar"
           >
             {site.nameArabic}

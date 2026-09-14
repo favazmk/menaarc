@@ -25,10 +25,15 @@ export default function ContactPage() {
             <dl className="mt-14 space-y-8">
               <div>
                 <dt className="u-label">Email</dt>
-                <dd className="u-title mt-3">
+                {/* An email address is a single unbreakable token, so the shared
+                    title ramp (24px floor) runs past a 320px viewport and the
+                    domain gets cut off. This one scales down with the viewport
+                    instead. */}
+                <dd className="mt-3">
                   <a
                     href={`mailto:${site.contact.email}`}
-                    className="hover:text-[var(--color-accent)]"
+                    className="inline-block max-w-full py-1.5 font-medium leading-tight tracking-[-0.015em] hover:text-[var(--color-accent)]"
+                    style={{ fontSize: 'clamp(1.0625rem, 5.2vw, 2.25rem)' }}
                   >
                     {site.contact.email}
                   </a>
@@ -39,7 +44,7 @@ export default function ContactPage() {
                 <dd className="u-title mt-3">
                   <a
                     href={`tel:${site.contact.phoneHref}`}
-                    className="hover:text-[var(--color-accent)]"
+                    className="inline-block py-1.5 hover:text-[var(--color-accent)]"
                   >
                     {site.contact.phone}
                   </a>

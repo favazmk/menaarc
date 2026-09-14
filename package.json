@@ -14,7 +14,8 @@
     "film:mobile": "node scripts/build-film.mjs --in assets/masters/villa-journey-9x16.mp4 --tier mobile --frames 160 --width 720 --crf 32 --sharpen 0.8 --delogo 574:1131:56:58",
     "check:content": "node scripts/check-content.mjs",
     "optimize:images": "node scripts/optimize-images.mjs",
-    "prebuild": "node scripts/check-content.mjs"
+    "prebuild": "node scripts/check-content.mjs",
+    "audit": "echo \"Run scripts/audit.mjs through the Playwright MCP (browser_run_code_unsafe with { filename }) against a running dev server.\""
   },
   "dependencies": {
     "gsap": "^3.15.0",

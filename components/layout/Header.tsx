@@ -22,7 +22,9 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [onDark, setOnDark] = useState(pathname === '/');
   const [lifted, setLifted] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
+  const lastY = useRef(0);
 
   useEffect(() => {
     let frame = 0;
@@ -30,6 +32,20 @@ export function Header() {
     const sample = () => {
       frame = 0;
       const header = headerRef.current;
+
+      // Retract while scrolling down, return on the first upward move.
+      //
+      // Not decoration: a permanently fixed bar covers whatever sits in the top
+      // 66px, and at the end of a page there is no further scroll available to
+      // bring that content clear. On a 320x640 viewport this left the first
+      // footer nav link unclickable at its centre, and on a laptop it covered
+      // the contact form's Send button.
+      const y = window.scrollY;
+      const delta = y - lastY.current;
+      if (Math.abs(delta) > 4) {
+        setHidden(delta > 0 && y > 160);
+        lastY.current = y;
+      }
 
       // Find what is behind the header, not the header itself. elementsFromPoint
       // returns the whole z-order stack, so the first entry outside the header
@@ -74,8 +90,9 @@ export function Header() {
       ref={headerRef}
       // The header must not carry data-theme itself, or the probe above would
       // find the header instead of the section behind it.
-      className="pointer-events-none fixed inset-x-0 top-0 z-50 transition-colors duration-500"
+      className="pointer-events-none fixed inset-x-0 top-0 z-50 transition-[transform,background-color,border-color] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
       style={{
+        transform: hidden && !open ? 'translateY(-100%)' : 'translateY(0)',
         color: onDark ? 'var(--color-paper)' : 'var(--color-ink)',
         // Transparent at the top of a page, where the hero is designed around
         // it. Once anything scrolls underneath it needs a ground, or headings
@@ -111,7 +128,7 @@ export function Header() {
                 <Link
                   href={item.href}
                   aria-current={active ? 'page' : undefined}
-                  className="u-label transition-opacity hover:opacity-100"
+                  className="u-label u-tap transition-opacity hover:opacity-100"
                   style={{ color: 'currentColor', opacity: active ? 1 : 0.66 }}
                 >
                   {item.label}
@@ -126,7 +143,7 @@ export function Header() {
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls="mobile-nav"
-          className="u-label pointer-events-auto relative z-10 md:hidden"
+          className="u-label u-tap pointer-events-auto relative z-10 md:hidden"
           style={{ color: 'currentColor' }}
         >
           {open ? 'Close' : 'Menu'}

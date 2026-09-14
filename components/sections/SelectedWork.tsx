@@ -25,7 +25,7 @@ export function SelectedWork({ projects }: { projects: Project[] }) {
           <Link
             href="/work"
             data-cursor="All work"
-            className="u-label shrink-0 pb-2 hover:text-[var(--color-accent)]"
+            className="u-label u-tap shrink-0 hover:text-[var(--color-accent)]"
           >
             View all
           </Link>

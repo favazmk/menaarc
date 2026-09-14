@@ -71,9 +71,9 @@ export default function StudioPage() {
                       href={site.founder.instagram}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="u-label hover:text-[var(--color-accent)]"
+                      className="u-label u-tap hover:text-[var(--color-accent)]"
                     >
-                      Instagram ↗
+                      {site.founder.instagramHandle} ↗
                     </a>
                   </li>
                   {site.social.map((s) => (
@@ -82,7 +82,7 @@ export default function StudioPage() {
                         href={s.href}
                         target="_blank"
                         rel="noreferrer noopener"
-                        className="u-label hover:text-[var(--color-accent)]"
+                        className="u-label u-tap hover:text-[var(--color-accent)]"
                       >
                         {s.label} ↗
                       </a>

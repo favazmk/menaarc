@@ -211,3 +211,11 @@ html.lenis body {
     transform: none;
   }
 }
+
+/* Small labelled links (nav, back links, social) are ~12px tall as text alone,
+   under the 24px minimum hit area WCAG 2.5.8 asks for. Padding gives them a
+   real target without changing how they look. */
+.u-tap {
+  display: inline-block;
+  padding-block: 0.4375rem;
+}

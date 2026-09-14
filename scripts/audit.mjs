@@ -1,0 +1,329 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions --
+   This file is deliberately a bare function expression: the Playwright MCP
+   evaluates its whole contents as one, and supplies `page`. */
+/**
+ * audit.mjs — layout and correctness sweep across every page and breakpoint.
+ *
+ * Run via the Playwright MCP with { filename }, which evaluates this file as a
+ * single function expression and supplies `page`. Everything is assertion, not
+ * screenshotting: a screenshot confirms something rendered, not that it
+ * rendered correctly.
+ */
+async (page) => {
+
+  const PAGES = [
+    '/',
+    '/work',
+    '/work/gdk',
+    '/work/jack-jones-ibn-batuta-mall',
+    '/studio',
+    '/services',
+    '/contact',
+    '/does-not-exist',
+  ];
+
+  const BREAKPOINTS = [
+    ['xs', 320, 640],
+    ['phone', 390, 844],
+    ['tablet', 768, 1024],
+    ['laptop', 1280, 800],
+    ['desktop', 1440, 900],
+    ['wide', 1920, 1080],
+  ];
+
+  const HEADER_BAND = 72; // px of fixed header at the top of every page
+
+  /** Everything that runs inside the page. Kept in one string-serialisable fn. */
+  function collect(headerBand) {
+    const vw = document.documentElement.clientWidth;
+    const vh = window.innerHeight;
+    const issues = [];
+
+    const describe = (el) => {
+      const cls = (el.className?.baseVal ?? el.className ?? '').toString().trim().slice(0, 48);
+      const txt = (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 32);
+      return `${el.tagName.toLowerCase()}${cls ? `.${cls.split(/\s+/)[0]}` : ''}${txt ? ` "${txt}"` : ''}`;
+    };
+
+    // Deliberately hidden from sight: screen-reader-only text is a clipped 1px
+    // box, and the spam honeypot is parked far off-screen. Both would otherwise
+    // dominate the report with findings that are the intended behaviour.
+    const intentionallyHidden = (el) =>
+      el.closest('.sr-only, [aria-hidden="true"]') !== null ||
+      el.closest('[name="company_website"]') !== null ||
+      (el.id === 'company-website' || el.closest('label[for="company-website"]') !== null) ||
+      el.getBoundingClientRect().right < -1000;
+
+    const visible = (el) => {
+      if (intentionallyHidden(el)) return false;
+      const cs = getComputedStyle(el);
+      if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+      if (Number(cs.opacity) < 0.02) return false;
+      const r = el.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) return false;
+      // An ancestor can hide a subtree the element's own style knows nothing
+      // about — the collapsed accordion is opacity:0 with a 0fr grid row, and
+      // its list items still report real boxes.
+      for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+        const pcs = getComputedStyle(p);
+        if (pcs.display === 'none' || pcs.visibility === 'hidden') return false;
+        if (Number(pcs.opacity) < 0.02) return false;
+        if (p.clientHeight === 0 && /hidden|clip/.test(pcs.overflowY)) return false;
+      }
+      return true;
+    };
+
+    const all = [...document.querySelectorAll('body *')].filter(
+      (el) => !el.closest('[data-nextjs-toast], nextjs-portal'),
+    );
+
+    // 1. Horizontal overflow of the document.
+    if (document.documentElement.scrollWidth > vw + 1) {
+      issues.push({
+        kind: 'doc-overflow-x',
+        detail: `scrollWidth ${document.documentElement.scrollWidth} > viewport ${vw}`,
+      });
+    }
+
+    for (const el of all) {
+      if (!visible(el)) continue;
+      const r = el.getBoundingClientRect();
+      const cs = getComputedStyle(el);
+
+      // 2. Anything painted outside the viewport horizontally.
+      if (r.width > 0 && (r.right > vw + 1 || r.left < -1)) {
+        // position:fixed decorations (the custom cursor) legitimately sit at the edge.
+        if (cs.position !== 'fixed') {
+          issues.push({
+            kind: 'off-viewport-x',
+            detail: `${describe(el)} spans ${Math.round(r.left)}..${Math.round(r.right)} (vw ${vw})`,
+          });
+        }
+      }
+
+      // 3. Content clipped by its own box — text cut off rather than wrapped.
+      const clipsX = /hidden|clip/.test(cs.overflowX);
+      const clipsY = /hidden|clip/.test(cs.overflowY);
+      if (clipsX && el.scrollWidth > el.clientWidth + 2 && el.clientWidth > 0) {
+        issues.push({
+          kind: 'clipped-x',
+          detail: `${describe(el)} content ${el.scrollWidth} > box ${el.clientWidth}`,
+        });
+      }
+      if (clipsY && el.scrollHeight > el.clientHeight + 2 && el.clientHeight > 0) {
+        // A canvas or an image cropped on purpose is fine; text being cut is not.
+        const hasText = el.innerText && el.innerText.trim().length > 0;
+        if (hasText && !el.querySelector('canvas, img, video')) {
+          issues.push({
+            kind: 'clipped-y',
+            detail: `${describe(el)} content ${el.scrollHeight} > box ${el.clientHeight}`,
+          });
+        }
+      }
+
+      // 4. Text too small to read.
+      const fs = parseFloat(cs.fontSize);
+      const ownText = [...el.childNodes].some(
+        (n) => n.nodeType === 3 && n.textContent.trim().length > 1,
+      );
+      if (ownText && fs > 0 && fs < 11 && cs.position !== 'absolute') {
+        issues.push({ kind: 'tiny-text', detail: `${describe(el)} at ${fs}px` });
+      }
+    }
+
+    // 5. Interactive elements hidden under the fixed header.
+    const interactive = all.filter(
+      (el) => visible(el) && el.matches('a, button, input, textarea, select, [tabindex]'),
+    );
+    for (const el of interactive) {
+      if (el.closest('header')) continue;
+      const r = el.getBoundingClientRect();
+      // Only a real problem if it is also unclickable: the header is
+      // pointer-events-none apart from its own controls, so content beneath it
+      // usually still receives the tap.
+      if (r.top < headerBand && r.bottom > 0 && r.bottom < headerBand + 4) {
+        const hit = document.elementFromPoint(
+          Math.round(Math.min(Math.max(r.left + r.width / 2, 1), vw - 1)),
+          Math.round(Math.max(r.top + r.height / 2, 1)),
+        );
+        if (hit && !el.contains(hit) && hit !== el) {
+          issues.push({
+            kind: 'under-header-blocked',
+            detail: `${describe(el)} top ${Math.round(r.top)} blocked by ${describe(hit)}`,
+          });
+        }
+      }
+    }
+
+    // 6. Touch targets below the 44px guideline.
+    for (const el of interactive) {
+      const r = el.getBoundingClientRect();
+      if (r.width < 24 || r.height < 24) {
+        issues.push({
+          kind: 'small-target',
+          detail: `${describe(el)} ${Math.round(r.width)}x${Math.round(r.height)}`,
+        });
+      }
+    }
+
+    // 7. Overlapping text blocks — two separate text runs sharing pixels.
+    const textBlocks = all.filter((el) => {
+      if (!visible(el)) return false;
+      if (!el.matches('h1, h2, h3, p, li, dd, dt, span, a, button')) return false;
+      if (el.querySelector('h1, h2, h3, p, li, dd, dt')) return false;
+      const t = (el.innerText || '').trim();
+      return t.length > 2;
+    });
+    for (let i = 0; i < textBlocks.length; i += 1) {
+      for (let j = i + 1; j < textBlocks.length; j += 1) {
+        const a = textBlocks[i];
+        const b = textBlocks[j];
+        if (a.contains(b) || b.contains(a)) continue;
+        // A fixed header drawing over content is the point of a fixed header.
+        if (Boolean(a.closest('header')) !== Boolean(b.closest('header'))) continue;
+        // Cross-fading film chapters are stacked on purpose.
+        if (a.closest('article') && b.closest('article') && a.closest('article') !== b.closest('article')) continue;
+        const ra = a.getBoundingClientRect();
+        const rb = b.getBoundingClientRect();
+        const ox = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left);
+        const oy = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top);
+        if (ox > 6 && oy > 6) {
+          const area = ox * oy;
+          const smaller = Math.min(ra.width * ra.height, rb.width * rb.height);
+          if (smaller > 0 && area / smaller > 0.3) {
+            issues.push({
+              kind: 'text-overlap',
+              detail: `${describe(a)} / ${describe(b)} overlap ${Math.round(ox)}x${Math.round(oy)}`,
+            });
+          }
+        }
+      }
+    }
+
+    // 8. Broken or unloaded images.
+    for (const img of document.querySelectorAll('img')) {
+      if (img.complete && img.naturalWidth === 0) {
+        issues.push({ kind: 'broken-image', detail: img.currentSrc || img.src });
+      }
+    }
+
+    // 9. Controls with no accessible name.
+    for (const el of interactive) {
+      // A form control is usually named by a <label>, not by its own content.
+      const labelled = el.id
+        ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)
+        : null;
+      const name =
+        (el.getAttribute('aria-label') || '').trim() ||
+        (el.innerText || '').trim() ||
+        (labelled?.textContent || '').trim() ||
+        (el.closest('label')?.textContent || '').trim() ||
+        (el.getAttribute('title') || '').trim() ||
+        (el.querySelector('img')?.getAttribute('alt') || '').trim();
+      if (!name) issues.push({ kind: 'unnamed-control', detail: describe(el) });
+    }
+
+    // 10. Links that read identically but go somewhere different. WCAG 2.4.4:
+    //     the purpose of a link has to be clear from its text. Two links both
+    //     labelled "Instagram" pointing at different accounts shipped before
+    //     this check existed.
+    const byName = new Map();
+    for (const el of interactive) {
+      if (!el.matches('a[href]')) continue;
+      const name = ((el.getAttribute('aria-label') || el.innerText || '').trim() || '')
+        .replace(/\s+/g, ' ')
+        .toLowerCase();
+      if (!name) continue;
+      const href = el.getAttribute('href');
+      if (!byName.has(name)) byName.set(name, new Set());
+      byName.get(name).add(href);
+    }
+    for (const [name, hrefs] of byName) {
+      if (hrefs.size > 1) {
+        issues.push({
+          kind: 'ambiguous-link',
+          detail: `"${name}" points to ${hrefs.size} different targets: ${[...hrefs].join(' | ')}`,
+        });
+      }
+    }
+
+    return { vw, vh, issues };
+  }
+
+
+
+  const report = {};
+
+  for (const [bpName, w, h] of BREAKPOINTS) {
+    await page.setViewportSize({ width: w, height: h });
+
+    for (const path of PAGES) {
+      const key = `${bpName} ${path}`;
+      const consoleErrors = [];
+      const onMsg = (m) => {
+        if (m.type() !== 'error') return;
+        const t = m.text();
+        // The not-found route legitimately answers 404; that is not a defect.
+        if (path === '/does-not-exist' && /404/.test(t)) return;
+        consoleErrors.push(t.slice(0, 120));
+      };
+      page.on('console', onMsg);
+      page.on('pageerror', (e) => consoleErrors.push(`pageerror: ${String(e).slice(0, 120)}`));
+
+      let status = 0;
+      try {
+        const resp = await page.goto(`http://localhost:3000${path}`, {
+          waitUntil: 'load',
+          timeout: 45000,
+        });
+        status = resp ? resp.status() : 0;
+      } catch (err) {
+        page.off('console', onMsg);
+        report[key] = { status: 'NAV_FAIL', issues: [{ kind: 'nav', detail: String(err).slice(0, 100) }] };
+        continue;
+      }
+
+      // The film needs its opening frames before layout settles.
+      await page.waitForTimeout(path === '/' ? 6500 : 1600);
+
+      const top = await page.evaluate(collect, HEADER_BAND);
+
+      // Re-check partway down, where the sticky header meets real content.
+      await page.evaluate(() => window.scrollTo(0, Math.round(document.body.scrollHeight * 0.55)));
+      await page.waitForTimeout(1200);
+      const mid = await page.evaluate(collect, HEADER_BAND);
+
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await page.waitForTimeout(1000);
+      const bottom = await page.evaluate(collect, HEADER_BAND);
+
+      page.off('console', onMsg);
+
+      const merged = new Map();
+      for (const [where, snap] of [['top', top], ['mid', mid], ['bottom', bottom]]) {
+        for (const iss of snap.issues) {
+          const k = `${iss.kind}|${iss.detail}`;
+          if (!merged.has(k)) merged.set(k, { ...iss, at: [] });
+          merged.get(k).at.push(where);
+        }
+      }
+
+      report[key] = {
+        status,
+        errors: [...new Set(consoleErrors)],
+        issues: [...merged.values()],
+      };
+    }
+  }
+
+  // Collapse into a compact summary so the result stays readable.
+  const summary = {};
+  for (const [key, r] of Object.entries(report)) {
+    const counts = {};
+    for (const i of r.issues) counts[i.kind] = (counts[i.kind] || 0) + 1;
+    if (r.errors?.length) counts.consoleError = r.errors.length;
+    if (Object.keys(counts).length) summary[key] = counts;
+  }
+
+  return { summary, detail: report };
+}

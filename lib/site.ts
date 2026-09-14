@@ -25,6 +25,7 @@ export const site = {
     name: 'Ar. Rashid Ahamed',
     role: 'Founder & CEO',
     instagram: 'https://www.instagram.com/ar.rashid.ahamed',
+    instagramHandle: '@ar.rashid.ahamed',
   },
 
   social: [

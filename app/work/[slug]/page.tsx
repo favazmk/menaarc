@@ -46,7 +46,7 @@ export default async function ProjectPage({ params }: Params) {
   return (
     <article data-theme="light" className="bg-[var(--ground)] text-[var(--figure)]">
       <div className="u-shell pt-40 md:pt-52">
-        <Link href="/work" className="u-label hover:text-[var(--color-accent)]">
+        <Link href="/work" className="u-label u-tap hover:text-[var(--color-accent)]">
           ← Work
         </Link>
 

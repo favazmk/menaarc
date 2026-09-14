@@ -16,13 +16,16 @@ export function Footer() {
             <a
               href={`mailto:${site.contact.email}`}
               data-cursor="Email"
-              className="mt-5 inline-block max-w-full font-[family-name:var(--font-display)] leading-none tracking-[-0.02em] hover:text-[var(--color-accent)]"
+              className="mt-5 inline-block max-w-full py-1 font-[family-name:var(--font-display)] leading-none tracking-[-0.02em] hover:text-[var(--color-accent)]"
               style={{ fontSize: 'clamp(1.125rem, 5vw, 3rem)' }}
             >
               {site.contact.email}
             </a>
             <p className="u-lede mt-5">
-              <a href={`tel:${site.contact.phoneHref}`} className="hover:text-[var(--figure)]">
+              <a
+                href={`tel:${site.contact.phoneHref}`}
+                className="inline-block py-1.5 hover:text-[var(--figure)]"
+              >
                 {site.contact.phone}
               </a>
             </p>
