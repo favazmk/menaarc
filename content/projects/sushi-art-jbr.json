@@ -21,9 +21,14 @@
     "/projects/sushi-art-jbr/07.webp"
   ],
   "featured": false,
-  "status": "pending-client-approval",
+  "status": "approved",
   "source": {
     "url": "https://righteousgrp.com/projects/sushi-art-jbr/",
     "ingestedAt": "2026-09-14T06:42:37.253Z"
+  },
+  "approval": {
+    "at": "2026-09-14T07:27:45.808Z",
+    "by": "client, relayed by site owner",
+    "note": "Client confirmed MENAARC holds the rights to present this project. Source archive: righteousgrp.com."
   }
 }

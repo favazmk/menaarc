@@ -17,9 +17,14 @@
     "/projects/bateel-kiosk/03.webp"
   ],
   "featured": false,
-  "status": "pending-client-approval",
+  "status": "approved",
   "source": {
     "url": "https://righteousgrp.com/projects/bateel-kiosk/",
     "ingestedAt": "2026-09-14T06:42:36.884Z"
+  },
+  "approval": {
+    "at": "2026-09-14T07:27:45.808Z",
+    "by": "client, relayed by site owner",
+    "note": "Client confirmed MENAARC holds the rights to present this project. Source archive: righteousgrp.com."
   }
 }
