@@ -24,7 +24,6 @@ export function SelectedWork({ projects }: { projects: Project[] }) {
           </div>
           <Link
             href="/work"
-            data-cursor="All work"
             className="u-label u-tap shrink-0 hover:text-[var(--color-accent)]"
           >
             View all

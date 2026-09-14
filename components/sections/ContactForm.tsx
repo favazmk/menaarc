@@ -133,7 +133,6 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={state === 'sending'}
-        data-cursor="Send"
         className="rounded-full bg-[var(--figure)] px-10 py-4 text-[var(--ground)] transition-colors hover:bg-[var(--color-accent)] hover:text-[var(--color-ink)] disabled:opacity-50"
       >
         {state === 'sending' ? 'Sending…' : 'Send'}

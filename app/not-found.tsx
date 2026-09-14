@@ -31,7 +31,7 @@ export default function NotFound() {
           <Magnetic strength={0.25}>
             <Link
               href="/"
-              data-cursor="Home"
+             
               className="inline-block rounded-full bg-[var(--figure)] px-9 py-4 text-[var(--ground)] transition-colors hover:bg-[var(--color-accent)] hover:text-[var(--color-ink)]"
             >
               Back to the start

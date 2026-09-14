@@ -15,7 +15,6 @@ export function Footer() {
                 scale, sized to fit 24 characters at 375px. */}
             <a
               href={`mailto:${site.contact.email}`}
-              data-cursor="Email"
               className="mt-5 inline-block max-w-full py-1 font-[family-name:var(--font-display)] leading-none tracking-[-0.02em] hover:text-[var(--color-accent)]"
               style={{ fontSize: 'clamp(1.125rem, 5vw, 3rem)' }}
             >

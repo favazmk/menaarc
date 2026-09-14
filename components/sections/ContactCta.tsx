@@ -20,7 +20,6 @@ export function ContactCta() {
             <Magnetic strength={0.25}>
               <Link
                 href="/contact"
-                data-cursor="Start"
                 className="inline-block rounded-full bg-[var(--figure)] px-10 py-4 text-[var(--ground)] transition-colors hover:bg-[var(--color-accent)] hover:text-[var(--color-ink)]"
               >
                 Start a conversation

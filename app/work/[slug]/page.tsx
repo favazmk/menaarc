@@ -135,7 +135,6 @@ export default async function ProjectPage({ params }: Params) {
         <div className="u-shell mt-32 pb-32">
           <Link
             href={`/work/${next.slug}`}
-            data-cursor="Next"
             className="group flex items-center justify-between gap-8 border-t border-[var(--hairline)] py-12"
           >
             <div>
