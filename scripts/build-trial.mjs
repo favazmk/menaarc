@@ -100,6 +100,40 @@ AddType font/woff2  .woff2
 ErrorDocument 404 /404.html
 `;
 
+/** Instructions travel with the zip, so it is usable without this chat. */
+const UPLOAD_NOTES = `MENAARC — home page, static trial build
+========================================
+
+WHAT THIS IS
+  The home page only, exported as plain HTML/CSS/JS. No Node, no database.
+  Every link to another page has been removed, because no other page is in
+  this build. Email, phone and the social profiles still work.
+
+HOW TO UPLOAD (Namecheap cPanel)
+  1. cPanel > File Manager > public_html
+  2. Delete the default placeholder page if one is there
+     (usually index.html or default.html)
+  3. Upload this zip into public_html, then use "Extract"
+  4. Make sure the files land DIRECTLY in public_html — you should see
+     index.html at the top level, not a folder containing it
+  5. Turn on "Show Hidden Files" in File Manager settings and confirm
+     .htaccess is present
+
+  .htaccess IS REQUIRED. The scroll film is made of AVIF images, and
+  without it Apache serves them as a generic download instead of an
+  image — the film renders as a blank screen.
+
+FIRST LOAD
+  About 5MB of image frames load before the film can be scrubbed. The
+  wordmark and a progress line show while that happens. Shared hosting
+  has no CDN, so the first visit from outside the UAE may take a few
+  seconds.
+
+WHAT IS NOT IN THIS BUILD
+  Work, Studio, Services and Contact pages. The contact form. The
+  sitemap and robots.txt (deliberately — a trial should not be indexed).
+`;
+
 /** Drop project photography the home page never references. */
 function pruneImages() {
   const html = fs.readFileSync(path.join(OUT, 'index.html'), 'utf8');
@@ -191,6 +225,7 @@ export default nextConfig;
   const before = dirSize(OUT);
   const pruned = pruneImages();
   fs.writeFileSync(path.join(OUT, '.htaccess'), HTACCESS);
+  fs.writeFileSync(path.join(OUT, 'UPLOAD-README.txt'), UPLOAD_NOTES);
 
   fs.mkdirSync(DIST, { recursive: true });
   const zipPath = path.join(DIST, ZIP_NAME);
