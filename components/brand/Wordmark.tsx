@@ -27,21 +27,54 @@ const SIZES: Record<Size, { font: string; track: number }> = {
   lg: { font: 'clamp(1.75rem, 5.5vw, 4.25rem)', track: 0.38 },
 };
 
-// A bare chevron: two strokes meeting at an apex, no crossbar.
-const CHEVRON =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M8 94 L50 10 L92 94' fill='none' stroke='black' stroke-width='5.5' stroke-linecap='butt' stroke-linejoin='miter'/%3E%3C/svg%3E\")";
+/**
+ * Chevron geometry, in units where 100 = the glyph's cap height.
+ *
+ * The viewBox aspect must match the box it is masked into, or the non-uniform
+ * squash makes the stroke thicker vertically than horizontally — an earlier
+ * version used a square viewBox in a 0.62 x 0.70em box and the legs were
+ * visibly uneven.
+ */
+const CAP = 100; // cap height
+const HALF_WIDTH = 44; // half the glyph's advance, so the box is 88 x 100
+// Tuned by measuring a 400px render: the letter stems come out at 31-32px, and
+// this puts the chevron's perpendicular stroke at ~30.5px. Deliberately a hair
+// under, because a diagonal at the same measured width reads heavier than a
+// vertical stem. The first version used 5.5 in a square viewBox, which landed
+// at 13.7px — under half the weight of the letters beside it.
+const STROKE = 11.35;
+
+const CHEVRON_SVG =
+  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${HALF_WIDTH * 2} ${CAP}'>` +
+  `<path d='M0 ${CAP} L${HALF_WIDTH} 0 L${HALF_WIDTH * 2} ${CAP}' fill='none' stroke='black'` +
+  ` stroke-width='${STROKE}' stroke-linecap='butt' stroke-linejoin='miter'/></svg>`;
+
+const CHEVRON = `url("data:image/svg+xml,${encodeURIComponent(CHEVRON_SVG)}")`;
+
+/**
+ * Archivo's real vertical metrics, measured rather than assumed.
+ *
+ * Rendering the mark at 400px and scanning the M's left stem puts its cap line
+ * at row 59 and its baseline at row 333. So the cap height is 274/400 and the
+ * baseline sits 333/400 down the 1em line box (leading-none). Earlier guesses
+ * of 0.73 and 0.87 stood the chevron ~6px proud of the cap line and dropped its
+ * feet ~15px below the baseline.
+ */
+const CAP_HEIGHT_EM = 274 / 400;
+const BASELINE_EM = 333 / 400;
+const CHEVRON_WIDTH_EM = (CAP_HEIGHT_EM * HALF_WIDTH * 2) / CAP;
 
 function ChevronA({ track }: { track: number }) {
   return (
     <span
       className="relative inline-block"
-      style={{ marginInlineEnd: `${track}em`, width: '0.62em' }}
+      style={{ marginInlineEnd: `${track}em`, width: `${CHEVRON_WIDTH_EM}em` }}
     >
       {/* The real character, kept in the text layer but not painted. */}
       <span style={{ color: 'transparent' }}>A</span>
       <span
         aria-hidden="true"
-        className="absolute inset-0"
+        className="absolute inset-x-0"
         style={{
           backgroundColor: 'currentColor',
           maskImage: CHEVRON,
@@ -50,8 +83,12 @@ function ChevronA({ track }: { track: number }) {
           WebkitMaskSize: '100% 100%',
           maskRepeat: 'no-repeat',
           WebkitMaskRepeat: 'no-repeat',
-          top: '0.14em',
-          height: '0.7em',
+          // Positioned from the top of the 1em line box, not from `bottom`:
+          // the box extends below the baseline by the font's descender, so
+          // bottom-aligning would drop the chevron below the other letters.
+          // With leading-none the baseline sits at BASELINE_EM from the top.
+          top: `${BASELINE_EM - CAP_HEIGHT_EM}em`,
+          height: `${CAP_HEIGHT_EM}em`,
         }}
       />
     </span>
