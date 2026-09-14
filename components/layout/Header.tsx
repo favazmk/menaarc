@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { Magnetic } from '@/components/ui/Magnetic';
 import { site } from '@/lib/site';
+import { isTrial } from '@/lib/trial';
 
 /**
  * Header theme follows whichever section is actually sitting under it, found by
@@ -111,15 +112,24 @@ export function Header() {
       }}
     >
       <div className="u-shell pointer-events-none flex items-center justify-between py-5">
-        <Link
-          href="/"
-          aria-label={`${site.name} home`}
-          onClick={() => setOpen(false)}
-          className="pointer-events-auto relative z-10"
-        >
-          <Wordmark size="sm" />
-        </Link>
+        {/* On a home-only build there is nowhere for the wordmark to link to,
+            so it becomes plain artwork rather than a link back to itself. */}
+        {isTrial ? (
+          <span className="relative z-10">
+            <Wordmark size="sm" />
+          </span>
+        ) : (
+          <Link
+            href="/"
+            aria-label={`${site.name} home`}
+            onClick={() => setOpen(false)}
+            className="pointer-events-auto relative z-10"
+          >
+            <Wordmark size="sm" />
+          </Link>
+        )}
 
+        {isTrial ? null : (
         <nav aria-label="Primary" className="pointer-events-auto hidden items-center gap-9 md:flex">
           {site.nav.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -137,7 +147,9 @@ export function Header() {
             );
           })}
         </nav>
+        )}
 
+        {isTrial ? null : (
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -148,11 +160,12 @@ export function Header() {
         >
           {open ? 'Close' : 'Menu'}
         </button>
+        )}
       </div>
 
       <div
         id="mobile-nav"
-        hidden={!open}
+        hidden={!open || isTrial}
         className="pointer-events-auto fixed inset-0 bg-[var(--color-ink)] text-[var(--color-paper)] md:hidden"
       >
         <nav aria-label="Primary" className="u-shell flex h-full flex-col justify-center gap-2">

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Magnetic } from '@/components/ui/Magnetic';
 import { getFeaturedProjects } from '@/lib/projects';
 import { site } from '@/lib/site';
+import { isTrial } from '@/lib/trial';
 
 export const metadata: Metadata = {
   title: 'Page not found',
@@ -37,17 +38,19 @@ export default function NotFound() {
               Back to the start
             </Link>
           </Magnetic>
-          <Magnetic strength={0.25}>
-            <Link
-              href="/work"
-              className="inline-block rounded-full border border-[var(--hairline)] px-9 py-4 transition-colors hover:border-[var(--figure)]"
-            >
-              See the work
-            </Link>
-          </Magnetic>
+          {isTrial ? null : (
+            <Magnetic strength={0.25}>
+              <Link
+                href="/work"
+                className="inline-block rounded-full border border-[var(--hairline)] px-9 py-4 transition-colors hover:border-[var(--figure)]"
+              >
+                See the work
+              </Link>
+            </Magnetic>
+          )}
         </div>
 
-        {suggestions.length ? (
+        {suggestions.length && !isTrial ? (
           <div className="mt-20 border-t border-[var(--hairline)] pt-10">
             <p className="u-label">Or start here</p>
             <ul className="mt-6 flex flex-wrap gap-x-10 gap-y-3">

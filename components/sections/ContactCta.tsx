@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Reveal } from '@/components/ui/Reveal';
 import { Magnetic } from '@/components/ui/Magnetic';
 import { site } from '@/lib/site';
+import { isTrial } from '@/lib/trial';
 
 export function ContactCta() {
   return (
@@ -17,13 +18,24 @@ export function ContactCta() {
           </p>
 
           <div className="mt-14 flex flex-wrap items-center justify-center gap-5">
+            {/* The contact page is not published on a home-only build, so the
+                primary action becomes the email it would have led to. */}
             <Magnetic strength={0.25}>
-              <Link
-                href="/contact"
-                className="inline-block rounded-full bg-[var(--figure)] px-10 py-4 text-[var(--ground)] transition-colors hover:bg-[var(--color-accent)] hover:text-[var(--color-ink)]"
-              >
-                Start a conversation
-              </Link>
+              {isTrial ? (
+                <a
+                  href={`mailto:${site.contact.email}`}
+                  className="inline-block rounded-full bg-[var(--figure)] px-10 py-4 text-[var(--ground)] transition-colors hover:bg-[var(--color-accent)] hover:text-[var(--color-ink)]"
+                >
+                  Start a conversation
+                </a>
+              ) : (
+                <Link
+                  href="/contact"
+                  className="inline-block rounded-full bg-[var(--figure)] px-10 py-4 text-[var(--ground)] transition-colors hover:bg-[var(--color-accent)] hover:text-[var(--color-ink)]"
+                >
+                  Start a conversation
+                </Link>
+              )}
             </Magnetic>
 
             <Magnetic strength={0.25}>

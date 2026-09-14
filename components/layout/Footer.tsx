@@ -2,12 +2,17 @@ import Link from 'next/link';
 
 import { Wordmark } from '@/components/brand/Wordmark';
 import { site } from '@/lib/site';
+import { isTrial } from '@/lib/trial';
 
 export function Footer() {
   return (
     <footer data-theme="dark" className="bg-[var(--ground)] text-[var(--figure)]">
       <div className="u-shell py-20 md:py-28">
-        <div className="grid gap-14 md:grid-cols-[1.2fr_1fr_1fr]">
+        <div
+          className={`grid gap-14 ${
+            isTrial ? 'md:grid-cols-[1.4fr_1fr]' : 'md:grid-cols-[1.2fr_1fr_1fr]'
+          }`}
+        >
           <div>
             <p className="u-label">Let&rsquo;s build something</p>
             {/* An email address is one unbreakable token, so the shared
@@ -30,6 +35,7 @@ export function Footer() {
             </p>
           </div>
 
+          {isTrial ? null : (
           <nav aria-label="Footer">
             <p className="u-label">Site</p>
             <ul className="mt-5 space-y-2">
@@ -42,6 +48,7 @@ export function Footer() {
               ))}
             </ul>
           </nav>
+          )}
 
           <div>
             <p className="u-label">Elsewhere</p>

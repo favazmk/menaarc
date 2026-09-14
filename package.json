@@ -15,7 +15,8 @@
     "check:content": "node scripts/check-content.mjs",
     "optimize:images": "node scripts/optimize-images.mjs",
     "prebuild": "node scripts/check-content.mjs",
-    "audit": "echo \"Run scripts/audit.mjs through the Playwright MCP (browser_run_code_unsafe with { filename }) against a running dev server.\""
+    "audit": "echo \"Run scripts/audit.mjs through the Playwright MCP (browser_run_code_unsafe with { filename }) against a running dev server.\"",
+    "build:trial": "node scripts/build-trial.mjs"
   },
   "dependencies": {
     "gsap": "^3.15.0",
