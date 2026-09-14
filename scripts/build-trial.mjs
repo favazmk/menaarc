@@ -196,23 +196,43 @@ export default nextConfig;
   const zipPath = path.join(DIST, ZIP_NAME);
   fs.rmSync(zipPath, { force: true });
 
-  // Compress-Archive skips dotfiles when given a wildcard, so the folder is
-  // zipped whole and .htaccess is added separately below.
+  // Compress-Archive does include .htaccess: a leading dot is not the Hidden
+  // attribute on Windows, so Get-ChildItem picks it up like any other file.
+  // Verified below rather than assumed, because a zip missing .htaccess would
+  // deploy and then silently fail to serve AVIF.
+  const winOut = path.resolve(OUT);
+  const winZip = path.resolve(zipPath);
   run('powershell', [
     '-NoProfile',
     '-Command',
-    `Compress-Archive -Path '${OUT}/*' -DestinationPath '${zipPath}' -Force; ` +
-      `Add-Type -AssemblyName System.IO.Compression.FileSystem; ` +
-      `$z=[System.IO.Compression.ZipFile]::Open('${zipPath}','Update'); ` +
-      `[System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($z,'${OUT}/.htaccess','.htaccess') | Out-Null; ` +
-      `$z.Dispose()`,
+    `$ErrorActionPreference='Stop'; Compress-Archive -Path '${winOut}${path.sep}*' -DestinationPath '${winZip}' -Force`,
   ]);
+
+  const entries = execFileSync(
+    'powershell',
+    [
+      '-NoProfile',
+      '-Command',
+      `Add-Type -AssemblyName System.IO.Compression.FileSystem; ` +
+        `$z=[System.IO.Compression.ZipFile]::OpenRead((Resolve-Path '${winZip}')); ` +
+        `$n=$z.Entries.Count; ` +
+        `$h=[bool]($z.Entries | Where-Object { $_.FullName -eq '.htaccess' }); ` +
+        `$z.Dispose(); Write-Output "$n|$h"`,
+    ],
+    { encoding: 'utf8', shell: process.platform === 'win32' },
+  ).trim();
+
+  const [count, hasHtaccess] = entries.split('|');
+  if (hasHtaccess !== 'True') {
+    console.error('\nThe archive is missing .htaccess — AVIF would not be served correctly.');
+    process.exit(1);
+  }
 
   const after2 = dirSize(OUT);
   console.log('\n--- home-only trial build ---');
   console.log(`  pruned ${pruned.removed} unused project images, kept ${pruned.kept}`);
   console.log(`  output  ${mb(before)} -> ${mb(after2)}`);
-  console.log(`  zip     ${zipPath}  (${mb(fs.statSync(zipPath).size)})`);
+  console.log(`  zip     ${zipPath}  (${mb(fs.statSync(zipPath).size)}, ${count} entries, .htaccess included)`);
   console.log('\n  Upload the CONTENTS of the zip into public_html (including .htaccess).');
 }
 
