@@ -35,3 +35,6 @@ yarn-error.log*
 # Ingested source photography, kept untouched for reference. Large, and
 # recoverable by re-running `npm run ingest`.
 /assets/projects-original/
+
+.vercel
+.env*

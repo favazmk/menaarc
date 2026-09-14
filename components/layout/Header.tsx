@@ -21,6 +21,7 @@ export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [onDark, setOnDark] = useState(pathname === '/');
+  const [lifted, setLifted] = useState(false);
 
   useEffect(() => {
     let frame = 0;
@@ -32,6 +33,7 @@ export function Header() {
       const el = document.elementFromPoint(24, 30);
       const themed = el?.closest<HTMLElement>('[data-theme]');
       setOnDark(themed?.dataset.theme === 'dark');
+      setLifted(window.scrollY > 16);
     };
 
     const onScroll = () => {
@@ -60,8 +62,24 @@ export function Header() {
     <header
       // The header must not carry data-theme itself, or the probe above would
       // find the header instead of the section behind it.
-      className="pointer-events-none fixed inset-x-0 top-0 z-50"
-      style={{ color: onDark ? 'var(--color-paper)' : 'var(--color-ink)' }}
+      className="pointer-events-none fixed inset-x-0 top-0 z-50 transition-colors duration-500"
+      style={{
+        color: onDark ? 'var(--color-paper)' : 'var(--color-ink)',
+        // Transparent at the top of a page, where the hero is designed around
+        // it. Once anything scrolls underneath it needs a ground, or headings
+        // and stat values pass straight through the nav and both become
+        // unreadable.
+        backgroundColor: lifted
+          ? onDark
+            ? 'rgb(10 10 10 / 0.5)'
+            : 'rgb(250 250 250 / 0.78)'
+          : 'transparent',
+        backdropFilter: lifted ? 'blur(14px)' : 'none',
+        WebkitBackdropFilter: lifted ? 'blur(14px)' : 'none',
+        borderBottom: lifted
+          ? `1px solid ${onDark ? 'rgb(250 250 250 / 0.12)' : 'rgb(10 10 10 / 0.1)'}`
+          : '1px solid transparent',
+      }}
     >
       <div className="u-shell pointer-events-none flex items-center justify-between py-5">
         <Link
