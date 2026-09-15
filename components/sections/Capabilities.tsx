@@ -1,16 +1,83 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Reveal } from '@/components/ui/Reveal';
 import { services } from '@/lib/services';
+import { usePrefersReducedMotion } from '@/lib/use-media-query';
 
 /**
- * The service list, expandable. The first row opens on load so the section
- * never reads as a bare list of headings.
+ * The service list, opening itself as you scroll.
+ *
+ * A row is open when its heading has passed above the middle of the viewport,
+ * and closes again on the way back up. Stated as a pure function of scroll
+ * position it is also a stable one, which the obvious version is not:
+ *
+ * Keeping exactly one row open — whichever heading is nearest the centre —
+ * oscillates. A panel is around 250px and the headings sit about 110px apart,
+ * so closing row N while opening row N+1 drags row N+1's heading 250px up past
+ * the centre, which leaves row N+2 nearest it, which repeats the whole thing.
+ * Opening without closing cannot do that: a row's panel hangs below its own
+ * heading, so expanding it only pushes the rows beneath it further away.
+ *
+ * Clicking still toggles a row by hand, and a hand-set row stays that way until
+ * you actually scroll it across the middle — the scroll pass only writes when
+ * a row's own answer changes, not on every frame.
  */
 export function Capabilities() {
-  const [open, setOpen] = useState<string | null>(services[0].id);
+  const reduced = usePrefersReducedMotion();
+  const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set([services[0].id]));
+  const headings = useRef(new Map<string, HTMLElement>());
+
+  useEffect(() => {
+    // Reduced motion keeps the click-only accordion. Expanding a panel while
+    // the page scrolls is movement the visitor did not ask for, and it shifts
+    // everything below it.
+    if (reduced) return;
+
+    let frame = 0;
+    const was = new Map<string, boolean>();
+
+    const sample = () => {
+      frame = 0;
+      const middle = window.innerHeight / 2;
+      const flipped: Array<[string, boolean]> = [];
+
+      for (const [id, el] of headings.current) {
+        const box = el.getBoundingClientRect();
+        const past = box.top + box.height / 2 < middle;
+        if (was.get(id) !== past) {
+          was.set(id, past);
+          flipped.push([id, past]);
+        }
+      }
+
+      if (flipped.length === 0) return;
+
+      setOpen((current) => {
+        const next = new Set(current);
+        for (const [id, past] of flipped) {
+          if (past) next.add(id);
+          else next.delete(id);
+        }
+        return next;
+      });
+    };
+
+    const onScroll = () => {
+      // getBoundingClientRect forces layout, so coalesce to one read per frame.
+      if (!frame) frame = requestAnimationFrame(sample);
+    };
+
+    frame = requestAnimationFrame(sample);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [reduced]);
 
   return (
     <section data-theme="light" className="bg-[var(--ground)] text-[var(--figure)]">
@@ -28,14 +95,24 @@ export function Capabilities() {
 
         <div className="mt-16">
           {services.map((service, i) => {
-            const isOpen = open === service.id;
+            const isOpen = open.has(service.id);
             return (
               <Reveal key={service.id} delay={Math.min(i, 4) * 60}>
                 <div className="border-t border-[var(--hairline)]">
                   <h3>
                     <button
                       type="button"
-                      onClick={() => setOpen(isOpen ? null : service.id)}
+                      ref={(el) => {
+                        if (el) headings.current.set(service.id, el);
+                        else headings.current.delete(service.id);
+                      }}
+                      onClick={() =>
+                        setOpen((current) => {
+                          const next = new Set(current);
+                          if (!next.delete(service.id)) next.add(service.id);
+                          return next;
+                        })
+                      }
                       aria-expanded={isOpen}
                       aria-controls={`svc-${service.id}`}
                       className="flex w-full items-baseline justify-between gap-6 py-7 text-left"
