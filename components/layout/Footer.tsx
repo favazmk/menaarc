@@ -10,18 +10,28 @@ export function Footer() {
       <div className="u-shell py-20 md:py-28">
         <div
           className={`grid gap-14 ${
-            isTrial ? 'md:grid-cols-[1.4fr_1fr]' : 'md:grid-cols-[1.2fr_1fr_1fr]'
+            isTrial ? 'md:grid-cols-[1.4fr_1fr]' : 'md:grid-cols-[1.5fr_1fr_1fr]'
           }`}
         >
-          <div>
+          {/* container-type makes cqw below resolve against this column. */}
+          <div style={{ containerType: 'inline-size' }}>
             <p className="u-label">Let&rsquo;s build something</p>
-            {/* An email address is one unbreakable token, so the shared
-                headline ramp overflows a phone viewport. This one gets its own
-                scale, sized to fit 24 characters at 375px. */}
+            {/* An email address is one unbreakable token, so it can only be as
+                large as the space it actually has.
+                
+                Sized in cqw — against this column — not vw. A viewport-relative
+                size ignores that the column is a 1.2fr track of a three-column
+                grid, so between roughly 768px and 1200px the glyphs ran out of
+                the column and across the nav beside it. The box was capped by
+                max-w-full and looked fine to any box-based measurement; only
+                the painted text overflowed.
+                
+                6.5cqw leaves roughly an eighth of the column spare at every width, so
+                a longer address than this one still fits. */}
             <a
               href={`mailto:${site.contact.email}`}
               className="mt-5 inline-block max-w-full py-1 font-[family-name:var(--font-display)] leading-none tracking-[-0.02em] hover:text-[var(--color-accent)]"
-              style={{ fontSize: 'clamp(1.125rem, 5vw, 3rem)' }}
+              style={{ fontSize: 'min(3rem, max(1rem, 6.5cqw))' }}
             >
               {site.contact.email}
             </a>

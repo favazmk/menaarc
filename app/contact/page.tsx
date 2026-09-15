@@ -25,15 +25,20 @@ export default function ContactPage() {
             <dl className="mt-14 space-y-8">
               <div>
                 <dt className="u-label">Email</dt>
-                {/* An email address is a single unbreakable token, so the shared
-                    title ramp (24px floor) runs past a 320px viewport and the
-                    domain gets cut off. This one scales down with the viewport
-                    instead. */}
-                <dd className="mt-3">
+                {/* An email address is a single unbreakable token, so it can
+                    only be as large as the space it actually has.
+
+                    Sized against this column (cqw), not the viewport. A
+                    viewport-relative size ignores that the column is 5 of 12
+                    grid tracks: at 768px the glyphs ran 224px past their own
+                    box and across the form beside them, while the box itself
+                    stayed within bounds and looked correct to any box-based
+                    check. */}
+                <dd className="mt-3" style={{ containerType: 'inline-size' }}>
                   <a
                     href={`mailto:${site.contact.email}`}
                     className="inline-block max-w-full py-1.5 font-medium leading-tight tracking-[-0.015em] hover:text-[var(--color-accent)]"
-                    style={{ fontSize: 'clamp(1.0625rem, 5.2vw, 2.25rem)' }}
+                    style={{ fontSize: 'min(2.25rem, max(1rem, 6.5cqw))' }}
                   >
                     {site.contact.email}
                   </a>

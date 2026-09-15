@@ -223,6 +223,34 @@ async (page) => {
       if (!name) issues.push({ kind: 'unnamed-control', detail: describe(el) });
     }
 
+    // 10. Painted text wider than the box that holds it.
+    //
+    //     scrollWidth/clientWidth does not catch this. An inline-block capped
+    //     by max-width reports a box that fits while the glyphs themselves
+    //     spill outside it — which is exactly how the footer email ran across
+    //     the nav column beside it and passed every box-based check here.
+    //     A Range over the text nodes measures what is actually painted.
+    for (const el of all) {
+      if (!visible(el)) continue;
+      const hasOwnText = [...el.childNodes].some(
+        (n) => n.nodeType === 3 && n.textContent.trim().length > 1,
+      );
+      if (!hasOwnText) continue;
+
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const text = range.getBoundingClientRect();
+      const box = el.getBoundingClientRect();
+      const spill = Math.round(text.right - box.right);
+      // 2px of tolerance for italic overhang and subpixel rounding.
+      if (spill > 2) {
+        issues.push({
+          kind: 'text-spills-box',
+          detail: `${describe(el)} glyphs overrun its box by ${spill}px`,
+        });
+      }
+    }
+
     // 10. Links that read identically but go somewhere different. WCAG 2.4.4:
     //     the purpose of a link has to be clear from its text. Two links both
     //     labelled "Instagram" pointing at different accounts shipped before
@@ -286,7 +314,77 @@ async (page) => {
       // The film needs its opening frames before layout settles.
       await page.waitForTimeout(path === '/' ? 6500 : 1600);
 
+      // Magnetic controls only move once a pointer is near them, so a static
+      // pass can never see them collide. Sweep a pointer across each group and
+      // check that neighbours stay apart and that everything returns to rest.
+      //
+      // Pointer events are dispatched on an element, not on window: the custom
+      // cursor's handler calls closest() on event.target, and a window target
+      // throws before anything useful happens.
+      const magnetic = await page.evaluate(async () => {
+        const groups = new Map();
+        for (const el of document.querySelectorAll('span.will-change-transform')) {
+          const parent = el.parentElement;
+          if (!parent) continue;
+          if (!groups.has(parent)) groups.set(parent, []);
+          groups.get(parent).push(el);
+        }
+
+        const found = [];
+        for (const [, items] of groups) {
+          if (items.length < 2) continue;
+          const rest = items.map((s) => s.getBoundingClientRect());
+          if (rest.some((r) => r.width === 0)) continue;
+
+          const y = rest[0].top + rest[0].height / 2;
+          let minGap = Infinity;
+          const fire = (x) =>
+            items[0].dispatchEvent(
+              new PointerEvent('pointermove', { clientX: x, clientY: y, bubbles: true }),
+            );
+
+          for (let x = rest[0].left - 80; x <= rest[rest.length - 1].right + 80; x += 24) {
+            fire(x);
+            await new Promise((r) => setTimeout(r, 620));
+            const now = items.map((s) => s.getBoundingClientRect());
+            for (let i = 1; i < now.length; i += 1) {
+              minGap = Math.min(minGap, now[i].left - now[i - 1].right);
+            }
+          }
+
+          fire(-500);
+          await new Promise((r) => setTimeout(r, 1400));
+          const stuck = items.filter((s) => {
+            const t = getComputedStyle(s).transform;
+            return t !== 'none' && !/matrix\(1,\s*0,\s*0,\s*1,\s*0,\s*0\)/.test(t);
+          }).length;
+
+          found.push({
+            labels: items.map((s) => s.textContent.trim().slice(0, 14)),
+            minGap: Math.round(minGap * 10) / 10,
+            stuck,
+          });
+        }
+        return found;
+      });
+
       const top = await page.evaluate(collect, HEADER_BAND);
+
+      for (const g of magnetic) {
+        if (g.minGap < 0) {
+          top.issues.push({
+            kind: 'magnetic-overlap',
+            detail: `${g.labels.join('/')} overlap by ${Math.abs(g.minGap)}px under pointer pull`,
+          });
+        }
+        if (g.stuck > 0) {
+          top.issues.push({
+            kind: 'magnetic-stuck',
+            detail: `${g.stuck} of ${g.labels.length} in ${g.labels.join('/')} never returned to rest`,
+          });
+        }
+      }
+
 
       // Re-check partway down, where the sticky header meets real content.
       await page.evaluate(() => window.scrollTo(0, Math.round(document.body.scrollHeight * 0.55)));
