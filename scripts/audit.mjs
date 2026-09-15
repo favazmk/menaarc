@@ -105,10 +105,18 @@ async (page) => {
       const clipsX = /hidden|clip/.test(cs.overflowX);
       const clipsY = /hidden|clip/.test(cs.overflowY);
       if (clipsX && el.scrollWidth > el.clientWidth + 2 && el.clientWidth > 0) {
-        issues.push({
-          kind: 'clipped-x',
-          detail: `${describe(el)} content ${el.scrollWidth} > box ${el.clientWidth}`,
-        });
+        // Same exemption as clipped-y below. A work card's thumbnail is an
+        // object-cover image that scales to 105% on hover inside an
+        // overflow-hidden frame: it overruns its box by ~9px mid-transition,
+        // which is the effect working, not text being cut off. The magnetic
+        // sweep above leaves a pointer on the page, so this fires at random.
+        const hasText = el.innerText && el.innerText.trim().length > 0;
+        if (hasText && !el.querySelector('canvas, img, video')) {
+          issues.push({
+            kind: 'clipped-x',
+            detail: `${describe(el)} content ${el.scrollWidth} > box ${el.clientWidth}`,
+          });
+        }
       }
       if (clipsY && el.scrollHeight > el.clientHeight + 2 && el.clientHeight > 0) {
         // A canvas or an image cropped on purpose is fine; text being cut is not.
@@ -403,6 +411,86 @@ async (page) => {
       await page.waitForTimeout(1000);
       const bottom = await page.evaluate(collect, HEADER_BAND);
 
+      // The mobile menu is the one surface scrolling never reaches, and it
+      // shipped broken for exactly that reason: the overlay is position:fixed
+      // inside a header carrying a transform, so `inset-0` resolved to the
+      // 66px header band and the links painted above and below the black
+      // ground. Checked here rather than through collect(), because the page
+      // underneath stays in the document and every line of it would read as
+      // overlapping the menu on top.
+      // Back to the top first: the header retracts on a downward scroll and
+      // the checks above leave the page at the bottom, so the toggle is parked
+      // off-viewport and no click can land on it.
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.waitForTimeout(900);
+
+      let menuIssues = [];
+      const toggle = page.getByRole('button', { name: 'Menu' });
+      if (await toggle.isVisible().catch(() => false)) {
+        await toggle.click();
+        await page.waitForTimeout(800);
+        menuIssues = await page.evaluate(() => {
+          const found = [];
+          const ov = document.getElementById('mobile-nav');
+          if (!ov || ov.hidden) {
+            return [{ kind: 'menu-did-not-open', detail: 'Menu clicked, overlay still hidden' }];
+          }
+
+          const r = ov.getBoundingClientRect();
+          if (Math.round(window.innerHeight - r.height) > 2) {
+            found.push({
+              kind: 'menu-not-full-height',
+              detail: `overlay ${Math.round(r.height)}px against a ${window.innerHeight}px viewport`,
+            });
+          }
+
+          for (const a of ov.querySelectorAll('a')) {
+            const lr = a.getBoundingClientRect();
+            const label = (a.textContent || '').trim().slice(0, 20);
+            if (lr.top < r.top - 1 || lr.bottom > r.bottom + 1) {
+              found.push({
+                kind: 'menu-link-outside',
+                detail: `"${label}" at y ${Math.round(lr.top)} paints outside the overlay`,
+              });
+            }
+            if (lr.height < 24 || lr.width < 24) {
+              found.push({
+                kind: 'menu-small-target',
+                detail: `"${label}" ${Math.round(lr.width)}x${Math.round(lr.height)}`,
+              });
+            }
+          }
+
+          // The close control sits on the overlay but takes its colour from the
+          // header's theme probe. If the probe does not re-run when the menu
+          // opens, it stays ink-on-ink and the only way out is invisible.
+          const header = document.querySelector('header');
+          const toRgb = (c) => (c.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+          const lum = (c) => {
+            const v = toRgb(c);
+            if (v.length < 3) return null;
+            const [r0, g0, b0] = v.map((n) => {
+              const x = n / 255;
+              return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+            });
+            return 0.2126 * r0 + 0.7152 * g0 + 0.0722 * b0;
+          };
+          const fg = lum(getComputedStyle(header).color);
+          const bg = lum(getComputedStyle(ov).backgroundColor);
+          if (fg !== null && bg !== null) {
+            const ratio = (Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05);
+            if (ratio < 3) {
+              found.push({
+                kind: 'menu-close-invisible',
+                detail: `close control contrasts ${ratio.toFixed(2)}:1 against the overlay`,
+              });
+            }
+          }
+
+          return found;
+        });
+      }
+
       page.off('console', onMsg);
 
       const merged = new Map();
@@ -412,6 +500,12 @@ async (page) => {
           if (!merged.has(k)) merged.set(k, { ...iss, at: [] });
           merged.get(k).at.push(where);
         }
+      }
+
+      for (const iss of menuIssues) {
+        const k = `${iss.kind}|${iss.detail}`;
+        if (!merged.has(k)) merged.set(k, { ...iss, at: [] });
+        merged.get(k).at.push('menu');
       }
 
       report[key] = {

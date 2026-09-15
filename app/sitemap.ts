@@ -8,12 +8,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const pages: MetadataRoute.Sitemap = [
     { url: site.url, lastModified: now, changeFrequency: 'monthly', priority: 1 },
-    ...site.nav.map((item) => ({
-      url: `${site.url}${item.href}`,
-      lastModified: now,
-      changeFrequency: 'monthly' as const,
-      priority: 0.8,
-    })),
+    // The root is already listed above; taking it from the nav as well would
+    // emit `${site.url}/` as a second, trailing-slash copy of the same page.
+    ...site.nav
+      .filter((item) => item.href !== '/')
+      .map((item) => ({
+        url: `${site.url}${item.href}`,
+        lastModified: now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.8,
+      })),
   ];
 
   const projects: MetadataRoute.Sitemap = getAllProjects().map((p) => ({

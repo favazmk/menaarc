@@ -40,6 +40,7 @@ export const site = {
   ],
 
   nav: [
+    { label: 'Home', href: '/' },
     { label: 'Work', href: '/work' },
     { label: 'Studio', href: '/studio' },
     { label: 'Services', href: '/services' },

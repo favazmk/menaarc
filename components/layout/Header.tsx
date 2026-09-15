@@ -77,7 +77,10 @@ export function Header() {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, [pathname]);
+    // `open` is a dependency, not decoration: nothing scrolls when the menu
+    // opens, so without a re-sample the probe keeps the light palette it read
+    // over the page and Close renders black on the black overlay.
+  }, [pathname, open]);
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -87,6 +90,7 @@ export function Header() {
   }, [open]);
 
   return (
+    <>
     <header
       ref={headerRef}
       // The header must not carry data-theme itself, or the probe above would
@@ -121,7 +125,7 @@ export function Header() {
         ) : (
           <Link
             href="/"
-            aria-label={`${site.name} home`}
+            aria-label={site.name}
             onClick={() => setOpen(false)}
             className="pointer-events-auto relative z-10"
           >
@@ -132,7 +136,12 @@ export function Header() {
         {isTrial ? null : (
         <nav aria-label="Primary" className="pointer-events-auto hidden items-center gap-9 md:flex">
           {site.nav.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+            // `/` prefixes every route, so the root link has to match exactly
+            // or Home would read as the current page on all four other pages.
+            const active =
+              item.href === '/'
+                ? pathname === '/'
+                : pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Magnetic key={item.href}>
                 <Link
@@ -162,14 +171,25 @@ export function Header() {
         </button>
         )}
       </div>
+    </header>
 
-      {/* Not merely hidden: `hidden` leaves the links in the document, and on a
-          home-only build those four routes do not exist. */}
-      {isTrial ? null : (
+    {/* Outside the <header> on purpose. The header carries a transform (and a
+        backdrop-filter once lifted), and either one makes it the containing
+        block for a position:fixed descendant — so `inset-0` resolved to the
+        66px header band rather than the viewport, and the menu rendered as a
+        black strip with its own links painted above and below it.
+
+        z-40 keeps it under the header's z-50 so the Close button stays on top,
+        and data-theme lets the header's probe find a dark ground underneath
+        and flip that button to paper. */}
+    {/* Not merely hidden: `hidden` leaves the links in the document, and on a
+        home-only build those routes do not exist. */}
+    {isTrial ? null : (
       <div
         id="mobile-nav"
         hidden={!open}
-        className="pointer-events-auto fixed inset-0 bg-[var(--color-ink)] text-[var(--color-paper)] md:hidden"
+        data-theme="dark"
+        className="pointer-events-auto fixed inset-0 z-40 bg-[var(--color-ink)] text-[var(--color-paper)] md:hidden"
       >
         <nav aria-label="Primary" className="u-shell flex h-full flex-col justify-center gap-2">
           {site.nav.map((item) => (
@@ -184,13 +204,13 @@ export function Header() {
           ))}
           <a
             href={`mailto:${site.contact.email}`}
-            className="u-label mt-10 text-[var(--color-paper)]/60"
+            className="u-label u-tap mt-10 text-[var(--color-paper)]/60"
           >
             {site.contact.email}
           </a>
         </nav>
       </div>
-      )}
-    </header>
+    )}
+    </>
   );
 }

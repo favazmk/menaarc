@@ -214,8 +214,15 @@ html.lenis body {
 
 /* Small labelled links (nav, back links, social) are ~12px tall as text alone,
    under the 24px minimum hit area WCAG 2.5.8 asks for. Padding gives them a
-   real target without changing how they look. */
-.u-tap {
-  display: inline-block;
-  padding-block: 0.4375rem;
+   real target without changing how they look.
+
+   It has to sit in a layer. Tailwind v4 puts every utility in @layer utilities,
+   and an unlayered rule beats a layered one whatever its specificity — so an
+   unlayered .u-tap silently won over `md:hidden` and left the mobile Menu
+   button on screen beside the desktop nav at every width above 768px. */
+@layer components {
+  .u-tap {
+    display: inline-block;
+    padding-block: 0.4375rem;
+  }
 }
