@@ -137,7 +137,20 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
     draw(Math.round(progressRef.current.value));
   }, [draw, loadProgress]);
 
-  useEffect(() => {
+  // A layout effect, not a passive one, and that is the whole point.
+  //
+  // `pin: true` wraps this section in a .pin-spacer div, so the section's real
+  // parent stops being the <main> that React put it in. React's own record is
+  // never updated, so when you navigate away from the home page it calls
+  // main.removeChild(section) against a node whose parent is now the spacer and
+  // throws NotFoundError, which takes the whole render down — the browser shows
+  // its own "this page couldn't load" page, and only a reload recovers.
+  //
+  // A passive cleanup runs too late to prevent that. A layout cleanup reverts
+  // the pin, unwrapping the spacer, while the tree React is about to remove
+  // still matches the DOM. This is the reason GSAP's own useGSAP hook is built
+  // on useLayoutEffect.
+  useLayoutEffect(() => {
     if (reduced || !spec) return;
     const section = sectionRef.current;
     if (!section) return;

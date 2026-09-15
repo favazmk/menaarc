@@ -516,6 +516,78 @@ async (page) => {
     }
   }
 
+  // Client-side route transitions.
+  //
+  // Everything above arrives through page.goto, which is a fresh document every
+  // time, so none of it ever exercised a React route change — and a crash on
+  // leaving the home page shipped because of it. GSAP's `pin` wraps the film
+  // section in a .pin-spacer, which quietly changes the section's real parent;
+  // React still believes it is a child of <main>, and on unmount calls
+  // main.removeChild(section), throws NotFoundError and takes the render down.
+  // The browser then shows its own "this page couldn't load" screen and only a
+  // reload recovers.
+  const ROUTES = ['/', '/work', '/studio', '/services', '/contact'];
+  const label = (r) => (r === '/' ? 'Home' : r.slice(1).replace(/^./, (c) => c.toUpperCase()));
+  const transitions = [];
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+
+  for (const start of ROUTES) {
+    for (const target of ROUTES) {
+      if (start === target) continue;
+
+      const errs = [];
+      const onErr = (e) => errs.push(String(e).slice(0, 120));
+      page.on('pageerror', onErr);
+
+      await page.goto(`http://localhost:3000${start}`, { waitUntil: 'load', timeout: 45000 });
+      // The film has to be pinned before leaving it means anything.
+      await page.waitForTimeout(start === '/' ? 6000 : 1500);
+
+      let landed = null;
+      try {
+        await page
+          .getByRole('navigation', { name: 'Primary' })
+          .first()
+          .getByRole('link', { name: label(target), exact: true })
+          .click({ timeout: 8000 });
+        await page.waitForTimeout(2500);
+        // Not new URL(): the runner evaluates this file in a scope that has no
+        // URL binding, which silently made every landing read as null and every
+        // transition look like a failure.
+        landed = page.url().replace('http://localhost:3000', '').split('?')[0] || '/';
+      } catch (err) {
+        errs.push(`could not follow the link: ${String(err).slice(0, 70)}`);
+      }
+
+      page.off('pageerror', onErr);
+
+      const died = await page.evaluate(() =>
+        /couldn.t load|Application error/i.test(document.body.innerText.slice(0, 80)),
+      );
+      // A pin that is not reverted leaves its spacer behind on the next page.
+      const strayPins = await page.evaluate(() => document.querySelectorAll('.pin-spacer').length);
+
+      const faults = [];
+      if (died) faults.push('the render died');
+      if (landed !== target) faults.push(`landed on ${landed}`);
+      if (target !== '/' && strayPins > 0) faults.push(`${strayPins} pin-spacer left behind`);
+      faults.push(...errs);
+
+      if (faults.length > 0) {
+        transitions.push({
+          kind: 'route-transition',
+          detail: `${start} -> ${target}: ${faults.join('; ')}`,
+          at: ['nav'],
+        });
+      }
+    }
+  }
+
+  if (transitions.length > 0) {
+    report['client-side navigation'] = { status: 200, errors: [], issues: transitions };
+  }
+
   // Collapse into a compact summary so the result stays readable.
   const summary = {};
   for (const [key, r] of Object.entries(report)) {
