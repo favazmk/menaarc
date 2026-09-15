@@ -1,3 +1,4 @@
+import { services, sectors } from '@/lib/services';
 import { site } from '@/lib/site';
 
 /**
@@ -19,7 +20,26 @@ export function StructuredData() {
     areaServed: [{ '@type': 'Country', name: 'United Arab Emirates' }],
     address: { '@type': 'PostalAddress', addressLocality: 'Dubai', addressCountry: 'AE' },
     founder: { '@type': 'Person', name: site.founder.name, jobTitle: site.founder.role },
-    knowsAbout: ['Architecture', 'Interior architecture', 'Project management', 'Authority approvals'],
+    knowsAbout: [
+      'Architecture',
+      'Interior architecture',
+      ...services.map((s) => s.title),
+      ...sectors.map((s) => `${s} fit-out`),
+    ],
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Architectural services',
+      itemListElement: services.map((s) => ({
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name: s.title,
+          description: s.lede,
+          serviceType: s.title,
+          areaServed: { '@type': 'Country', name: 'United Arab Emirates' },
+        },
+      })),
+    },
     sameAs: site.social.map((s) => s.href),
   };
 

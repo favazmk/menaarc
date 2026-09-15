@@ -8,9 +8,15 @@ export const site = {
   nameArabic: 'مينارك',
   legalName: 'MENAARC Architectural Consultants',
   tagline: 'Architectural Consultants',
-  disciplines: ['Design', 'Project Management'] as const,
+  disciplines: [
+    'Concept Creation',
+    'Detailed Drawing',
+    'Authority Approvals',
+    'MEP Drawing',
+    'Project Management',
+  ] as const,
   description:
-    'MENAARC is a Dubai architectural consultancy delivering design and project management for retail, hospitality and residential spaces across the UAE.',
+    'MENAARC is a Dubai architectural consultancy: concept creation, detailed drawing, authority approvals, MEP drawing and project management for retail, F&B, hospitality and residential projects across the UAE.',
   url: 'https://www.menaarc.com',
   locale: 'en-AE',
   region: 'Dubai, United Arab Emirates',

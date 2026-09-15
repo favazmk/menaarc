@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { services, sectors } from '@/lib/services';
 import { site } from '@/lib/site';
 
 type State = 'idle' | 'sending' | 'sent' | 'error';
@@ -9,7 +10,10 @@ type State = 'idle' | 'sending' | 'sent' | 'error';
 const FIELD =
   'w-full border-0 border-b border-[var(--hairline)] bg-transparent pb-3 pt-2 text-[var(--figure)] outline-none transition-colors placeholder:text-[var(--muted)] focus:border-[var(--figure)]';
 
-const SECTORS = ['Retail', 'F&B', 'Hospitality', 'Residential', 'Other'];
+const SECTOR_OPTIONS = [...sectors, 'Other'];
+
+const CHIP =
+  'cursor-pointer rounded-full border border-[var(--hairline)] px-5 py-2.5 transition-colors has-[:checked]:border-[var(--figure)] has-[:checked]:bg-[var(--figure)] has-[:checked]:text-[var(--ground)]';
 
 /**
  * The one non-static surface on the site. It posts to /api/contact, which is
@@ -29,7 +33,13 @@ export function ContactForm() {
     setError('');
 
     const form = event.currentTarget;
-    const data = Object.fromEntries(new FormData(form));
+    const fd = new FormData(form);
+    // fromEntries keeps only the last value for a repeated field name, which
+    // would silently drop every checked service but one.
+    const data = {
+      ...Object.fromEntries(fd),
+      services: fd.getAll('services'),
+    };
 
     try {
       const res = await fetch('/api/contact', {
@@ -95,13 +105,29 @@ export function ContactForm() {
       <fieldset>
         <legend className="u-label">Project type</legend>
         <div className="mt-4 flex flex-wrap gap-2">
-          {SECTORS.map((sector) => (
-            <label
-              key={sector}
-              className="cursor-pointer rounded-full border border-[var(--hairline)] px-5 py-2.5 transition-colors has-[:checked]:border-[var(--figure)] has-[:checked]:bg-[var(--figure)] has-[:checked]:text-[var(--ground)]"
-            >
+          {SECTOR_OPTIONS.map((sector) => (
+            <label key={sector} className={CHIP}>
               <input type="radio" name="sector" value={sector} className="sr-only" />
               <span className="u-label text-current">{sector}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend className="u-label">What do you need?</legend>
+        {/* Checkboxes, not radios: enquiries routinely span concept, drawings
+            and approvals at once. */}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {services.map((service) => (
+            <label key={service.id} className={CHIP}>
+              <input
+                type="checkbox"
+                name="services"
+                value={service.title}
+                className="sr-only"
+              />
+              <span className="u-label text-current">{service.title}</span>
             </label>
           ))}
         </div>

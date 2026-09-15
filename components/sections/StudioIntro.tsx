@@ -27,9 +27,9 @@ export function StudioIntro() {
             <Reveal delay={80}>
               <div className="mt-10 grid gap-8 md:grid-cols-2">
                 <p className="u-lede">
-                  MENAARC is an architectural consultancy in Dubai. We take projects from first
-                  sketch through authority approval and onto site — retail, hospitality and
-                  residential work across the Emirates.
+                  MENAARC is an architectural consultancy in Dubai. Concept, detailed drawings,
+                  authority approvals and MEP under one roof — retail, F&amp;B, hospitality,
+                  corporate and residential work across the Emirates.
                 </p>
                 <p className="u-lede">
                   Most of what we do is unglamorous: coordination, tolerances, a drawing set that
@@ -40,12 +40,14 @@ export function StudioIntro() {
             </Reveal>
 
             <Reveal delay={140}>
-              <dl className="mt-16 grid grid-cols-2 gap-8 border-t border-[var(--hairline)] pt-10 md:grid-cols-4">
+              {/* Two across until there is genuinely room for four: at 768px a quarter
+                  of the shell is 88px, and "Hospitality" alone needs 111px. */}
+              <dl className="mt-16 grid grid-cols-2 gap-8 border-t border-[var(--hairline)] pt-10 lg:grid-cols-4">
                 {[
                   ['Based', 'Dubai, UAE'],
-                  ['Practice', 'Architecture'],
-                  ['Delivery', 'Design + PM'],
-                  ['Region', 'GCC'],
+                  ['Sectors', 'Retail, F&B, Hospitality'],
+                  ['In-house', 'Design, MEP, Approvals'],
+                  ['Region', 'UAE & GCC'],
                 ].map(([term, value]) => (
                   <div key={term}>
                     <dt className="u-label">{term}</dt>

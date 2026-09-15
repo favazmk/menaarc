@@ -348,7 +348,15 @@ async (page) => {
             await new Promise((r) => setTimeout(r, 620));
             const now = items.map((s) => s.getBoundingClientRect());
             for (let i = 1; i < now.length; i += 1) {
-              minGap = Math.min(minGap, now[i].left - now[i - 1].right);
+              const a = now[i - 1];
+              const b = now[i];
+              // Only meaningful for siblings on the same row. These groups are
+              // flex-wrap, so on a narrow viewport the buttons stack and the
+              // horizontal "gap" between rows reads as a 200px+ overlap that
+              // does not exist.
+              const sameRow = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 4;
+              if (!sameRow) continue;
+              minGap = Math.min(minGap, b.left - a.right);
             }
           }
 
@@ -371,7 +379,7 @@ async (page) => {
       const top = await page.evaluate(collect, HEADER_BAND);
 
       for (const g of magnetic) {
-        if (g.minGap < 0) {
+        if (Number.isFinite(g.minGap) && g.minGap < 0) {
           top.issues.push({
             kind: 'magnetic-overlap',
             detail: `${g.labels.join('/')} overlap by ${Math.abs(g.minGap)}px under pointer pull`,

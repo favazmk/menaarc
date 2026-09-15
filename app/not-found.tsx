@@ -73,7 +73,7 @@ export default function NotFound() {
           Still stuck?{' '}
           <a
             href={`mailto:${site.contact.email}`}
-            className="u-tap underline underline-offset-4 hover:text-[var(--color-accent)]"
+            className="u-tap break-all underline underline-offset-4 hover:text-[var(--color-accent)]"
           >
             {site.contact.email}
           </a>

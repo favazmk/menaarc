@@ -17,6 +17,7 @@ type Payload = {
   name?: string;
   email?: string;
   sector?: string;
+  services?: string[] | string;
   message?: string;
   company_website?: string;
 };
@@ -33,12 +34,21 @@ function validate(body: Payload) {
   if (message.length < 10) return { error: 'Tell us a little more' };
   if (message.length > 5000) return { error: 'That message is too long to send' };
 
+  // A native (no-JS) submit sends repeated fields, which arrive here as a
+  // single value rather than an array — normalise both shapes.
+  const raw = body.services;
+  const services = (Array.isArray(raw) ? raw : raw ? [raw] : [])
+    .map((s) => String(s).trim().slice(0, 40))
+    .filter(Boolean)
+    .slice(0, 8);
+
   return {
     value: {
       name,
       email,
       message,
       sector: String(body.sector ?? '').trim().slice(0, 40),
+      services,
     },
   };
 }
@@ -52,7 +62,8 @@ export async function POST(request: Request) {
     if (type.includes('application/json')) {
       body = (await request.json()) as Payload;
     } else {
-      body = Object.fromEntries(await request.formData()) as Payload;
+      const fd = await request.formData();
+      body = { ...Object.fromEntries(fd), services: fd.getAll('services').map(String) } as Payload;
     }
   } catch {
     return NextResponse.json({ error: 'Could not read that submission' }, { status: 400 });

@@ -14,12 +14,12 @@ const STEPS = [
   {
     n: '03',
     title: 'Approvals',
-    body: 'Authority submissions, NOCs, landlord and mall conditions. The part that quietly decides whether a programme holds.',
+    body: 'Dubai Municipality, Civil Defence, landlord and mall NOCs. Run alongside design rather than after it, so comments come back while there is still time to answer them.',
   },
   {
     n: '04',
     title: 'Delivery',
-    body: 'Tender, award, supervision, snagging, handover. One point of accountability from the first sketch to the day it opens.',
+    body: 'Tender, award, supervision, snagging, handover — much of it inside malls, where you work restricted hours against a fixed opening date and a lease that does not move.',
   },
 ];
 
@@ -46,8 +46,8 @@ export function Approach() {
                   <span className="u-label md:col-span-2 text-[var(--color-accent)]">
                     {step.n}
                   </span>
-                  <h3 className="u-title md:col-span-3">{step.title}</h3>
-                  <p className="u-lede md:col-span-7">{step.body}</p>
+                  <h3 className="u-title md:col-span-4">{step.title}</h3>
+                  <p className="u-lede md:col-span-6">{step.body}</p>
                 </div>
               </Reveal>
             ))}
