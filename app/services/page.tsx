@@ -1,8 +1,12 @@
 import type { Metadata } from 'next';
 
+import { DraftingGrid } from '@/components/ui/DraftingGrid';
+import { ParallaxBand } from '@/components/ui/ParallaxBand';
 import { Capabilities } from '@/components/sections/Capabilities';
 import { Approach } from '@/components/sections/Approach';
 import { ContactCta } from '@/components/sections/ContactCta';
+import { getProject } from '@/lib/projects';
+import { site } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Services',
@@ -11,10 +15,13 @@ export const metadata: Metadata = {
 };
 
 export default function ServicesPage() {
+  const band = getProject('sacoor-brothers-deira-city');
+
   return (
     <>
-      <section data-theme="light" className="bg-[var(--ground)] text-[var(--figure)]">
-        <div className="u-shell pb-12 pt-40 md:pt-52">
+      <section data-theme="light" className="relative isolate bg-[var(--ground)] text-[var(--figure)]">
+        <DraftingGrid plan="restaurant" />
+        <div className="u-shell relative pb-12 pt-40 md:pt-52">
           <p className="u-label">Services</p>
           <h1 className="u-display mt-6 max-w-[14ch]">
             Drawn here. Approved here. Delivered here.
@@ -27,8 +34,17 @@ export default function ServicesPage() {
       </section>
 
       <Capabilities />
+
+      {band ? (
+        <ParallaxBand
+          src={band.images[0]}
+          alt={`${band.title}, ${band.location} — by ${site.name}`}
+          caption={`${band.title} · ${band.location}`}
+        />
+      ) : null}
+
       <Approach />
-      <ContactCta />
+      <ContactCta variant="services" />
     </>
   );
 }

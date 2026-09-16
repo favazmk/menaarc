@@ -1,47 +1,41 @@
 import { Reveal } from '@/components/ui/Reveal';
+import { Illustration } from '@/components/ui/Illustration';
+import { DraftingGrid } from '@/components/ui/DraftingGrid';
+import { process } from '@/lib/process';
 
-const STEPS = [
-  {
-    n: '01',
-    title: 'Brief',
-    body: 'What the space has to do, who uses it, what it can cost, and when it has to open. We would rather argue about this now than on site.',
-  },
-  {
-    n: '02',
-    title: 'Design',
-    body: 'Concept, then development, then a drawing set. Each stage signed off before the next begins, so nothing gets redrawn twice.',
-  },
-  {
-    n: '03',
-    title: 'Approvals',
-    body: 'Dubai Municipality, Civil Defence, landlord and mall NOCs. Run alongside design rather than after it, so comments come back while there is still time to answer them.',
-  },
-  {
-    n: '04',
-    title: 'Delivery',
-    body: 'Tender, award, supervision, snagging, handover — much of it inside malls, where you work restricted hours against a fixed opening date and a lease that does not move.',
-  },
-];
 
 export function Approach() {
   return (
-    <section data-theme="dark" className="bg-[var(--ground)] text-[var(--figure)]">
-      <div className="u-shell py-28 md:py-40">
+    <section id="process" data-theme="dark" className="relative isolate scroll-mt-28 bg-[var(--ground)] text-[var(--figure)]">
+      <DraftingGrid />
+      <div className="u-shell relative py-28 md:py-40">
         <div className="grid gap-16 md:grid-cols-12">
           {/* Sticky on desktop so the heading holds while the steps pass it. */}
           <div className="md:col-span-4">
-            <Reveal className="md:sticky md:top-32">
-              <p className="u-label">Approach</p>
-              <h2 className="u-headline mt-6 max-w-[12ch]">How a project actually runs.</h2>
-            </Reveal>
+            <div className="md:sticky md:top-32">
+              <Reveal>
+                <p className="u-label">Approach</p>
+                <h2 className="u-headline mt-6 max-w-[12ch]">How a project actually runs.</h2>
+              </Reveal>
+
+              {/* Every layer the four stages coordinate — ceiling, services,
+                  walls, floor — pulled apart so you can see they are one job. */}
+              <Illustration
+                src="/illustrations/fitout-axonometric.webp"
+                width={1000}
+                height={1250}
+                delay={120}
+                className="mt-12 hidden max-w-[20rem] md:block"
+              />
+            </div>
           </div>
 
           <ol className="md:col-span-8">
-            {STEPS.map((step, i) => (
+            {process.map((step, i) => (
               <Reveal as="li" key={step.n} delay={i * 70}>
                 <div
                   className="grid gap-6 border-t border-[var(--hairline)] py-10 md:grid-cols-12"
-                  style={i === STEPS.length - 1 ? { borderBottomWidth: 1 } : undefined}
+                  style={i === process.length - 1 ? { borderBottomWidth: 1 } : undefined}
                 >
                   <span className="u-label md:col-span-2 text-[var(--color-accent)]">
                     {step.n}

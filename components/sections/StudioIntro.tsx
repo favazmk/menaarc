@@ -1,4 +1,6 @@
 import { Reveal } from '@/components/ui/Reveal';
+import { Illustration } from '@/components/ui/Illustration';
+import { SectionLink } from '@/components/ui/SectionLink';
 import { site } from '@/lib/site';
 
 export function StudioIntro() {
@@ -6,22 +8,37 @@ export function StudioIntro() {
     <section data-theme="light" className="bg-[var(--ground)] text-[var(--figure)]">
       <div className="u-shell py-28 md:py-40">
         <div className="grid gap-16 md:grid-cols-12">
-          <Reveal className="md:col-span-4">
-            <p className="u-label">The studio</p>
-            <p
-              className="u-arabic mt-8 text-[clamp(2.5rem,6vw,5rem)] font-light leading-none opacity-15"
-              lang="ar"
-              aria-hidden="true"
-            >
-              {site.nameArabic}
-            </p>
-          </Reveal>
+          <div className="md:col-span-4">
+            <Reveal>
+              <p className="u-label">The studio</p>
+              <p
+                className="u-arabic mt-8 text-[clamp(2.5rem,6vw,5rem)] font-light leading-none opacity-15"
+                lang="ar"
+                aria-hidden="true"
+              >
+                {site.nameArabic}
+              </p>
+            </Reveal>
+
+            {/* The headline beside it says "we draw", so the column shows a
+                drawing. Desktop only: on a phone this column stacks above the
+                headline, and a portrait image there would push the section's
+                actual point below the fold. */}
+            <Illustration
+              src="/illustrations/shopfront-sketch.webp"
+              width={1000}
+              height={1250}
+              delay={120}
+              className="mt-12 hidden max-w-[24rem] md:block"
+            />
+          </div>
 
           <div className="md:col-span-8">
-            <Reveal>
+            <Reveal className="flex flex-wrap items-end justify-between gap-6">
               <h2 className="u-headline max-w-[20ch]">
                 We draw buildings that have to work on a Tuesday morning.
               </h2>
+              <SectionLink href="/studio">About the studio</SectionLink>
             </Reveal>
 
             <Reveal delay={80}>

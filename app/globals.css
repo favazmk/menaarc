@@ -151,6 +151,28 @@ html.lenis body {
   max-width: 108rem;
 }
 
+/* A structural grid reference: a letter or number in a circle, at the
+   end of its grid line. Hairline-weighted so it sits with the lines it
+   labels rather than competing with the eyebrow labels in the content. */
+/* In a layer for the same reason as .u-tap below: unlayered, its
+   display:flex would override `hidden` at every width. */
+@layer components {
+  .plan-bubble {
+    display: flex;
+    width: 1.625rem;
+    height: 1.625rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--hairline);
+    border-radius: 9999px;
+    background: var(--ground);
+    color: var(--muted);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+}
+
 .u-rule {
   border: 0;
   border-top: 1px solid var(--hairline);
@@ -209,6 +231,34 @@ html.lenis body {
   .reveal[data-revealed='true'] {
     opacity: 1;
     transform: none;
+  }
+
+  /* Plan drawings draw themselves in. Every stroked mark carries
+     pathLength="1", so one dash the length of the whole mark,
+     offset by that length, hides it exactly — whatever its real
+     length on screen. Delays are set per mark in PlanDrawing.
+     Selected by class, not [pathLength]: attribute selectors on
+     SVG are case-sensitive and do not survive minifiers that
+     normalise attribute names. */
+  .plan-draw .plan-stroke {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1400ms var(--ease-in-out-quint);
+  }
+
+  .plan-draw .plan-fade,
+  .plan-draw .plan-label {
+    opacity: 0;
+    transition: opacity 900ms ease 1600ms;
+  }
+
+  .plan-draw[data-revealed='true'] .plan-stroke {
+    stroke-dashoffset: 0;
+  }
+
+  .plan-draw[data-revealed='true'] .plan-fade,
+  .plan-draw[data-revealed='true'] .plan-label {
+    opacity: 1;
   }
 }
 

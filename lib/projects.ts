@@ -71,3 +71,34 @@ export function getNextProject(slug: string): Project | undefined {
 export function pendingApproval(): Project[] {
   return getAllProjects().filter((p) => p.status !== 'approved');
 }
+
+export type ArchiveSummary = {
+  /** Published projects — those with at least one surviving image. */
+  total: number;
+  /** Project count per sector, most-delivered first. */
+  bySector: Array<{ sector: string; count: number }>;
+};
+
+/**
+ * What the published archive actually contains.
+ *
+ * The studio page states this out loud, so it is computed rather than typed
+ * into the copy: a number written by hand goes stale the first time a project
+ * is added, and a studio page that overstates its own portfolio is the exact
+ * thing a prospective client checks against /work.
+ */
+export function getArchiveSummary(): ArchiveSummary {
+  const all = getAllProjects();
+  const counts = new Map<string, number>();
+
+  for (const p of all) {
+    if (p.sector) counts.set(p.sector, (counts.get(p.sector) ?? 0) + 1);
+  }
+
+  return {
+    total: all.length,
+    bySector: [...counts.entries()]
+      .map(([sector, count]) => ({ sector, count }))
+      .sort((a, b) => b.count - a.count || a.sector.localeCompare(b.sector)),
+  };
+}

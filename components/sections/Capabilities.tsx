@@ -23,11 +23,38 @@ import { usePrefersReducedMotion } from '@/lib/use-media-query';
  * Clicking still toggles a row by hand, and a hand-set row stays that way until
  * you actually scroll it across the middle — the scroll pass only writes when
  * a row's own answer changes, not on every frame.
+ *
+ * The home page deep-links at a single service (/services#mep-drawing). Opening
+ * the row needs no code: the browser lands it near the top of the viewport,
+ * above the middle, so the rule above catches it. Landing *on* it does — every
+ * row the jump passed opens too, and each panel pushes the target further down,
+ * about 500px by the fifth service. So we anchor once more after those panels
+ * have been laid out. Under reduced motion the listener is off, nothing expands,
+ * and the browser's own jump is already correct.
  */
 export function Capabilities() {
   const reduced = usePrefersReducedMotion();
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set([services[0].id]));
   const headings = useRef(new Map<string, HTMLElement>());
+
+  // Re-anchor after the rows the jump passed have expanded — see the note above.
+  // Scroll only; the open state is already settled by the pass below.
+  useEffect(() => {
+    if (reduced) return;
+    const el = document.getElementById(window.location.hash.slice(1));
+    if (!el) return;
+
+    // Two frames: one for the scroll pass to write the open set, one for the
+    // panels it opened to be laid out at their real height.
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      if (second) cancelAnimationFrame(second);
+    };
+  }, [reduced]);
 
   useEffect(() => {
     // Reduced motion keeps the click-only accordion. Expanding a panel while
@@ -98,7 +125,7 @@ export function Capabilities() {
             const isOpen = open.has(service.id);
             return (
               <Reveal key={service.id} delay={Math.min(i, 4) * 60}>
-                <div className="border-t border-[var(--hairline)]">
+                <div id={service.id} className="scroll-mt-28 border-t border-[var(--hairline)]">
                   <h3>
                     <button
                       type="button"

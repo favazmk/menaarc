@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { Reveal } from '@/components/ui/Reveal';
+import { SectionLink } from '@/components/ui/SectionLink';
 import type { Project } from '@/lib/projects';
 import { isTrial } from '@/lib/trial';
 
@@ -44,12 +45,7 @@ export function SelectedWork({ projects }: { projects: Project[] }) {
             <h2 className="u-headline mt-6 max-w-[16ch]">Delivered across the Emirates.</h2>
           </div>
           {isTrial ? null : (
-            <Link
-              href="/work"
-              className="u-label u-tap shrink-0 hover:text-[var(--color-accent)]"
-            >
-              View all
-            </Link>
+            <SectionLink href="/work">All work</SectionLink>
           )}
         </Reveal>
 

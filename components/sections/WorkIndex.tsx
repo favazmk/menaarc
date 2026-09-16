@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
 import { Reveal } from '@/components/ui/Reveal';
+import { DraftingGrid } from '@/components/ui/DraftingGrid';
 import type { Project } from '@/lib/projects';
 
 const ALL = 'All';
@@ -18,8 +19,9 @@ export function WorkIndex({ projects, sectors }: { projects: Project[]; sectors:
   );
 
   return (
-    <section data-theme="light" className="bg-[var(--ground)] text-[var(--figure)]">
-      <div className="u-shell pb-32 pt-40 md:pt-52">
+    <section data-theme="light" className="relative isolate bg-[var(--ground)] text-[var(--figure)]">
+      <DraftingGrid plan="core" />
+      <div className="u-shell relative pb-32 pt-40 md:pt-52">
         <header>
           <p className="u-label">Work</p>
           <h1 className="u-display mt-6 max-w-[12ch]">Built, not rendered.</h1>

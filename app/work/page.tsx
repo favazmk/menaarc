@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { ContactCta } from '@/components/sections/ContactCta';
 import { WorkIndex } from '@/components/sections/WorkIndex';
 import { getAllProjects, getSectors } from '@/lib/projects';
 
@@ -10,5 +11,10 @@ export const metadata: Metadata = {
 };
 
 export default function WorkPage() {
-  return <WorkIndex projects={getAllProjects()} sectors={getSectors()} />;
+  return (
+    <>
+      <WorkIndex projects={getAllProjects()} sectors={getSectors()} />
+      <ContactCta variant="work" />
+    </>
+  );
 }

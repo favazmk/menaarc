@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 
+import { DraftingGrid } from '@/components/ui/DraftingGrid';
+import { Illustration } from '@/components/ui/Illustration';
 import { ContactForm } from '@/components/sections/ContactForm';
 import { site } from '@/lib/site';
 
@@ -10,8 +12,9 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <section data-theme="light" className="bg-[var(--ground)] text-[var(--figure)]">
-      <div className="u-shell pb-32 pt-40 md:pt-52">
+    <section data-theme="light" className="relative isolate bg-[var(--ground)] text-[var(--figure)]">
+      <DraftingGrid plan="restaurant" />
+      <div className="u-shell relative pb-32 pt-40 md:pt-52">
         <p className="u-label">Contact</p>
         <h1 className="u-display mt-6 max-w-[13ch]">Start with the constraint.</h1>
 
@@ -60,6 +63,17 @@ export default function ContactPage() {
                 <dd className="u-title mt-3">{site.region}</dd>
               </div>
             </dl>
+
+            {/* The form beside this column runs far longer than the details
+                do; the sketch takes up that height instead of leaving it blank. */}
+            <Illustration
+              src="/illustrations/atrium-sketch.webp"
+              width={1400}
+              height={933}
+              delay={120}
+              sizes="(min-width: 768px) 40vw, 100vw"
+              className="mt-20 hidden md:block"
+            />
           </div>
 
           <div className="md:col-span-6 md:col-start-7">
