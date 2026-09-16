@@ -93,7 +93,7 @@ export function ParallaxBand({
         // drift never exposes an edge.
         style={{ top: `${-intensity * 100}%`, bottom: `${-intensity * 100}%` }}
       >
-        <Image src={src} alt={alt} fill sizes="100vw" loading="lazy" className="object-cover" />
+        <Image src={src} alt={alt} fill sizes="100vw" quality={90} loading="lazy" className="object-cover" />
       </div>
 
       {caption ? (

@@ -5,7 +5,7 @@ import { ParallaxBand } from '@/components/ui/ParallaxBand';
 import { Capabilities } from '@/components/sections/Capabilities';
 import { Approach } from '@/components/sections/Approach';
 import { ContactCta } from '@/components/sections/ContactCta';
-import { getProject } from '@/lib/projects';
+import { getBandImage, getProject } from '@/lib/projects';
 import { site } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -37,9 +37,9 @@ export default function ServicesPage() {
 
       {band ? (
         <ParallaxBand
-          src={band.images[0]}
-          alt={`${band.title}, ${band.location} — by ${site.name}`}
-          caption={`${band.title} · ${band.location}`}
+          src={getBandImage(band)}
+          alt={`${band.title}${band.location ? `, ${band.location}` : ''} — by ${site.name}`}
+          caption={[band.title, band.location].filter(Boolean).join(' · ')}
         />
       ) : null}
 

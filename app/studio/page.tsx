@@ -6,7 +6,7 @@ import { SectionLink } from '@/components/ui/SectionLink';
 import { DraftingGrid } from '@/components/ui/DraftingGrid';
 import { ParallaxBand } from '@/components/ui/ParallaxBand';
 import { ContactCta } from '@/components/sections/ContactCta';
-import { getArchiveSummary, getProject } from '@/lib/projects';
+import { getArchiveSummary, getBandImage, getProject } from '@/lib/projects';
 import { site } from '@/lib/site';
 
 /**
@@ -43,7 +43,7 @@ export default function StudioPage() {
   const archive = getArchiveSummary();
   // Sourced from the archive rather than a hardcoded path, so the caption
   // cannot drift from the project it is a photograph of.
-  const band = getProject('rosas-thai-dubai-hills-mall');
+  const band = getProject('reiss-abu-dhabi');
 
   return (
     <>
@@ -171,9 +171,9 @@ export default function StudioPage() {
 
       {band ? (
         <ParallaxBand
-          src={band.images[0]}
-          alt={`${band.title}, ${band.location} — by ${site.name}`}
-          caption={`${band.title} · ${band.location}`}
+          src={getBandImage(band)}
+          alt={`${band.title}${band.location ? `, ${band.location}` : ''} — by ${site.name}`}
+          caption={[band.title, band.location].filter(Boolean).join(' · ')}
         />
       ) : null}
 

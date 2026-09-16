@@ -102,3 +102,17 @@ export function getArchiveSummary(): ArchiveSummary {
       .sort((a, b) => b.count - a.count || a.sector.localeCompare(b.sector)),
   };
 }
+
+/**
+ * The photograph a full-bleed parallax band uses for a project.
+ *
+ * Bands show one image edge to edge at viewport width, so they need more pixels
+ * than the 1800px cap optimize-images.mjs applies to the archive. A band file
+ * in public/bands/ is prepared separately, from the original in
+ * assets/projects-original/ (or an upscale where the original itself is small),
+ * and falls back to the project's lead image when there isn't one.
+ */
+export function getBandImage(project: Project): string {
+  const band = path.join(process.cwd(), 'public', 'bands', `${project.slug}.webp`);
+  return fs.existsSync(band) ? `/bands/${project.slug}.webp` : project.images[0];
+}
