@@ -46,6 +46,16 @@ export function Approach() {
               </Reveal>
             ))}
           </ol>
+
+          {/* Phones: the axonometric closes the section, after the steps,
+              instead of sitting between the heading and step 01. */}
+          <Illustration
+            src="/illustrations/fitout-axonometric.webp"
+            width={1000}
+            height={1250}
+            sizes="75vw"
+            className="mx-auto w-3/4 max-w-[20rem] md:hidden"
+          />
         </div>
       </div>
     </section>

@@ -49,7 +49,7 @@ export default function StudioPage() {
     <>
       <section data-theme="light" className="relative isolate bg-[var(--ground)] text-[var(--figure)]">
         <DraftingGrid plan="retail" />
-        <div className="u-shell relative pb-28 pt-40 md:pt-52">
+        <div className="u-shell relative pb-56 pt-40 md:pb-28 md:pt-52">
           <p className="u-label">Studio</p>
           <h1 className="u-display mt-6 max-w-[15ch]">
             A small practice, deliberately.
@@ -79,11 +79,12 @@ export default function StudioPage() {
 
       <section data-theme="dark" className="relative isolate bg-[var(--ground)] text-[var(--figure)]">
         <DraftingGrid plan="core" />
-        <div className="u-shell relative py-28 md:py-40">
+        {/* pb-72 on phones: the plan sits under the content there (see DraftingGrid). */}
+        <div className="u-shell relative pb-72 pt-28 md:py-40">
           <Reveal>
             <p className="u-label">The practice</p>
             <h2 className="u-headline mt-6 max-w-[18ch]">
-              Small enough to know every drawing on the wall.
+              Senior eyes on every drawing, from first sketch to handover.
             </h2>
           </Reveal>
 

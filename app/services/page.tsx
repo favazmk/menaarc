@@ -21,7 +21,7 @@ export default function ServicesPage() {
     <>
       <section data-theme="light" className="relative isolate bg-[var(--ground)] text-[var(--figure)]">
         <DraftingGrid plan="restaurant" />
-        <div className="u-shell relative pb-12 pt-40 md:pt-52">
+        <div className="u-shell relative pb-72 pt-40 md:pb-12 md:pt-52">
           <p className="u-label">Services</p>
           <h1 className="u-display mt-6 max-w-[14ch]">
             Drawn here. Approved here. Delivered here.

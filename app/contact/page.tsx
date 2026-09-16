@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <section data-theme="light" className="relative isolate bg-[var(--ground)] text-[var(--figure)]">
-      <DraftingGrid plan="restaurant" />
+      <DraftingGrid plan="restaurant" mobilePlan={false} />
       <div className="u-shell relative pb-32 pt-40 md:pt-52">
         <p className="u-label">Contact</p>
         <h1 className="u-display mt-6 max-w-[13ch]">Start with the constraint.</h1>
@@ -98,6 +98,15 @@ export default function ContactPage() {
           <div className="md:col-span-6 md:col-start-7">
             <ContactForm />
           </div>
+
+          {/* Phones: after the form, so the details and the form come first. */}
+          <Illustration
+            src="/illustrations/atrium-sketch.webp"
+            width={1400}
+            height={933}
+            sizes="100vw"
+            className="md:hidden"
+          />
         </div>
       </div>
     </section>

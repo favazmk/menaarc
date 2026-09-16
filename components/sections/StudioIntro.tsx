@@ -20,10 +20,10 @@ export function StudioIntro() {
               </p>
             </Reveal>
 
-            {/* The headline beside it says "we draw", so the column shows a
-                drawing. Desktop only: on a phone this column stacks above the
-                headline, and a portrait image there would push the section's
-                actual point below the fold. */}
+            {/* A drawing beside a section about how the studio designs. This
+                copy is the desktop one; on a phone this column stacks above
+                the headline, so the sketch would push the section's point
+                below the fold — the phone copy closes the section instead. */}
             <Illustration
               src="/illustrations/shopfront-sketch.webp"
               width={1000}
@@ -36,7 +36,7 @@ export function StudioIntro() {
           <div className="md:col-span-8">
             <Reveal className="flex flex-wrap items-end justify-between gap-6">
               <h2 className="u-headline max-w-[20ch]">
-                We draw buildings that have to work on a Tuesday morning.
+                We design spaces for everyday use, not just opening day.
               </h2>
               <SectionLink href="/studio">About the studio</SectionLink>
             </Reveal>
@@ -74,6 +74,15 @@ export function StudioIntro() {
               </dl>
             </Reveal>
           </div>
+
+          {/* Phones: the same sketch, after the text, smaller and centred. */}
+          <Illustration
+            src="/illustrations/shopfront-sketch.webp"
+            width={1000}
+            height={1250}
+            sizes="75vw"
+            className="mx-auto w-3/4 max-w-[20rem] md:hidden"
+          />
         </div>
       </div>
     </section>

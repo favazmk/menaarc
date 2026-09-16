@@ -30,11 +30,15 @@ export function DraftingGrid({
   columns = 12,
   plan,
   planAt = 'top-right',
+  mobilePlan = true,
   className = '',
 }: {
   columns?: number;
   plan?: PlanName;
   planAt?: PlanPlacement;
+  /** Show the plan under the content on phones. Off where the section already
+   *  ends on an image and a drawing below it would be one too many. */
+  mobilePlan?: boolean;
   className?: string;
 }) {
   return (
@@ -97,11 +101,32 @@ export function DraftingGrid({
       </div>
 
       {plan ? (
-        // Desktop only: below md every section is one column of text edge to
-        // edge, and there is nowhere a plan could sit that is not under a word.
-        <div className={`absolute hidden w-[min(31vw,28rem)] lg:block ${PLACEMENT[planAt]}`}>
-          <PlanDrawing name={plan} />
-        </div>
+        <>
+          {/* Desktop: beside the text, in the space the layout leaves. */}
+          <div className={`absolute hidden w-[min(31vw,28rem)] lg:block ${PLACEMENT[planAt]}`}>
+            <PlanDrawing name={plan} />
+          </div>
+
+          {/* Phones: one column of text runs edge to edge, so there is no space
+              beside it — only below it. The whole plan sits centred in the
+              section's bottom padding, small enough to leave room: 15rem wide
+              is about 171px tall, which with its offset needs the section to
+              give phones pb-72 (288px) under its last line — about 85px clear.
+
+              An earlier version showed only a 96px strip through the middle of
+              the drawing, faded at both edges. Cut that way it read as a plan
+              that failed to load rather than a deliberate crop.
+
+              Not on tablets: the grid's letter bubbles sit in the same bottom
+              band from md up, and the two would collide. */}
+          {mobilePlan ? (
+            <div className="absolute inset-x-0 bottom-8 flex justify-center md:hidden">
+              <div className="w-60">
+                <PlanDrawing name={plan} />
+              </div>
+            </div>
+          ) : null}
+        </>
       ) : null}
     </div>
   );
