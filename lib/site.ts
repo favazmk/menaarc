@@ -25,6 +25,8 @@ export const site = {
     email: 'rashidahamed@menaarc.com',
     phone: '+971 50 087 7781',
     phoneHref: '+971500877781',
+    /** The same number in the digits-only form wa.me expects: no +, no spaces. */
+    whatsapp: '971500877781',
   },
 
   founder: {

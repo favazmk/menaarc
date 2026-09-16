@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 
 import { DraftingGrid } from '@/components/ui/DraftingGrid';
 import { Illustration } from '@/components/ui/Illustration';
+import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon';
 import { ContactForm } from '@/components/sections/ContactForm';
 import { site } from '@/lib/site';
+import { openers, whatsappHref } from '@/lib/whatsapp';
 
 export const metadata: Metadata = {
   title: 'Contact',
@@ -55,6 +57,23 @@ export default function ContactPage() {
                     className="inline-block py-1.5 hover:text-[var(--color-accent)]"
                   >
                     {site.contact.phone}
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt className="u-label">WhatsApp</dt>
+                {/* The fast path, for anyone who would rather not fill in a form.
+                    Same number as the phone line; the form below it composes a
+                    fuller first message to the same chat. */}
+                <dd className="mt-4">
+                  <a
+                    href={whatsappHref(openers.contact)}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="inline-flex items-center gap-3 rounded-full border border-[var(--figure)] px-7 py-3.5 transition-colors hover:bg-[var(--figure)] hover:text-[var(--ground)]"
+                  >
+                    <WhatsAppIcon />
+                    Message the studio
                   </a>
                 </dd>
               </div>

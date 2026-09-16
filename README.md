@@ -106,7 +106,7 @@ overwrite the image lists.
 ## Structure
 
 ```
-app/                      routes; api/contact is the only server-dependent file
+app/                      routes; fully static — enquiries go out over WhatsApp
 components/
   brand/                  wordmark, JSON-LD
   film/                   the scroll film engine
@@ -124,8 +124,8 @@ assets/projects-original/ untouched ingested photography (gitignored)
 
 ## Still outstanding
 
-- Wire `app/api/contact/route.ts` to a real transport. It currently validates
-  and logs only — enquiries go nowhere.
+- Confirm the WhatsApp number in `lib/site.ts` is the one the studio answers,
+  and send a test from the contact form.
 - Client to confirm project rights and supply the missing project facts.
 - `jack-jones-ibn-batuta-mall` has 1 usable image; 4 more are referenced by the
   source site but return 404 there.

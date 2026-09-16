@@ -48,9 +48,9 @@ The existing Hostinger account (`u785953539`) currently holds only
 ### Route A — Node.js (keeps everything working)
 
 Deploy as a Node application, same as `docmate.ae`. Nothing in the codebase
-changes; `app/api/contact/route.ts` keeps working.
+changes.
 
-### Route B — static export (cheapest, one thing to fix)
+### Route B — static export (cheapest, nothing to fix)
 
 ```js
 // next.config.ts
@@ -64,15 +64,11 @@ const nextConfig = {
 npm run build        # emits ./out
 ```
 
-Upload `out/` to `public_html`. Then the **one** thing that breaks:
-
-- `app/api/contact/route.ts` cannot run. Delete it and point the form at a
-  hosted endpoint instead — change the `fetch` URL and the `<form action>` in
-  `components/sections/ContactForm.tsx`. Both are single-line changes; the
-  markup, validation and honeypot stay as they are.
-
-Everything else is already static-safe: no server actions, no ISR, no
-Vercel-specific image loader, all media pre-optimised at build time.
+Upload `out/` to `public_html`. Nothing breaks: the site has no server
+routes. Enquiries go out over WhatsApp — the contact form and every page's
+conversation button open a `wa.me` chat with the message prewritten
+(`lib/whatsapp.ts`), so there is no form endpoint to host. No server actions,
+no ISR, no Vercel-specific image loader, all media pre-optimised at build time.
 
 ### Media on shared hosting
 
@@ -90,7 +86,7 @@ R2 or Bunny and prefix the manifest `pattern` values with the CDN origin —
 - [ ] Every project set to `"status": "approved"` (or the unapproved ones removed)
 - [ ] `ALLOW_PENDING` removed from the Production environment
 - [ ] `npm run build` passes with no override
-- [ ] Contact route wired to a real transport and a test enquiry received
+- [ ] WhatsApp number in `lib/site.ts` confirmed, and a test message from the contact form received on it
 - [ ] `lib/site.ts` checked — phone, email, social links
 - [ ] Missing project facts filled in, or the fact tables left short rather than blank
 - [ ] DNS cut over and HTTPS issued
