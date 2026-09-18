@@ -5,7 +5,18 @@
 
 export const site = {
   name: 'MENAARC',
+  /** Plain, for metadata and JSON-LD — the form a search or a screen reader wants. */
   nameArabic: 'مينارك',
+  /**
+   * The wordmark lockup's Arabic, with kashida (U+0640) between the joining
+   * letters, exactly as the supplied logo draws it.
+   *
+   * Arabic is cursive, so CSS letter-spacing is the wrong tool for the airy
+   * tracking the mark wants — it inserts gaps that sever the joins. Kashida is
+   * the typographic device the script actually has for this, and U+0640 is
+   * ignorable, so the accessible name still reads as the studio's name.
+   */
+  nameArabicLockup: 'مـيـنـــارك',
   legalName: 'MENAARC Architectural Consultants',
   tagline: 'Architectural Consultants',
   disciplines: [
@@ -35,6 +46,96 @@ export const site = {
     instagram: 'https://www.instagram.com/ar.rashid.ahamed',
     instagramHandle: '@ar.rashid.ahamed',
   },
+
+  /**
+   * The people the studio puts its name behind.
+   *
+   * `founder` above stays as-is because metadata and JSON-LD reference it;
+   * this is the list /studio renders. Each entry is a claim about a real
+   * person, so nothing here is written for effect — every credential below is
+   * one the person publishes about themselves.
+   */
+  leadership: [
+    {
+      name: 'Ar. Rashid Ahamed',
+      role: 'Founder & CEO',
+      bio: 'Rashid founded MENAARC to run architecture and delivery under one roof, after years of watching the two get separated — and watching projects pay for it in variation orders and lost programme.',
+      credentials: [
+        'Architecture and delivery under one roof',
+        'Retail, F&B and hospitality fit-out across the UAE',
+      ],
+      links: [
+        { label: '@ar.rashid.ahamed', href: 'https://www.instagram.com/ar.rashid.ahamed' },
+      ],
+    },
+    {
+      name: 'Benazir Noor Mohamed',
+      // TODO(client): confirm the title she should carry at MENAARC. This is a
+      // description of what she does, not a position she has published.
+      role: 'Design & Building Performance',
+      bio: 'Benazir brings over a decade in the built environment — design, execution and the performance of a building once it is occupied. Her work joins design intent to operational rigour, so that wellbeing-driven decisions are measurable rather than asserted.',
+      credentials: [
+        'Over a decade in the built environment',
+        'Mentored by Pritzker Laureate B. V. Doshi',
+        'Advisory board, International WELL Building Institute',
+        'Advanced studies, University College London',
+      ],
+      links: [
+        {
+          label: 'LinkedIn',
+          href: 'https://www.linkedin.com/in/benazir-noor-mohamed-5b477870/',
+        },
+      ],
+    },
+  ],
+
+  /**
+   * The regional claim and the numbers behind it.
+   *
+   * These come from the group the studio belongs to, not from this site's own
+   * project archive — /work publishes a subset. Keep the two consistent: if a
+   * number here changes, the copy on /studio that characterises the practice
+   * has to be checked against it.
+   */
+  established: 2019,
+
+  stats: [
+    { value: '6+', label: 'Years of Experience' },
+    { value: '200+', label: 'Projects Completed' },
+    { value: '100+', label: 'Passionate Professionals' },
+    { value: '40+', label: 'Brands Delivered' },
+  ],
+
+  expertise: [
+    { term: 'Established', value: '2019' },
+    { term: 'Experience', value: '40+ years of combined expertise across the leadership team' },
+    { term: 'Specialisation', value: 'F&B, Retail, Hospitality, Corporate and Residential' },
+    { term: 'Reach', value: 'The UAE and the wider GCC, with ongoing expansion across MENA' },
+    { term: 'Approach', value: 'End-to-end in-house capability — from concept to completion' },
+  ],
+
+  /**
+   * The client wall. Order is deliberate: mall operators and landlords first,
+   * then the brands whose units the studio has drawn — the sequence a visitor
+   * from this industry reads as "who lets them work, and for whom".
+   */
+  clients: [
+    { name: 'Majid Al Futtaim', file: 'majid-al-futtaim.png', w: 546 },
+    { name: 'Emaar', file: 'emaar.png', w: 606 },
+    { name: 'Al Ghurair', file: 'al-ghurair.png', w: 243 },
+    { name: 'BurJuman', file: 'burjuman.png', w: 564 },
+    { name: 'Abu Dhabi Mall', file: 'abu-dhabi-mall.png', w: 182 },
+    { name: 'Sahara Centre', file: 'sahara-centre.png', w: 165 },
+    { name: 'Expo 2020 Dubai', file: 'expo-2020-dubai.png', w: 226 },
+    { name: 'Jack & Jones', file: 'jack-and-jones.png', w: 1036 },
+    { name: 'MAX&Co.', file: 'max-and-co.png', w: 720 },
+    { name: 'Pandora', file: 'pandora.png', w: 584 },
+    { name: "Peet's Coffee", file: 'peets-coffee.png', w: 547 },
+    { name: "Rosa's Thai", file: 'rosas-thai.png', w: 250 },
+    { name: 'Bateel', file: 'bateel.png', w: 279 },
+    { name: 'Tortilla', file: 'tortilla.png', w: 341 },
+    { name: "Papa John's", file: 'papa-johns.png', w: 283 },
+  ],
 
   social: [
     { label: 'Instagram', href: 'https://www.instagram.com/menaarcdesign' },

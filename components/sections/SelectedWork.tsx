@@ -39,7 +39,13 @@ export function SelectedWork({ projects }: { projects: Project[] }) {
   return (
     <section data-theme="dark" className="bg-[var(--ground)] text-[var(--figure)]">
       <div className="u-shell py-28 md:py-40">
-        <Reveal className="flex items-end justify-between gap-8">
+        {/* Stacked until there is room for both.
+            Side by side, the pill is a fixed ~150px and the heading takes what
+            is left — which on a phone is about 180px, enough to break
+            "Delivered across the Emirates." over four lines with one word on
+            each. The heading gets the full measure first; the pill drops
+            underneath and only comes back up alongside at sm. */}
+        <Reveal className="flex flex-col items-start gap-8 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="u-label">Selected work</p>
             <h2 className="u-headline mt-6 max-w-[16ch]">Delivered across the Emirates.</h2>

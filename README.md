@@ -94,12 +94,17 @@ Re-check the `from`/`to` ranges if you change the master.
 | `npm run film` | Rebuild both frame tiers from the master |
 | `npm run ingest` | Re-pull projects from the source site |
 | `npm run optimize:images` | Cap and convert ingested photography to WebP |
+| `node scripts/build-mena-map.mjs` | Regenerate `lib/mena-map.ts` — the region map's country geometry |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
 
 `ingest` and `optimize:images` are one-off migration tools. Once the client
 supplies their own photography they should not be run again — `ingest` would
 overwrite the image lists.
+
+`build-mena-map` needs the network and its output is committed, so it is not
+part of the build. Re-run it only to change the map's window, its country list
+or its pins.
 
 ---
 

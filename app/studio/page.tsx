@@ -41,6 +41,9 @@ export const metadata: Metadata = {
 
 export default function StudioPage() {
   const archive = getArchiveSummary();
+  // Quoted from the same list the home page counts up, so the two pages cannot
+  // drift apart on the studio's headline number.
+  const delivered = site.stats.find((s) => s.label === 'Projects Completed')?.value ?? '—';
   // Sourced from the archive rather than a hardcoded path, so the caption
   // cannot drift from the project it is a photograph of.
   const band = getProject('reiss-abu-dhabi');
@@ -52,21 +55,22 @@ export default function StudioPage() {
         <div className="u-shell relative pb-56 pt-40 md:pb-28 md:pt-52">
           <p className="u-label">Studio</p>
           <h1 className="u-display mt-6 max-w-[15ch]">
-            A small practice, deliberately.
+            Everyone who builds it works here.
           </h1>
 
           <div className="mt-16 grid gap-12 md:grid-cols-12">
             <div className="md:col-span-7 md:col-start-6">
               <p className="u-lede">
-                MENAARC works on retail, hospitality and residential projects across the UAE. The
-                studio is structured so that the person who draws a project is the person who
-                stands on its site — there is no handover to a delivery team who did not sit in
-                the first meeting.
+                MENAARC works on retail, F&amp;B, hospitality, corporate and residential projects
+                across the UAE and the wider GCC. Architecture, MEP and the approvals sit in one
+                studio and are staffed in-house — so the person who draws a project is the person
+                who stands on its site, and there is no handover to a delivery team who did not
+                sit in the first meeting.
               </p>
               <p className="u-lede mt-6">
-                That limits how much work we can take. It also means nothing gets lost in the gap
-                between the drawing and the thing that gets built, which is where most projects
-                actually go wrong.
+                Keeping every discipline on the payroll is the expensive way to run a practice.
+                It is also why nothing gets lost in the gap between the drawing and the thing that
+                gets built, which is where most projects actually go wrong.
               </p>
             </div>
           </div>
@@ -91,17 +95,19 @@ export default function StudioPage() {
           <dl className="mt-16 grid grid-cols-2 gap-10 border-t border-[var(--hairline)] pt-12 lg:grid-cols-4">
             <Reveal>
               <dt className="u-label">Projects delivered</dt>
-              <dd className="u-display mt-4 leading-none">{archive.total}</dd>
+              <dd className="u-display mt-4 leading-none">{delivered}</dd>
             </Reveal>
 
-            {/* Named, not counted. The archive is a subset of what the studio has
-                built — the sectors it covers are the honest claim; the depth in
-                each is a number that would undersell the rest. */}
+            {/* The archive is a subset of what the studio has built, so this
+                column has to say which number it is quoting — otherwise it reads
+                as a contradiction of the one beside it. The sectors are named
+                rather than counted: the depth in each would undersell the rest. */}
             <Reveal delay={70}>
-              <dt className="u-label">Published work</dt>
-              <dd className="mt-4 space-y-1.5">
+              <dt className="u-label">Published here</dt>
+              <dd className="u-display mt-4 leading-none">{archive.total}</dd>
+              <dd className="mt-5 space-y-1 text-[0.9375rem] leading-snug text-[var(--muted)]">
                 {archive.bySector.map(({ sector }) => (
-                  <span key={sector} className="u-title block">
+                  <span key={sector} className="block">
                     {sector}
                   </span>
                 ))}
@@ -180,53 +186,73 @@ export default function StudioPage() {
 
       <section data-theme="dark" className="bg-[var(--ground)] text-[var(--figure)]">
         <div className="u-shell py-28 md:py-40">
-          <div className="grid gap-14 md:grid-cols-12">
-            <Reveal className="md:col-span-4">
-              <p className="u-label">Founder</p>
-            </Reveal>
+          <Reveal>
+            <p className="u-label">Who you deal with</p>
+            <h2 className="u-headline mt-6 max-w-[16ch]">
+              The names on the drawings are the names in the room.
+            </h2>
+          </Reveal>
 
-            <div className="md:col-span-8">
-              <Reveal>
-                <h2 className="u-headline">{site.founder.name}</h2>
-                <p className="u-label mt-4">{site.founder.role}</p>
-              </Reveal>
+          {/* Two people, each given the same room. A founder's block twice the
+              size of everyone else's says the second name is decoration. */}
+          <div className="mt-20 grid gap-x-10 gap-y-16 md:grid-cols-2 md:gap-y-0">
+            {site.leadership.map((person, i) => (
+              <Reveal key={person.name} delay={i * 90}>
+                <article className="border-t border-[var(--hairline)] pt-10">
+                  <h3 className="u-title">{person.name}</h3>
+                  <p className="u-label mt-3">{person.role}</p>
 
-              <Reveal delay={80}>
-                <p className="u-lede mt-10">
-                  Rashid founded MENAARC to run architecture and delivery under one roof, after
-                  years of watching the two get separated — and watching projects pay for it in
-                  variation orders and lost programme.
-                </p>
-              </Reveal>
+                  <p className="u-lede mt-8">{person.bio}</p>
 
-              <Reveal delay={140}>
-                <ul className="mt-12 flex flex-wrap gap-8">
-                  <li>
-                    <a
-                      href={site.founder.instagram}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="u-label u-tap hover:text-[var(--color-accent)]"
-                    >
-                      {site.founder.instagramHandle} ↗
-                    </a>
-                  </li>
-                  {site.social.map((s) => (
-                    <li key={s.href}>
-                      <a
-                        href={s.href}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="u-label u-tap hover:text-[var(--color-accent)]"
+                  <ul className="mt-10 space-y-3">
+                    {person.credentials.map((credential) => (
+                      <li
+                        key={credential}
+                        className="flex gap-4 text-[0.9375rem] leading-snug text-[var(--muted)]"
                       >
-                        {s.label} ↗
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                        {/* A drawing-sheet tick rather than a bullet: this is a
+                            list of things that are the case, not a feature list. */}
+                        <span aria-hidden="true" className="mt-[0.4em] h-px w-4 flex-none bg-current" />
+                        {credential}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <ul className="mt-10 flex flex-wrap gap-8">
+                    {person.links.map((link) => (
+                      <li key={link.href}>
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="u-label u-tap hover:text-[var(--color-accent)]"
+                        >
+                          {link.label} ↗
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
               </Reveal>
-            </div>
+            ))}
           </div>
+
+          <Reveal delay={200}>
+            <ul className="mt-20 flex flex-wrap gap-8 border-t border-[var(--hairline)] pt-10">
+              {site.social.map((s) => (
+                <li key={s.href}>
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="u-label u-tap hover:text-[var(--color-accent)]"
+                  >
+                    {s.label} ↗
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
         </div>
       </section>
 

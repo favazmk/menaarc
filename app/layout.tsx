@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Archivo, Bricolage_Grotesque, IBM_Plex_Sans_Arabic } from 'next/font/google';
+import { Archivo, Bricolage_Grotesque, Noto_Kufi_Arabic } from 'next/font/google';
 
 import { SmoothScroll } from '@/components/layout/SmoothScroll';
 import { Header } from '@/components/layout/Header';
@@ -26,11 +26,19 @@ const bricolage = Bricolage_Grotesque({
   axes: ['opsz'],
 });
 
-const plexArabic = IBM_Plex_Sans_Arabic({
+// The Arabic half of the lockup. Measured against the supplied artwork glyph by
+// glyph (kaf, ra, meem, each normalised and scored by pixel overlap), Noto Kufi
+// Arabic is among the closest shipping faces, and it is the right family in
+// principle: a kufi geometric to sit under a squared geometric Latin.
+//
+// The weight matters more than the family did. The artwork's Arabic has a
+// stroke-to-height ratio of 0.17 — the same as its Latin — which is a Medium.
+// This shipped at 200/300 and read as a different, lighter logo.
+const kufiArabic = Noto_Kufi_Arabic({
   subsets: ['arabic'],
-  variable: '--font-plex-arabic',
+  variable: '--font-kufi-arabic',
   display: 'swap',
-  weight: ['300', '400', '500'],
+  weight: ['400', '500'],
 });
 
 export const metadata: Metadata = {
@@ -75,7 +83,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${archivo.variable} ${bricolage.variable} ${plexArabic.variable}`}>
+    <html lang="en" className={`${archivo.variable} ${bricolage.variable} ${kufiArabic.variable}`}>
       <body>
         <a
           href="#main"

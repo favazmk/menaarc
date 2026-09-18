@@ -72,6 +72,51 @@ export function pendingApproval(): Project[] {
   return getAllProjects().filter((p) => p.status !== 'approved');
 }
 
+/**
+ * Which city each recorded location sits in.
+ *
+ * The archive records the mall, because that is what the client and the
+ * landlord call the job — "Ibn Batuta Mall", not "Dubai". The map needs the
+ * city, so the translation lives here rather than in the map component: it is a
+ * fact about the archive, and anything that groups projects geographically
+ * should get the same answer.
+ *
+ * A location that is not listed here simply has no city, and its project is
+ * left off the map rather than guessed at.
+ */
+const CITY_BY_LOCATION: Record<string, string> = {
+  'Ibn Batuta Mall': 'Dubai',
+  'Ibn Batuta': 'Dubai',
+  'Deira City Center': 'Dubai',
+  'Dubai Hills Mall': 'Dubai',
+  JBR: 'Dubai',
+  'Burjman Mall': 'Dubai',
+  'Ajman City Center': 'Ajman',
+  'Abu Dhabi': 'Abu Dhabi',
+  'Yas Mall, Abu Dhabi': 'Abu Dhabi',
+};
+
+/**
+ * Published projects grouped by city, biggest first.
+ *
+ * This is what makes a pin on the region map a claim the archive can back:
+ * a city is marked as delivered because projects resolve to it here, not
+ * because someone typed it into a list.
+ */
+export function getProjectsByCity(): { city: string; projects: Project[] }[] {
+  const byCity = new Map<string, Project[]>();
+
+  for (const project of getAllProjects()) {
+    const city = CITY_BY_LOCATION[project.location];
+    if (!city) continue;
+    byCity.set(city, [...(byCity.get(city) ?? []), project]);
+  }
+
+  return [...byCity.entries()]
+    .map(([city, projects]) => ({ city, projects }))
+    .sort((a, b) => b.projects.length - a.projects.length || a.city.localeCompare(b.city));
+}
+
 export type ArchiveSummary = {
   /** Published projects — those with at least one surviving image. */
   total: number;

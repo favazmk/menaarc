@@ -1,7 +1,6 @@
 import { Reveal } from '@/components/ui/Reveal';
 import { Illustration } from '@/components/ui/Illustration';
 import { SectionLink } from '@/components/ui/SectionLink';
-import { site } from '@/lib/site';
 
 export function StudioIntro() {
   return (
@@ -11,13 +10,6 @@ export function StudioIntro() {
           <div className="md:col-span-4">
             <Reveal>
               <p className="u-label">The studio</p>
-              <p
-                className="u-arabic mt-8 text-[clamp(2.5rem,6vw,5rem)] font-light leading-none opacity-15"
-                lang="ar"
-                aria-hidden="true"
-              >
-                {site.nameArabic}
-              </p>
             </Reveal>
 
             {/* A drawing beside a section about how the studio designs. This

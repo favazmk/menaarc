@@ -16,7 +16,7 @@
 
   --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
-  --font-arabic: var(--font-plex-arabic), var(--font-archivo), sans-serif;
+  --font-arabic: var(--font-kufi-arabic), var(--font-archivo), sans-serif;
 
   /* Editorial scale. Fluid between a 380px phone and a 1600px desktop. */
   --text-display: clamp(2.5rem, 7.2vw, 7rem);
@@ -259,6 +259,615 @@ html.lenis body {
   .plan-draw[data-revealed='true'] .plan-fade,
   .plan-draw[data-revealed='true'] .plan-label {
     opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------
+   The site guide (see components/ui/SiteGuide.tsx)
+
+   Fixed to the viewport, pinned to whichever bottom corner the
+   current section asks for. Side and lift change together, and
+   the long expo transition on `inset` is what reads as flying
+   rather than teleporting.
+
+   She is always ink on the page's own ground, so she stays
+   legible whether the section under her is paper or ink. The
+   disc behind her is that ground, not a colour of her own.
+   ------------------------------------------------------------ */
+
+.site-guide {
+  position: fixed;
+  bottom: var(--guide-lift, 6rem);
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.625rem;
+  pointer-events: none;
+}
+
+/* The bubble has to open inward — away from the edge she is pinned to — or it
+   runs off the screen. DOM order is bubble then figure, so `row` puts the
+   bubble on the left and the figure on the right (what the right edge wants),
+   and `row-reverse` swaps them (what the left edge wants). */
+.site-guide[data-side='right'] {
+  right: clamp(1rem, 3vw, 2.5rem);
+  left: auto;
+  flex-direction: row;
+}
+
+.site-guide[data-side='left'] {
+  left: clamp(1rem, 3vw, 2.5rem);
+  right: auto;
+  flex-direction: row-reverse;
+}
+
+/* No disc. She is a drawing on the page, not an icon in a chip — a circle
+   around her made her read as a chat widget, and cropped the one thing that
+   gives a small figure presence, which is her silhouette. The hit area comes
+   from padding instead, and the ink cross-fades as she crosses between the
+   page's light and dark sections. */
+.site-guide__button {
+  pointer-events: auto;
+  display: block;
+  flex: none;
+  padding: 0.25rem;
+  color: var(--figure);
+  transition:
+    color 550ms ease,
+    transform 400ms var(--ease-out-expo);
+}
+
+.site-guide__button:hover {
+  transform: translateY(-2px);
+}
+
+.site-guide__figure {
+  height: 5rem;
+  width: auto;
+  display: block;
+}
+
+/* The bubble is a drawing note: a hairline box with one clipped corner,
+   the way a note is tagged on a drawing sheet. */
+.site-guide__bubble {
+  pointer-events: auto;
+  max-width: min(19rem, calc(100vw - 9.5rem));
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--hairline);
+  background: var(--ground);
+  padding: 0.875rem 1rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--figure);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0.375rem);
+  transition:
+    opacity 320ms ease,
+    transform 320ms var(--ease-out-expo),
+    background-color 550ms ease,
+    color 550ms ease,
+    visibility 0s linear 320ms;
+}
+
+.site-guide[data-open] .site-guide__bubble {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s, 0s, 0s;
+}
+
+.site-guide__dismiss {
+  display: block;
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--hairline);
+  padding-top: 0.625rem;
+  width: 100%;
+  text-align: start;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color 300ms ease;
+}
+
+.site-guide__dismiss:hover {
+  color: var(--figure);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .site-guide {
+    transition:
+      bottom 1100ms var(--ease-in-out-quint),
+      left 1100ms var(--ease-in-out-quint),
+      right 1100ms var(--ease-in-out-quint);
+  }
+
+  /* Bobbing lives on the figure, not the wrapper, so it cannot fight the
+     transition that carries her between corners. */
+  .site-guide__figure {
+    animation: guide-bob 4.4s ease-in-out infinite;
+  }
+
+  .site-guide__button:hover .site-guide__figure {
+    animation-duration: 2.2s;
+  }
+
+  .guide-eye {
+    animation: guide-blink 6.1s step-end infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .site-guide__button:hover .guide-wave {
+    animation: guide-wave 900ms ease-in-out 2;
+    transform-box: fill-box;
+    transform-origin: 8% 20%;
+  }
+
+  @keyframes guide-bob {
+    50% {
+      transform: translateY(-0.4rem);
+    }
+  }
+
+  /* Squashing the pupil to nothing for two frames reads as a blink at any size. */
+  @keyframes guide-blink {
+    0%,
+    95% {
+      transform: scaleY(1);
+    }
+    96%,
+    98% {
+      transform: scaleY(0.1);
+    }
+  }
+
+  @keyframes guide-wave {
+    50% {
+      transform: rotate(-16deg);
+    }
+  }
+}
+
+/* ------------------------------------------------------------
+   The region map (see components/ui/MenaMap.tsx)
+
+   The section is a hero: the map fills it, a gradient dims the
+   side the copy sits on, and the copy sits over the top. Below
+   md the overlay is dropped and the two stack, because text over
+   a map on a phone leaves neither of them usable.
+   ------------------------------------------------------------ */
+
+.mena-hero__map {
+  position: relative;
+  /* Phones: the map gets its own band above the copy, at the data's own
+     proportions. At zoom 1 the view fills the frame, so a band of any other
+     shape crops the region — a 62vh band on a phone is portrait, and it cut
+     Cairo and Muscat off the sides before anyone had touched anything. */
+  aspect-ratio: 1000 / 650;
+  min-height: 14rem;
+}
+
+.mena-hero__scrim {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mena-hero {
+    display: grid;
+  }
+
+  /* One cell, three layers: map, scrim, copy. */
+  .mena-hero__map,
+  .mena-hero__scrim,
+  .mena-hero__content {
+    grid-area: 1 / 1;
+  }
+
+  .mena-hero__map {
+    height: auto;
+    max-height: none;
+  }
+
+  .mena-hero__scrim {
+    display: block;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      var(--ground) 0%,
+      color-mix(in srgb, var(--ground) 88%, transparent) 30%,
+      color-mix(in srgb, var(--ground) 45%, transparent) 52%,
+      transparent 72%
+    );
+  }
+
+  .mena-hero__content {
+    position: relative;
+    align-self: center;
+    pointer-events: none;
+    /* u-shell carries `margin-inline: auto`, and an auto margin beats a grid
+       item's default `stretch` — so without this the copy shrink-to-fits and
+       centres itself in the section instead of starting at the gutter. */
+    width: 100%;
+  }
+
+  /* The copy is inert so a drag started over it still pans the map; the things
+     inside it that are actually interactive take their events back. */
+  .mena-hero__content a,
+  .mena-hero__content button {
+    pointer-events: auto;
+  }
+}
+
+.mena-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.mena-surface {
+  position: absolute;
+  inset: 0;
+  /* The map is dragged, so the browser must not also read a drag as a scroll
+     or a pinch as a page zoom. */
+  touch-action: none;
+  cursor: grab;
+}
+
+.mena-surface[data-dragging] {
+  cursor: grabbing;
+}
+
+.mena-map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--figure);
+  display: block;
+}
+
+.mena-grid {
+  opacity: 0.075;
+}
+
+.mena-country {
+  fill: currentColor;
+  fill-opacity: 0.035;
+  stroke: currentColor;
+  stroke-opacity: 0.22;
+  stroke-width: 0.9;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.mena-country--scope {
+  fill-opacity: 0.1;
+  stroke-opacity: 0.55;
+}
+
+/* Displacement leader: a hairline from a place true position out to where its
+   marker had to be drawn, plus a tick on the true point. */
+.mena-leader line {
+  stroke: currentColor;
+  stroke-opacity: 0.45;
+  stroke-width: 0.9;
+  vector-effect: non-scaling-stroke;
+}
+
+.mena-leader circle {
+  fill: currentColor;
+  fill-opacity: 0.45;
+}
+
+/* ---- markers: HTML over the drawing, for px hit areas and rem type -------- */
+
+.mena-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  color: var(--figure);
+}
+
+/* Whichever marker is open comes to the front, so its card is never underneath
+   a neighbour button. */
+.mena-marker[data-open] {
+  z-index: 3;
+}
+
+.mena-marker__hit {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  /* A 44px target around a 9px dot: the dot is the drawing, the padding is the
+     button. Negative margin keeps the padding from shifting the dot. */
+  padding: 1.1rem;
+  margin: -1.1rem;
+  white-space: nowrap;
+  color: inherit;
+}
+
+.mena-marker[data-side='left'] .mena-marker__hit {
+  flex-direction: row-reverse;
+}
+
+.mena-marker__dot {
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
+  border: 1.5px solid currentColor;
+  border-radius: 9999px;
+  background: var(--ground);
+  transition:
+    transform 300ms var(--ease-out-expo),
+    background-color 300ms ease;
+}
+
+/* Filled where the archive can actually back the claim. */
+.mena-marker[data-built] .mena-marker__dot {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+.mena-marker__hit:hover .mena-marker__dot,
+.mena-marker[data-open] .mena-marker__dot {
+  transform: scale(1.5);
+}
+
+.mena-marker__name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  opacity: 0.7;
+  /* The scrim dims the left of the map, and a label landing under it would go
+     with it. A shadow in the ground colour keeps every name legible wherever
+     the map has been dragged to. */
+  text-shadow:
+    0 0 6px var(--ground),
+    0 0 2px var(--ground);
+  transition: opacity 300ms ease;
+}
+
+.mena-marker[data-built] .mena-marker__name,
+.mena-marker[data-open] .mena-marker__name {
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .mena-marker__name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .mena-marker__hit {
+    padding: 0.85rem;
+    margin: -0.85rem;
+  }
+}
+
+/* The card is a child of the stage, positioned at its marker rather than
+   nested in it, and the direction it opens is recomputed from the marker's
+   live position — so it stays inside the frame after a drag or a zoom, which a
+   fixed per-city table could not do. */
+.mena-card {
+  position: absolute;
+  z-index: 5;
+  width: max-content;
+  max-width: 15rem;
+  border: 1px solid var(--hairline);
+  background: var(--ground);
+  padding: 0.75rem 0.875rem;
+  box-shadow: 0 1px 24px rgb(10 10 10 / 0.35);
+}
+
+/* Four corners off the marker: 0.55rem clear of it, and either hanging from it
+   or standing on it. */
+.mena-card[data-side='right'][data-vertical='below'] {
+  transform: translate(-0.55rem, 0.9rem);
+}
+
+.mena-card[data-side='right'][data-vertical='above'] {
+  transform: translate(-0.55rem, calc(-100% - 0.9rem));
+}
+
+.mena-card[data-side='left'][data-vertical='below'] {
+  transform: translate(calc(-100% + 0.55rem), 0.9rem);
+}
+
+.mena-card[data-side='left'][data-vertical='above'] {
+  transform: translate(calc(-100% + 0.55rem), calc(-100% - 0.9rem));
+}
+
+/* On a phone the frame is barely taller than the card, so there is no corner
+   that fits. It becomes a sheet across the foot of the map instead — which is
+   what every map does at this width, and it cannot overflow anything. */
+@media (max-width: 767px) {
+  .mena-card,
+  .mena-card[data-side][data-vertical] {
+    left: 0.5rem !important;
+    right: 0.5rem;
+    top: auto !important;
+    bottom: 0.5rem;
+    width: auto;
+    max-width: none;
+    /* Leaves the top of the band and the zoom controls showing, so it reads
+       as a sheet over the map rather than as a page that replaced it. */
+    max-height: calc(100% - 4rem);
+    overflow-y: auto;
+    transform: none;
+  }
+}
+
+.mena-card__place {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.mena-card__list {
+  margin-top: 0.5rem;
+  display: grid;
+  gap: 0.375rem;
+}
+
+.mena-card__list a {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  transition: color 250ms ease;
+}
+
+.mena-card__list a:hover {
+  color: var(--color-accent);
+}
+
+.mena-card__where {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.mena-card__note {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+/* Top right, not bottom right: the site guide is fixed to the viewport's
+   bottom corners, and on this section she lands on the same one the controls
+   would have taken. */
+.mena-controls {
+  position: absolute;
+  right: clamp(0.75rem, 2vw, 1.5rem);
+  top: clamp(0.75rem, 2vw, 1.5rem);
+  z-index: 4;
+  display: grid;
+  gap: 0.375rem;
+}
+
+.mena-controls button {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--hairline);
+  border-radius: 9999px;
+  background: var(--ground);
+  color: var(--figure);
+  font-size: 0.9375rem;
+  line-height: 1;
+  transition:
+    border-color 250ms ease,
+    opacity 250ms ease;
+}
+
+.mena-controls button:hover:not(:disabled) {
+  border-color: var(--figure);
+}
+
+.mena-controls button:disabled {
+  opacity: 0.35;
+}
+
+@media (prefers-reduced-motion: no-preference) and (scripting: enabled) {
+  .mena-map .mena-country {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    fill-opacity: 0;
+    transition:
+      stroke-dashoffset 1600ms var(--ease-in-out-quint),
+      fill-opacity 900ms ease 900ms;
+  }
+
+  .mena-map .mena-grid,
+  .mena-map .mena-leader,
+  .mena-marker {
+    opacity: 0;
+    transition: opacity 600ms ease 900ms;
+  }
+
+  /* The hero has no Reveal wrapper of its own, so the finished state is keyed
+     off the section itself rather than off a revealed ancestor. */
+  .mena-hero .mena-country {
+    stroke-dashoffset: 0;
+    fill-opacity: 0.035;
+  }
+
+  .mena-hero .mena-country--scope {
+    fill-opacity: 0.1;
+  }
+
+  .mena-hero .mena-grid {
+    opacity: 0.075;
+  }
+
+  .mena-hero .mena-leader,
+  .mena-hero .mena-marker {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------
+   Client-wall marquee (see components/sections/TrustedBy.tsx)
+
+   Two identical tracks sit side by side and the pair translates
+   by exactly half its width, so the loop restarts on a frame
+   identical to the one it left — no seam, no measurement in JS.
+
+   Under reduced motion the tracks stop and the duplicate is
+   hidden, which leaves one plain centred row of marks.
+   ------------------------------------------------------------ */
+
+.logo-row {
+  --logo-marquee: 46s;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .logo-track {
+    animation: logo-marquee var(--logo-marquee) linear infinite;
+  }
+
+  .logo-row[data-reverse] .logo-track {
+    animation-direction: reverse;
+  }
+
+  /* Pausing on hover lets someone actually read a mark they recognise. */
+  .logo-row:hover .logo-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes logo-marquee {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-row {
+    justify-content: center;
+  }
+
+  /* `w-max` is what stops the two tracks shrinking into each other while they
+     scroll; here there is nothing to scroll, and a max-content track cannot
+     wrap — it would just run off the side of a phone. Back to auto width. */
+  .logo-track {
+    width: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .logo-track[aria-hidden] {
+    display: none;
   }
 }
 
