@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { useIsClient, useMediaQuery, usePrefersReducedMotion } from '@/lib/use-media-query';
 
 import { useFrameLoader, type FilmManifest, type TierSpec } from './useFrameLoader';
-import { FilmChapters, type Chapter } from './FilmChapters';
+import { FilmChapters, type Chapter, type FilmChaptersHandle } from './FilmChapters';
 import { FilmLoader } from './FilmLoader';
 
 type Props = {
@@ -63,8 +63,14 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const progressRef = useRef({ value: 0 });
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
-  const [progress, setProgress] = useState(0);
+  const chaptersApi = useRef<FilmChaptersHandle | null>(null);
+  const fogRef = useRef<HTMLDivElement>(null);
+  const fogCloudRef = useRef<HTMLDivElement>(null);
+  const fogPaperRef = useRef<HTMLDivElement>(null);
+  const hintRef = useRef<HTMLDivElement>(null);
+
   const reduced = usePrefersReducedMotion();
   const mounted = useIsClient();
   const narrow = useMediaQuery('(max-width: 900px)');
@@ -100,10 +106,30 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
   // land in the middle of the picture. Anchor it low instead.
   const layout = strip ? 'stacked' : narrow ? 'bottom' : 'overlay';
 
-  // Eased so the cloud gathers slowly and then takes the frame quickly, which
-  // is how weather actually arrives — a linear ramp reads as a dissolve.
-  const fogT = Math.min(1, Math.max(0, (progress - FOG_FROM) / (1 - FOG_FROM)));
-  const fog = fogT ** 1.7;
+  /**
+   * Write the closing weather straight to the DOM for a given progress.
+   *
+   * Eased so the cloud gathers slowly and then takes the frame quickly, which
+   * is how weather actually arrives — a linear ramp reads as a dissolve.
+   */
+  const applyFog = useCallback((p: number) => {
+    const wrap = fogRef.current;
+    if (!wrap) return;
+    const t = Math.min(1, Math.max(0, (p - FOG_FROM) / (1 - FOG_FROM)));
+    const fog = t ** 1.7;
+
+    wrap.style.opacity = String(fog);
+    wrap.style.visibility = fog <= 0.001 ? 'hidden' : 'visible';
+
+    if (fogCloudRef.current) {
+      fogCloudRef.current.style.transform =
+        `scale(${(1.35 - 0.35 * fog).toFixed(3)}) ` +
+        `translate3d(${(-9 * (1 - fog)).toFixed(2)}%, ${(7 * (1 - fog)).toFixed(2)}%, 0)`;
+    }
+    if (fogPaperRef.current) {
+      fogPaperRef.current.style.opacity = String(Math.max(0, (fog - 0.55) / 0.45) ** 1.4);
+    }
+  }, []);
 
   /**
    * Paint one frame, cropped to fill the canvas it is given.
@@ -116,7 +142,11 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
     return (frameIndex: number) => {
       const canvas = canvasRef.current;
       if (!canvas || !spec) return;
-      const ctx = canvas.getContext('2d', { alpha: false });
+
+      // Held rather than re-fetched: this runs on every scroll tick, and
+      // asking the canvas for its context each time is work with a known
+      // answer.
+      const ctx = (ctxRef.current ??= canvas.getContext('2d', { alpha: false }));
       if (!ctx) return;
 
       const img = getFrame(frameIndex);
@@ -132,14 +162,27 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
     };
   }, [getFrame, spec]);
 
-  // Size the backing store to the element, capped at 2x DPR. Beyond that the
-  // extra pixels cost fill-rate on every scroll frame and buy nothing visible.
+  /**
+   * Size the backing store to the element, capped well under the display's DPR.
+   *
+   * The master is 1280px on its long edge. On a retina laptop a 2x backing
+   * store is already 2880px wide, so better than half of every pixel drawn each
+   * scroll frame is invented by the browser's upscaler from detail that does
+   * not exist. It costs real fill-rate — a 2880x1720 canvas is 5M pixels to
+   * cover per frame, on the same tick that has to blit a film frame — and buys
+   * nothing the eye can find.
+   *
+   * 1.5 still lands comfortably above the source on every viewport this runs
+   * at. Below 1.5 the cap does nothing at all — it only bites on 2x and 3x
+   * displays, which are exactly the ones that were paying four to nine times
+   * the fill for detail the master never had.
+   */
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const rect = canvas.getBoundingClientRect();
       canvas.width = Math.round(rect.width * dpr);
       canvas.height = Math.round(rect.height * dpr);
@@ -189,21 +232,28 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
         scrub: 0.6,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
-          const target = self.progress * lastIndex;
+          const p = self.progress;
+
           // Quantising to whole frames stops a fast flick from queuing a paint
           // per sub-pixel step; the decoder is the bottleneck, not the maths.
-          const next = Math.round(target);
+          const next = Math.round(p * lastIndex);
           if (next !== Math.round(progressRef.current.value)) {
             progressRef.current.value = next;
             draw(next);
           }
-          setProgress(self.progress);
+
+          // Everything downstream of progress is written straight to the DOM.
+          // Not one of these is a React state change, which is what keeps the
+          // tick to a frame blit and a handful of style writes.
+          chaptersApi.current?.update(p);
+          applyFog(p);
+          if (hintRef.current) hintRef.current.style.opacity = p > 0.04 ? '0' : '1';
         },
       });
     }, section);
 
     return () => ctx.revert();
-  }, [reduced, spec, draw, scrollLength]);
+  }, [reduced, spec, draw, scrollLength, applyFog]);
 
   // Reduced motion: a still poster and normal document flow. No pin, no canvas.
   if (reduced) {
@@ -304,7 +354,7 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
 
       <FilmChapters
         chapters={chapters}
-        progress={progress}
+        apiRef={chaptersApi}
         layout={layout}
         bandBottom={strip ? `calc(20svh + 100vw / ${strip.aspect})` : '0px'}
       />
@@ -318,14 +368,16 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
           same scroll frames as the canvas repaint, and a blur here would cost
           more than the whole frame decode. */}
       <div
+        ref={fogRef}
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 overflow-hidden"
-        style={{ opacity: fog, visibility: fog <= 0.001 ? 'hidden' : 'visible' }}
+        style={{ opacity: 0, visibility: 'hidden' }}
       >
         <div
+          ref={fogCloudRef}
           className="absolute inset-[-25%]"
           style={{
-            transform: `scale(${(1.35 - 0.35 * fog).toFixed(3)}) translate3d(${(-9 * (1 - fog)).toFixed(2)}%, ${(7 * (1 - fog)).toFixed(2)}%, 0)`,
+            transform: 'scale(1.35) translate3d(-9%, 7%, 0)',
             background:
               'radial-gradient(60% 52% at 22% 68%, rgb(232 233 236 / 0.95) 0%, rgb(232 233 236 / 0) 68%),' +
               'radial-gradient(56% 46% at 74% 40%, rgb(244 245 247 / 0.9) 0%, rgb(244 245 247 / 0) 66%),' +
@@ -336,20 +388,19 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
         {/* The last of it: a flat settle onto the paper the next section is on,
             so the pin releases into that ground rather than cutting to it. */}
         <div
+          ref={fogPaperRef}
           className="absolute inset-0"
-          style={{
-            background: 'var(--color-paper)',
-            opacity: Math.max(0, (fog - 0.55) / 0.45) ** 1.4,
-          }}
+          style={{ background: 'var(--color-paper)', opacity: 0 }}
         />
       </div>
 
       {!primed ? <FilmLoader progress={loadProgress} failed={failed} /> : null}
 
       <div
+        ref={hintRef}
         aria-hidden="true"
         className="pointer-events-none absolute bottom-[3.5rem] left-0 right-0 flex justify-center"
-        style={{ opacity: progress > 0.04 ? 0 : 1, transition: 'opacity 400ms' }}
+        style={{ opacity: 1, transition: 'opacity 400ms' }}
       >
         <span className="u-label text-[var(--color-paper)]/70">Scroll</span>
       </div>

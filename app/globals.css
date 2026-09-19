@@ -275,9 +275,20 @@ html.lenis body {
    disc behind her is that ground, not a colour of her own.
    ------------------------------------------------------------ */
 
+/**
+ * The guide is placed in both axes, not slid along one.
+ *
+ * `--guide-y` is the perch as a fraction of the viewport and the clamp is what
+ * keeps it honest: it can never climb into the header or drop under the fold,
+ * whatever a stop asks for. Bounds are in rem so they hold at any zoom.
+ *
+ * `data-nudged` is the runtime backstop: set when the figure has landed on top
+ * of something with text in it, dropping the guide to the foot of the viewport
+ * where every section on this page keeps its whitespace.
+ */
 .site-guide {
   position: fixed;
-  bottom: var(--guide-lift, 6rem);
+  top: clamp(6.5rem, calc(var(--guide-y, 0.86) * 100svh), calc(100svh - 9rem));
   z-index: 40;
   display: flex;
   align-items: flex-end;
@@ -285,20 +296,68 @@ html.lenis body {
   pointer-events: none;
 }
 
-/* The bubble has to open inward — away from the edge she is pinned to — or it
-   runs off the screen. DOM order is bubble then figure, so `row` puts the
-   bubble on the left and the figure on the right (what the right edge wants),
-   and `row-reverse` swaps them (what the left edge wants). */
+/* It holds the bottom-left corner and only its height changes, so the bubble
+   always opens to the right — inward, away from the edge, or it runs off the
+   screen. DOM order is bubble then figure, so `row-reverse` puts the figure on
+   the left and its note beside it. */
+/* DOM order is note then figure, so `row-reverse` puts the figure against the
+   left gutter with its note to the right, and `row` mirrors both for the right
+   gutter. Either way the note opens inward, away from the edge. */
+.site-guide[data-side='left'] {
+  left: clamp(1rem, 3vw, 2.5rem);
+  right: auto;
+  flex-direction: row-reverse;
+}
+
 .site-guide[data-side='right'] {
   right: clamp(1rem, 3vw, 2.5rem);
   left: auto;
   flex-direction: row;
 }
 
-.site-guide[data-side='left'] {
-  left: clamp(1rem, 3vw, 2.5rem);
-  right: auto;
-  flex-direction: row-reverse;
+/* Below this there are no side margins worth perching in, so both gutters put
+   the guide at the bottom of the screen where it can only ever cover the end of
+   a section rather than the middle of one. */
+.site-guide[data-nudged] {
+  top: auto;
+  bottom: 1.5rem;
+}
+
+@media (max-width: 48rem) {
+  .site-guide {
+    top: auto;
+    bottom: 1.25rem;
+  }
+}
+
+/* The mascot's palette.
+ *
+ * Every fill in the SVG reads one of these, which is the whole reason it is
+ * drawn rather than dropped in as a picture. The body and the screen sit within
+ * a few percent of the ink ground, so on the dark sections they are lifted just
+ * far enough to hold a silhouette — dark against the grey shell still, but no
+ * longer merged into the page behind them. The shell itself barely moves: it is
+ * already light enough to carry the figure on either ground.
+ *
+ * The eyes are the one colour that never changes. They are the only warm thing
+ * in the drawing and they read on paper and on ink equally, which is what lets
+ * the rest of it shift underneath them without the character changing. */
+.site-guide {
+  --gm-shell-hi: #9ba0a7;
+  --gm-shell: #7c8189;
+  --gm-shell-lo: #5f646c;
+  --gm-screen: #121215;
+  --gm-screen-hi: #23242a;
+  --gm-body: #2c2d31;
+  --gm-body-hi: #3b3d42;
+  --gm-glow: #f5d84e;
+}
+
+.site-guide[data-theme='dark'] {
+  --gm-screen: #1d1e24;
+  --gm-screen-hi: #2e3038;
+  --gm-body: #43454c;
+  --gm-body-hi: #53555d;
 }
 
 /* No disc. She is a drawing on the page, not an icon in a chip — a circle
@@ -308,6 +367,7 @@ html.lenis body {
    page's light and dark sections. */
 .site-guide__button {
   pointer-events: auto;
+  position: relative;
   display: block;
   flex: none;
   padding: 0.25rem;
@@ -325,6 +385,33 @@ html.lenis body {
   height: 5rem;
   width: auto;
   display: block;
+  transition: transform 400ms var(--ease-out-expo);
+}
+
+/* The ground shadow.
+ *
+ * A sibling of the figure rather than part of it, and that is the whole point:
+ * the mascot bobs, the shadow must not go with it. It stays on the floor and
+ * tightens as the figure rises, which is what sells the bob as hovering rather
+ * than as the whole sprite sliding up and down.
+ *
+ * On ink there is no floor to cast onto, so it becomes a faint pool of light
+ * instead — the same job done by the opposite means. */
+.site-guide__shadow {
+  position: absolute;
+  bottom: 0.1rem;
+  left: 50%;
+  width: 2.6rem;
+  height: 0.5rem;
+  margin-left: -1.3rem;
+  border-radius: 50%;
+  background: rgb(10 10 10 / 0.22);
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.site-guide[data-theme='dark'] .site-guide__shadow {
+  background: rgb(245 216 78 / 0.13);
 }
 
 /* The bubble is a drawing note: a hairline box with one clipped corner,
@@ -339,15 +426,25 @@ html.lenis body {
   font-size: 0.875rem;
   line-height: 1.45;
   color: var(--figure);
+  box-shadow: 0 10px 25px rgb(10 10 10 / 0.16);
   opacity: 0;
   visibility: hidden;
-  transform: translateY(0.375rem);
+  /* Scaled as well as raised. A note that only fades reads as appearing; one
+     that grows the last tenth into place reads as being held up, which is the
+     difference the reference is trading on. */
+  transform: translateY(0.625rem) scale(0.9);
+  transform-origin: left bottom;
+}
+
+/* Growing from whichever corner the guide is actually standing in. */
+.site-guide[data-side='right'] .site-guide__bubble {
+  transform-origin: right bottom;
   transition:
     opacity 320ms ease,
-    transform 320ms var(--ease-out-expo),
+    transform 420ms var(--ease-out-expo),
     background-color 550ms ease,
     color 550ms ease,
-    visibility 0s linear 320ms;
+    visibility 0s linear 420ms;
 }
 
 .site-guide[data-open] .site-guide__bubble {
@@ -357,76 +454,167 @@ html.lenis body {
   transition-delay: 0s, 0s, 0s;
 }
 
-.site-guide__dismiss {
-  display: block;
-  margin-top: 0.75rem;
-  border-top: 1px solid var(--hairline);
-  padding-top: 0.625rem;
-  width: 100%;
-  text-align: start;
-  font-size: 0.625rem;
-  font-weight: 500;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--muted);
-  transition: color 300ms ease;
-}
-
-.site-guide__dismiss:hover {
-  color: var(--figure);
-}
-
 @media (prefers-reduced-motion: no-preference) {
+  /* `top` is in here now because the guide moves vertically as well as between
+     gutters. Crossing sides swaps which of left/right is `auto`, and `auto` is
+     not interpolable — so that leg of the journey is a cut, which the landing
+     animation covers. Same-side moves glide. */
   .site-guide {
     transition:
+      top 1100ms var(--ease-in-out-quint),
       bottom 1100ms var(--ease-in-out-quint),
       left 1100ms var(--ease-in-out-quint),
       right 1100ms var(--ease-in-out-quint);
   }
 
   /* Bobbing lives on the figure, not the wrapper, so it cannot fight the
-     transition that carries her between corners. */
+     transition that carries it between sections. */
   .site-guide__figure {
-    animation: guide-bob 4.4s ease-in-out infinite;
+    animation: guide-bob 3.4s ease-in-out infinite;
+  }
+
+  /* The shadow breathes against the bob rather than with it: tight and dark
+     when the mascot is down, wide and faint when it is up. Same clock, opposite
+     phase, which is the only reason a floating character reads as floating. */
+  .site-guide__shadow {
+    animation: guide-shadow 3.4s ease-in-out infinite;
+  }
+
+  /* Landing.
+   *
+   * The mascot tips into the direction of travel and rights itself, the way
+   * anything that just flew somewhere does. It is on the button rather than the
+   * figure so it composes with the bob instead of replacing it. */
+  .site-guide[data-arriving] .site-guide__button {
+    animation: guide-land 900ms var(--ease-out-expo);
+  }
+
+  /* And waves once it has landed, which is the moment it has something to say.
+     Idle waving stays as it was, so it still has a life between sections. */
+  .site-guide[data-arriving] .gm-wave {
+    animation: gm-wave-hello 1.25s ease-in-out 220ms;
+  }
+
+  @keyframes guide-shadow {
+    50% {
+      transform: scaleX(1.18);
+      opacity: 0.55;
+    }
+  }
+
+  @keyframes guide-land {
+    0% {
+      transform: translateY(-0.5rem) rotate(-7deg);
+    }
+    55% {
+      transform: translateY(0) rotate(3deg);
+    }
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+  }
+
+  @keyframes gm-wave-hello {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    20% {
+      transform: rotate(-22deg);
+    }
+    45% {
+      transform: rotate(4deg);
+    }
+    70% {
+      transform: rotate(-16deg);
+    }
   }
 
   .site-guide__button:hover .site-guide__figure {
     animation-duration: 2.2s;
   }
 
-  .guide-eye {
-    animation: guide-blink 6.1s step-end infinite;
-    transform-box: fill-box;
-    transform-origin: center;
+  .site-guide__button:hover .site-guide__figure {
+    transform: rotate(-4deg);
   }
 
-  .site-guide__button:hover .guide-wave {
-    animation: guide-wave 900ms ease-in-out 2;
+  /* The blink.
+   *
+   * Squashing the whole eye rather than dropping a lid over it: at 80px tall
+   * there is no room for a lid to read, and a 90ms squash at eye scale is
+   * exactly what the eye interprets as a blink. `fill-box` is what makes the
+   * origin the eye itself rather than the corner of the SVG.
+   *
+   * The right eye runs on a slightly different cycle so the two are not
+   * mechanically in step, which is the difference between a character and a
+   * pair of indicator lights. */
+  /* The face glows. On the reference the eyes carry a bloom, and without it a
+     flat yellow disc on a dark screen reads as a sticker rather than as
+     something lit from behind. Applied to the group so the mouth gets it too. */
+  .gm-gaze {
+    filter: drop-shadow(0 0 2.5px rgb(245 216 78 / 0.55));
+  }
+
+  .gm-eye {
     transform-box: fill-box;
-    transform-origin: 8% 20%;
+    transform-origin: center;
+    animation: gm-blink 4.2s ease-in-out infinite;
+  }
+
+  .gm-eye--right {
+    animation-duration: 4.45s;
+  }
+
+  @keyframes gm-blink {
+    0%,
+    92%,
+    100% {
+      transform: scaleY(1);
+    }
+    95%,
+    96% {
+      transform: scaleY(0.12);
+    }
+  }
+
+  /* The wave. Idle it fires now and then; hovering the guide asks for one on
+     demand and it comes back faster. The origin is the shoulder, set on the
+     element in GuideMascot so it travels with the artwork rather than living
+     here in a second place that has to agree with it. */
+  .gm-wave {
+    animation: gm-wave 7.2s ease-in-out infinite;
+  }
+
+  .site-guide__button:hover .gm-wave {
+    animation-duration: 1.4s;
+  }
+
+  @keyframes gm-wave {
+    0%,
+    72%,
+    100% {
+      transform: rotate(0deg);
+    }
+    78% {
+      transform: rotate(-17deg);
+    }
+    84% {
+      transform: rotate(6deg);
+    }
+    90% {
+      transform: rotate(-12deg);
+    }
+  }
+
+  /* The gaze is written from JS, so it only needs smoothing — without this the
+     pupils teleport on a fast pointer sweep instead of following it. */
+  .gm-gaze {
+    transition: transform 260ms var(--ease-out-expo);
   }
 
   @keyframes guide-bob {
     50% {
       transform: translateY(-0.4rem);
-    }
-  }
-
-  /* Squashing the pupil to nothing for two frames reads as a blink at any size. */
-  @keyframes guide-blink {
-    0%,
-    95% {
-      transform: scaleY(1);
-    }
-    96%,
-    98% {
-      transform: scaleY(0.1);
-    }
-  }
-
-  @keyframes guide-wave {
-    50% {
-      transform: rotate(-16deg);
     }
   }
 }

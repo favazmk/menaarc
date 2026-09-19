@@ -47,7 +47,13 @@ export function Cursor() {
     const onMove = (event: PointerEvent) => {
       x(event.clientX);
       y(event.clientY);
-      const target = (event.target as Element | null)?.closest<HTMLElement>('[data-cursor]');
+      // `target` is only an Element for a pointer event over the document. A
+      // listener on `window` also receives events dispatched at `window` or
+      // `document`, neither of which has `closest`, and the old cast asserted
+      // otherwise — so anything synthesising a pointermove threw in here.
+      const node = event.target;
+      const target =
+        node instanceof Element ? node.closest<HTMLElement>('[data-cursor]') : null;
       setLabel(target?.dataset.cursor ?? null);
     };
 

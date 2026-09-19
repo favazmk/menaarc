@@ -83,11 +83,25 @@ export function useFrameLoader(spec: TierSpec | null) {
     let decoded = 0;
     let errors = 0;
 
+    /**
+      * A frame is not ready when it loads — it is ready when it is DECODED.
+      *
+      * `onload` fires as soon as the bytes are in, with the bitmap still
+      * compressed. The decode then happens inside the first `drawImage` that
+      * touches it, synchronously, on the main thread, in the middle of a scroll
+      * frame. For AVIF at 1280x720 that is tens of milliseconds — which is
+      * exactly the stutter you feel scrolling into film you have not seen yet,
+      * and exactly why it is smooth scrolling back over it.
+      *
+      * `img.decode()` moves that work off the critical path and resolves once
+      * the bitmap genuinely exists, so no draw during a scroll ever pays for a
+      * decode. It is the single biggest thing separating this from a slideshow.
+      */
     const load = (index: number, ext: 'primary' | 'fallback') =>
       new Promise<void>((resolve) => {
         const img = new Image();
         img.decoding = 'async';
-        img.onload = () => {
+        const ready = () => {
           if (cancelled) return resolve();
           framesRef.current[index] = img;
           loadedRef.current[index] = true;
@@ -99,6 +113,13 @@ export function useFrameLoader(spec: TierSpec | null) {
             complete: decoded >= frameCount,
           }));
           resolve();
+        };
+        img.onload = () => {
+          // Safari has shipped a decode() that rejects on perfectly good
+          // images, so a failed decode falls through to counting the frame
+          // anyway rather than dropping it — worst case it decodes on first
+          // draw, which is where every frame used to be.
+          img.decode().then(ready, ready);
         };
         img.onerror = () => {
           if (cancelled) return resolve();

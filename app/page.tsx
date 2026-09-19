@@ -59,7 +59,7 @@ const chapters = chaptersJson.chapters as Chapter[];
  * sits downstream of all of it, which is the part that must not move.
  *
  * The guide's route in SiteGuide reads this order — reordering here means
- * re-walking her `side`/`lift` cycle, and re-reading any line that refers to
+ * re-walking its `side`/`lift` cycle, and re-reading any line that refers to
  * the section before or after it.
  */
 export default function HomePage() {
@@ -70,8 +70,8 @@ export default function HomePage() {
       <ScrollFilm manifest={manifest} chapters={chapters} scrollLength={6} />
 
       {/* `data-guide` marks a stop on the guide's route, and its value keys the
-          line she says there (see SiteGuide's STOPS). The film carries no
-          marker, which is what keeps her off it. Plain wrappers rather than a
+          line it says there (see SiteGuide's STOPS). The film carries no
+          marker, which is what keeps it off the film. Plain wrappers rather than a
           prop on each section, because the route belongs to this page — most of
           these sections also appear on pages the guide never visits. */}
       <div data-guide="clients">

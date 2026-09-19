@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useImperativeHandle, useRef, type RefObject } from 'react';
 
 export type Chapter = {
   id: string;
@@ -24,6 +24,9 @@ const Z_IN = -460;
 const Z_OUT = 340;
 
 const easeOut = (t: number) => 1 - (1 - t) ** 3;
+
+const STATION_ON = 'var(--color-accent)';
+const STATION_OFF = 'rgb(250 250 250 / 0.35)';
 
 /**
  * Opacity and depth for a chapter at the current scroll progress.
@@ -71,21 +74,73 @@ function chapterState(progress: number, from: number, to: number) {
  */
 export type ChapterLayout = 'overlay' | 'bottom' | 'stacked';
 
+/** What the scroll driver is handed, so it never has to re-render this tree. */
+export type FilmChaptersHandle = { update: (progress: number) => void };
+
 export function FilmChapters({
   chapters,
-  progress,
+  apiRef,
   layout = 'overlay',
   bandBottom = '0px',
 }: {
   chapters: Chapter[];
-  progress: number;
+  /**
+   * Filled with an imperative updater.
+   *
+   * THE CHAPTERS ARE NOT RE-RENDERED ON SCROLL, and that is the point. Feeding
+   * progress in as a prop meant React re-rendered this whole tree on every
+   * scroll tick — five articles, five markers, five stations, each with fresh
+   * inline styles — at up to 120 times a second, on the same main thread that
+   * has to decode and paint a film frame in the same tick. React's work was not
+   * wasted so much as fatally badly timed, and it showed up as judder in the
+   * one place the eye is most sensitive to it.
+   *
+   * So the tree renders once and the scroll writes straight to the nodes. This
+   * is the same trick the canvas beside it already used, applied to the type.
+   */
+  apiRef: RefObject<FilmChaptersHandle | null>;
   layout?: ChapterLayout;
   /** Where the film strip ends, so stacked type can start beneath it. */
   bandBottom?: string;
 }) {
-  const active = useMemo(
-    () => chapters.map((c) => ({ c, ...chapterState(progress, c.from, c.to) })),
-    [chapters, progress],
+  const articles = useRef<(HTMLElement | null)[]>([]);
+  const markers = useRef<(HTMLElement | null)[]>([]);
+  const stations = useRef<(HTMLElement | null)[]>([]);
+  const fill = useRef<HTMLDivElement>(null);
+
+  useImperativeHandle(
+    apiRef,
+    () => ({
+      update(progress: number) {
+        for (let i = 0; i < chapters.length; i += 1) {
+          const c = chapters[i];
+          const { o, z } = chapterState(progress, c.from, c.to);
+          const hidden = o <= 0.01;
+
+          const article = articles.current[i];
+          if (article) {
+            article.style.opacity = String(o);
+            article.style.transform = `translate3d(0, 0, ${z.toFixed(1)}px)`;
+            article.style.visibility = hidden ? 'hidden' : 'visible';
+          }
+
+          const marker = markers.current[i];
+          if (marker) {
+            marker.style.opacity = String(o);
+            marker.style.visibility = hidden ? 'hidden' : 'visible';
+          }
+
+          const station = stations.current[i];
+          if (station) {
+            station.style.color =
+              progress >= c.from && progress <= c.to ? STATION_ON : STATION_OFF;
+          }
+        }
+
+        if (fill.current) fill.current.style.transform = `scaleX(${progress})`;
+      },
+    }),
+    [chapters],
   );
 
   const stacked = layout === 'stacked';
@@ -121,55 +176,66 @@ export function FilmChapters({
           style={{ perspective: '1100px', perspectiveOrigin }}
         >
           <div className="relative w-full max-w-[40rem]">
-            {active.map(({ c, o, z }) => (
-              <article
-                key={c.id}
-                // Chapters occupy one position, not a sequence, so the travel
-                // never reflows the layout mid-scroll.
-                className={`absolute inset-x-0 text-[var(--color-paper)] ${low ? 'bottom-0' : 'top-0'}`}
-                style={{
-                  opacity: o,
-                  transform: `translate3d(0, 0, ${z.toFixed(1)}px)`,
-                  transformOrigin: compact ? '50% 50%' : '0% 50%',
-                  visibility: o <= 0.01 ? 'hidden' : 'visible',
-                  willChange: 'opacity, transform',
-                }}
-              >
-                {/* Eyebrow, over the rule it hangs from. */}
-                <p className="u-label flex items-center gap-3 text-[var(--color-paper)]/55">
-                  <span className="text-[var(--color-accent)]">{c.index}</span>
-                  <span className="opacity-40">/</span>
-                  <span>{c.label}</span>
-                  <span className="h-px flex-1 bg-[var(--color-paper)]/25" />
-                </p>
-
-                <h2
-                  className="mt-5 font-[family-name:var(--font-display)] uppercase leading-[0.94]"
+            {chapters.map((c, i) => {
+              // Rendered at rest, then never re-rendered. The first scroll tick
+              // overwrites these; they exist so the opening chapter is correct
+              // in the server's HTML and in the frame before any scroll.
+              const { o, z } = chapterState(0, c.from, c.to);
+              return (
+                <article
+                  key={c.id}
+                  ref={(el) => {
+                    articles.current[i] = el;
+                  }}
+                  // Chapters occupy one position, not a sequence, so the travel
+                  // never reflows the layout mid-scroll.
+                  className={`absolute inset-x-0 text-[var(--color-paper)] ${low ? 'bottom-0' : 'top-0'}`}
                   style={{
-                    fontSize: compact ? 'clamp(1.5rem, 6.6vw, 2.2rem)' : 'clamp(2rem, 4.4vw, 4rem)',
-                    fontWeight: 300,
-                    letterSpacing: '0.045em',
+                    opacity: o,
+                    transform: `translate3d(0, 0, ${z.toFixed(1)}px)`,
+                    transformOrigin: compact ? '50% 50%' : '0% 50%',
+                    visibility: o <= 0.01 ? 'hidden' : 'visible',
+                    willChange: 'opacity, transform',
                   }}
                 >
-                  {c.headline}
-                </h2>
+                  {/* Eyebrow, over the rule it hangs from. */}
+                  <p className="u-label flex items-center gap-3 text-[var(--color-paper)]/55">
+                    <span className="text-[var(--color-accent)]">{c.index}</span>
+                    <span className="opacity-40">/</span>
+                    <span>{c.label}</span>
+                    <span className="h-px flex-1 bg-[var(--color-paper)]/25" />
+                  </p>
 
-                <p className="u-label mt-5 text-[var(--color-paper)]/70">{c.sub}</p>
+                  <h2
+                    className="mt-5 font-[family-name:var(--font-display)] uppercase leading-[0.94]"
+                    style={{
+                      fontSize: compact
+                        ? 'clamp(1.5rem, 6.6vw, 2.2rem)'
+                        : 'clamp(2rem, 4.4vw, 4rem)',
+                      fontWeight: 300,
+                      letterSpacing: '0.045em',
+                    }}
+                  >
+                    {c.headline}
+                  </h2>
 
-                {/* The callout rule, and the annotations hung off it. */}
-                <ul className="mt-5 border-l border-[var(--color-paper)]/25 pl-4">
-                  {c.specs.map((s) => (
-                    <li
-                      key={s}
-                      className="u-label py-[0.3rem] text-[var(--color-paper)]/55"
-                      style={{ fontSize: '0.625rem', letterSpacing: '0.24em' }}
-                    >
-                      {s}
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            ))}
+                  <p className="u-label mt-5 text-[var(--color-paper)]/70">{c.sub}</p>
+
+                  {/* The callout rule, and the annotations hung off it. */}
+                  <ul className="mt-5 border-l border-[var(--color-paper)]/25 pl-4">
+                    {c.specs.map((s) => (
+                      <li
+                        key={s}
+                        className="u-label py-[0.3rem] text-[var(--color-paper)]/55"
+                        style={{ fontSize: '0.625rem', letterSpacing: '0.24em' }}
+                      >
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -178,15 +244,21 @@ export function FilmChapters({
       {!compact ? (
         <div className="u-shell pointer-events-none absolute inset-x-0 top-0">
           <div className="relative">
-            {active.map(({ c, o }) => (
-              <span
-                key={c.id}
-                className="u-label absolute right-0 top-[16svh] whitespace-nowrap text-[var(--color-paper)]/45"
-                style={{ opacity: o, visibility: o <= 0.01 ? 'hidden' : 'visible' }}
-              >
-                {c.marker}
-              </span>
-            ))}
+            {chapters.map((c, i) => {
+              const { o } = chapterState(0, c.from, c.to);
+              return (
+                <span
+                  key={c.id}
+                  ref={(el) => {
+                    markers.current[i] = el;
+                  }}
+                  className="u-label absolute right-0 top-[16svh] whitespace-nowrap text-[var(--color-paper)]/45"
+                  style={{ opacity: o, visibility: o <= 0.01 ? 'hidden' : 'visible' }}
+                >
+                  {c.marker}
+                </span>
+              );
+            })}
           </div>
         </div>
       ) : null}
@@ -197,8 +269,9 @@ export function FilmChapters({
         <div className="relative pb-5">
           <div className="relative h-px w-full bg-[var(--color-paper)]/15">
             <div
+              ref={fill}
               className="h-full origin-left bg-[var(--color-accent)]"
-              style={{ transform: `scaleX(${progress})` }}
+              style={{ transform: 'scaleX(0)' }}
             />
             {chapters.map((c) => (
               <span
@@ -212,19 +285,19 @@ export function FilmChapters({
 
           {!compact ? (
             <div className="relative mt-2 h-3">
-              {chapters.map((c) => (
+              {chapters.map((c, i) => (
                 <span
                   key={c.id}
+                  ref={(el) => {
+                    stations.current[i] = el;
+                  }}
                   aria-hidden="true"
-                  className="u-label absolute top-0 whitespace-nowrap transition-opacity duration-300"
+                  className="u-label absolute top-0 whitespace-nowrap"
                   style={{
                     left: `${c.from * 100}%`,
                     fontSize: '0.5625rem',
                     letterSpacing: '0.26em',
-                    color:
-                      progress >= c.from && progress <= c.to
-                        ? 'var(--color-accent)'
-                        : 'rgb(250 250 250 / 0.35)',
+                    color: c.from <= 0 ? STATION_ON : STATION_OFF,
                   }}
                 >
                   {c.index}
