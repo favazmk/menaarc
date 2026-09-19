@@ -90,133 +90,120 @@ export function GuideMascot({ className }: { className?: string }) {
   }, []);
 
   const shell = `gm-shell-${uid}`;
-  const torso = `gm-torso-${uid}`;
-  const glass = `gm-glass-${uid}`;
+  const screen = `gm-screen-${uid}`;
 
   return (
     <svg
       ref={svgRef}
-      viewBox="0 0 120 138"
+      viewBox="0 0 160 180"
       className={className}
       role="presentation"
       aria-hidden="true"
     >
       <defs>
-        {/* The only shading in the drawing. Light from the upper left, which is
-            where the reference sheet puts it. */}
-        <linearGradient id={shell} x1="0.18" y1="0" x2="0.78" y2="1">
-          <stop offset="0" stopColor="var(--gm-shell-hi)" />
-          <stop offset="0.55" stopColor="var(--gm-shell)" />
-          <stop offset="1" stopColor="var(--gm-shell-lo)" />
+        <linearGradient id={shell} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="0.7" stopColor="#f3f4f6" />
+          <stop offset="1" stopColor="#d1d5db" />
         </linearGradient>
-        <linearGradient id={torso} x1="0.2" y1="0" x2="0.8" y2="1">
-          <stop offset="0" stopColor="var(--gm-body-hi)" />
-          <stop offset="1" stopColor="var(--gm-body)" />
+        <linearGradient id={screen} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#374151" />
+          <stop offset="1" stopColor="#111827" />
         </linearGradient>
-        {/* The screen is not flat black. It lifts very slightly towards the
-            bottom right, which is the only thing that makes it read as glass
-            set into a shell rather than a hole cut in it. */}
-        <radialGradient id={glass} cx="0.62" cy="0.7" r="0.85">
-          <stop offset="0" stopColor="var(--gm-screen-hi)" />
-          <stop offset="1" stopColor="var(--gm-screen)" />
-        </radialGradient>
+        <linearGradient id="gm-leg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#f9fafb" />
+          <stop offset="1" stopColor="#e5e7eb" />
+        </linearGradient>
+        <linearGradient id="gm-reflection" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#ffffff" stopOpacity="0.15" />
+          <stop offset="0.4" stopColor="#ffffff" stopOpacity="0" />
+        </linearGradient>
+        <filter id="gm-drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="8" stdDeviation="6" floodOpacity="0.15" />
+        </filter>
+        <filter id="gm-inner-shadow">
+          <feOffset dx="0" dy="4"/>
+          <feGaussianBlur stdDeviation="3" result="offset-blur"/>
+          <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+          <feFlood floodColor="black" floodOpacity="0.5" result="color"/>
+          <feComposite operator="in" in="color" in2="inverse" result="shadow"/>
+          <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
+        </filter>
       </defs>
 
-      {/* ---- antennae and ear discs sit behind the shell, so they read as
-              coming out of the head rather than being stuck on it. */}
-      <g stroke="var(--gm-shell-lo)" strokeWidth="3" strokeLinecap="round" fill="none">
-        <path d="M40 22 L31 6" />
-        <path d="M80 22 L89 6" />
+      {/* ---- Antennae (Rings) */}
+      <g stroke="#ffffff" strokeWidth="6" fill="#9ca3af" filter="url(#gm-drop-shadow)">
+        <circle cx="60" cy="30" r="12" />
+        <circle cx="100" cy="30" r="12" />
       </g>
-      <g fill="var(--gm-body)">
-        <circle cx="30" cy="4.5" r="4.4" />
-        <circle cx="90" cy="4.5" r="4.4" />
-      </g>
-      <g>
-        <ellipse cx="18" cy="52" rx="7" ry="10" fill="var(--gm-shell-lo)" />
-        <ellipse cx="16.4" cy="52" rx="4.2" ry="6.6" fill="var(--gm-body)" opacity="0.45" />
-        <ellipse cx="102" cy="52" rx="7" ry="10" fill="var(--gm-shell-lo)" />
-        <ellipse cx="103.6" cy="52" rx="4.2" ry="6.6" fill="var(--gm-body)" opacity="0.45" />
+      <g fill="#d1d5db">
+        <rect x="54" y="42" width="12" height="10" />
+        <rect x="94" y="42" width="12" height="10" />
       </g>
 
-      {/* ---- the body. Drawn before the head so the head sits down over it
-              like a helmet: that overlap is most of what sets the proportions,
-              and without it the two read as a snowman. */}
-      <path
-        d="M76 92 q15 1 19 12"
-        stroke="var(--gm-body)"
-        strokeWidth="14"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <rect x="43" y="76" width="34" height="34" rx="16" fill={`url(#${torso})`} />
-      <g fill="var(--gm-body)">
-        <ellipse cx="51" cy="115" rx="11.5" ry="9" />
-        <ellipse cx="70" cy="115" rx="11.5" ry="9" />
+      {/* ---- Legs & Feet */}
+      <g className="gm-leg-left">
+        <rect x="65" y="140" width="12" height="20" fill="url(#gm-leg)" />
+        <g filter="url(#gm-drop-shadow)">
+          <path d="M55 160 Q60 150 71 150 Q77 150 79 160 Z" fill="#9ca3af" />
+          <path d="M55 160 L79 160 L79 165 L55 165 Z" fill="#6b7280" />
+        </g>
+      </g>
+      <g className="gm-leg-right">
+        <rect x="85" y="140" width="12" height="20" fill="url(#gm-leg)" />
+        <g filter="url(#gm-drop-shadow)">
+          <path d="M81 160 Q86 150 97 150 Q103 150 105 160 Z" fill="#9ca3af" />
+          <path d="M81 160 L105 160 L105 165 L81 165 Z" fill="#6b7280" />
+        </g>
       </g>
 
-      {/* ---- the head.
-              A squircle rather than a rounded rectangle: the reference's
-              corners tighten as they turn, and a uniform `rx` is exactly what
-              made the first pass read as a television set. The bottom is a
-              little wider than the top, which is the whole of its friendliness. */}
-      <path
-        d="M17 50
-           C17 26 31 13 60 13
-           C89 13 103 26 103 50
-           C103 75 90 89 60 89
-           C30 89 17 75 17 50 Z"
-        fill={`url(#${shell})`}
-      />
-      {/* Rim light along the edge the light actually falls on. */}
-      <path
-        d="M27 36 C31 23 42 17 57 16.4"
-        stroke="var(--gm-shell-hi)"
-        strokeWidth="3"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.75"
-      />
+      {/* ---- Arms (Back part) */}
+      <g className="gm-arm-left" filter="url(#gm-drop-shadow)">
+        <path d="M30 90 L20 120" stroke="#9ca3af" strokeWidth="12" strokeLinecap="round" />
+        <circle cx="18" cy="125" r="10" fill="url(#gm-leg)" />
+      </g>
 
-      <rect x="28" y="25" width="64" height="47" rx="17" fill={`url(#${glass})`} />
-      {/* The bezel's own shadow falling onto the glass, top left only. */}
-      <path
-        d="M34 34 C36 29 41 26.5 47 26.2"
-        stroke="#000"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.5"
-      />
+      <g className="gm-arm-right gm-wave" style={{ transformOrigin: '130px 90px' }} filter="url(#gm-drop-shadow)">
+        <path d="M130 90 L140 120" stroke="#9ca3af" strokeWidth="12" strokeLinecap="round" />
+        <circle cx="142" cy="125" r="10" fill="url(#gm-leg)" />
+      </g>
 
-      {/* ---- the face. The whole face travels with the gaze — on this character
-              the eyes are the face, so moving them alone would read as the
-              features sliding off it. */}
+      {/* ---- Body/Head */}
+      <rect x="30" y="50" width="100" height="90" rx="20" fill={`url(#${shell})`} filter="url(#gm-drop-shadow)" />
+      
+      {/* Lower body details (Slot and Button) */}
+      <path d="M30 115 L130 115" stroke="#9ca3af" strokeWidth="2" opacity="0.3" />
+      
+      <rect x="65" y="122" width="30" height="4" rx="2" fill="#111827" filter="url(#gm-inner-shadow)" />
+      <rect x="66" y="123" width="15" height="2" rx="1" fill="#4ade80" />
+      
+      <rect x="110" y="119" width="10" height="8" rx="3" fill="#9ca3af" filter="url(#gm-drop-shadow)" />
+
+      {/* ---- Screen */}
+      <rect x="42" y="65" width="76" height="42" rx="12" fill={`url(#${screen})`} filter="url(#gm-inner-shadow)" />
+      {/* Screen Reflection */}
+      <path d="M42 77 Q80 77 118 65 L118 107 L42 107 Z" fill="url(#gm-reflection)" opacity="0.8" />
+      
+      {/* Inner Screen Bezel Highlight */}
+      <rect x="43" y="66" width="74" height="40" rx="11" fill="none" stroke="#4b5563" strokeWidth="2" opacity="0.5" />
+
+      {/* ---- Face elements grouped to move with gaze */}
       <g ref={gazeRef} className="gm-gaze">
+        {/* Eyes */}
         <g className="gm-eye">
-          <circle cx="48" cy="44" r="7.8" fill="var(--gm-glow)" />
+          <ellipse cx="65" cy="83" rx="4.5" ry="7" fill="#ffffff" filter="drop-shadow(0px 0px 4px rgba(255,255,255,0.5))" />
         </g>
         <g className="gm-eye gm-eye--right">
-          <circle cx="72" cy="44" r="7.8" fill="var(--gm-glow)" />
+          <ellipse cx="95" cy="83" rx="4.5" ry="7" fill="#ffffff" filter="drop-shadow(0px 0px 4px rgba(255,255,255,0.5))" />
         </g>
-        {/* The mouth: a half-disc, flat edge up, exactly as the sheet draws it. */}
-        <path d="M53 57 H67 A7 7 0 0 1 53 57 Z" fill="var(--gm-glow)" />
+        
+        {/* Smile */}
+        <path d="M76 89 Q80 92 84 89" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
+        
+        {/* Blush */}
+        <ellipse cx="58" cy="92" rx="4" ry="2.5" fill="#ef4444" opacity="0.8" filter="drop-shadow(0px 0px 2px rgba(239,68,68,0.5))" />
+        <ellipse cx="102" cy="92" rx="4" ry="2.5" fill="#ef4444" opacity="0.8" filter="drop-shadow(0px 0px 2px rgba(239,68,68,0.5))" />
       </g>
-
-      {/* ---- the arm that waves, drawn last and swung wide of the head.
-              Tucked behind it like the other arm it simply disappeared: the
-              head is most of this character's width, so the only place a raised
-              hand can be seen is outside its silhouette. */}
-      <g className="gm-wave" style={{ transformOrigin: '44px 92px' }}>
-        <path
-          d="M44 92 Q24 90 13 73"
-          stroke="var(--gm-body)"
-          strokeWidth="14"
-          strokeLinecap="round"
-          fill="none"
-        />
-      </g>
-
     </svg>
   );
 }

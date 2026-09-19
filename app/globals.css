@@ -288,47 +288,23 @@ html.lenis body {
  */
 .site-guide {
   position: fixed;
-  top: clamp(6.5rem, calc(var(--guide-y, 0.86) * 100svh), calc(100svh - 9rem));
+  top: 0;
+  left: 0;
   z-index: 40;
-  display: flex;
-  align-items: flex-end;
-  gap: 0.625rem;
   pointer-events: none;
 }
 
-/* It holds the bottom-left corner and only its height changes, so the bubble
-   always opens to the right — inward, away from the edge, or it runs off the
-   screen. DOM order is bubble then figure, so `row-reverse` puts the figure on
-   the left and its note beside it. */
-/* DOM order is note then figure, so `row-reverse` puts the figure against the
-   left gutter with its note to the right, and `row` mirrors both for the right
-   gutter. Either way the note opens inward, away from the edge. */
-.site-guide[data-side='left'] {
-  left: clamp(1rem, 3vw, 2.5rem);
-  right: auto;
-  flex-direction: row-reverse;
+.site-guide[data-side='left'] .site-guide__bubble {
+  right: 4rem;
+  transform-origin: bottom right;
 }
 
-.site-guide[data-side='right'] {
-  right: clamp(1rem, 3vw, 2.5rem);
-  left: auto;
-  flex-direction: row;
+.site-guide[data-side='right'] .site-guide__bubble {
+  left: 4rem;
+  transform-origin: bottom left;
 }
 
-/* Below this there are no side margins worth perching in, so both gutters put
-   the guide at the bottom of the screen where it can only ever cover the end of
-   a section rather than the middle of one. */
-.site-guide[data-nudged] {
-  top: auto;
-  bottom: 1.5rem;
-}
 
-@media (max-width: 48rem) {
-  .site-guide {
-    top: auto;
-    bottom: 1.25rem;
-  }
-}
 
 /* The mascot's palette.
  *
@@ -367,9 +343,11 @@ html.lenis body {
    page's light and dark sections. */
 .site-guide__button {
   pointer-events: auto;
-  position: relative;
+  position: absolute;
+  left: -3rem;
+  bottom: 0;
   display: block;
-  flex: none;
+  width: 6rem;
   padding: 0.25rem;
   color: var(--figure);
   transition:
@@ -382,7 +360,7 @@ html.lenis body {
 }
 
 .site-guide__figure {
-  height: 5rem;
+  height: 6rem;
   width: auto;
   display: block;
   transition: transform 400ms var(--ease-out-expo);
@@ -417,6 +395,9 @@ html.lenis body {
 /* The bubble is a drawing note: a hairline box with one clipped corner,
    the way a note is tagged on a drawing sheet. */
 .site-guide__bubble {
+  position: absolute;
+  bottom: 0;
+  width: max-content;
   pointer-events: auto;
   max-width: min(19rem, calc(100vw - 9.5rem));
   margin-bottom: 0.5rem;
@@ -455,18 +436,6 @@ html.lenis body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* `top` is in here now because the guide moves vertically as well as between
-     gutters. Crossing sides swaps which of left/right is `auto`, and `auto` is
-     not interpolable — so that leg of the journey is a cut, which the landing
-     animation covers. Same-side moves glide. */
-  .site-guide {
-    transition:
-      top 1100ms var(--ease-in-out-quint),
-      bottom 1100ms var(--ease-in-out-quint),
-      left 1100ms var(--ease-in-out-quint),
-      right 1100ms var(--ease-in-out-quint);
-  }
-
   /* Bobbing lives on the figure, not the wrapper, so it cannot fight the
      transition that carries it between sections. */
   .site-guide__figure {

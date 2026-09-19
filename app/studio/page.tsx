@@ -75,8 +75,78 @@ export default function StudioPage() {
             </div>
           </div>
 
-          <Reveal className="mt-28 flex justify-center border-y border-[var(--hairline)] py-24">
-            <Wordmark size="lg" withArabic />
+
+        </div>
+      </section>
+
+      <section data-theme="dark" className="bg-[var(--ground)] text-[var(--figure)]">
+        <div className="u-shell py-28 md:py-40">
+          <Reveal>
+            <p className="u-label">Who you deal with</p>
+            <h2 className="u-headline mt-6 max-w-[16ch]">
+              The names on the drawings are the names in the room.
+            </h2>
+          </Reveal>
+
+          {/* Two people, each given the same room. A founder's block twice the
+              size of everyone else's says the second name is decoration. */}
+          <div className="mt-20 grid gap-x-10 gap-y-16 md:grid-cols-2 md:gap-y-0">
+            {site.leadership.map((person, i) => (
+              <Reveal key={person.name} delay={i * 90}>
+                <article className="border-t border-[var(--hairline)] pt-10">
+                  <h3 className="u-title">{person.name}</h3>
+                  <p className="u-label mt-3">{person.role}</p>
+
+                  <p className="u-lede mt-8">{person.bio}</p>
+
+                  <ul className="mt-10 space-y-3">
+                    {person.credentials.map((credential) => (
+                      <li
+                        key={credential}
+                        className="flex gap-4 text-[0.9375rem] leading-snug text-[var(--muted)]"
+                      >
+                        {/* A drawing-sheet tick rather than a bullet: this is a
+                            list of things that are the case, not a feature list. */}
+                        <span aria-hidden="true" className="mt-[0.4em] h-px w-4 flex-none bg-current" />
+                        {credential}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <ul className="mt-10 flex flex-wrap gap-8">
+                    {person.links.map((link) => (
+                      <li key={link.href}>
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="u-label u-tap hover:text-[var(--color-accent)]"
+                        >
+                          {link.label} ↗
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={200}>
+            <ul className="mt-20 flex flex-wrap gap-8 border-t border-[var(--hairline)] pt-10">
+              {site.social.map((s) => (
+                <li key={s.href}>
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="u-label u-tap hover:text-[var(--color-accent)]"
+                  >
+                    {s.label} ↗
+                  </a>
+                </li>
+              ))}
+            </ul>
           </Reveal>
         </div>
       </section>
@@ -184,74 +254,10 @@ export default function StudioPage() {
         />
       ) : null}
 
-      <section data-theme="dark" className="bg-[var(--ground)] text-[var(--figure)]">
+      <section data-theme="light" className="bg-[var(--ground)] text-[var(--figure)]">
         <div className="u-shell py-28 md:py-40">
-          <Reveal>
-            <p className="u-label">Who you deal with</p>
-            <h2 className="u-headline mt-6 max-w-[16ch]">
-              The names on the drawings are the names in the room.
-            </h2>
-          </Reveal>
-
-          {/* Two people, each given the same room. A founder's block twice the
-              size of everyone else's says the second name is decoration. */}
-          <div className="mt-20 grid gap-x-10 gap-y-16 md:grid-cols-2 md:gap-y-0">
-            {site.leadership.map((person, i) => (
-              <Reveal key={person.name} delay={i * 90}>
-                <article className="border-t border-[var(--hairline)] pt-10">
-                  <h3 className="u-title">{person.name}</h3>
-                  <p className="u-label mt-3">{person.role}</p>
-
-                  <p className="u-lede mt-8">{person.bio}</p>
-
-                  <ul className="mt-10 space-y-3">
-                    {person.credentials.map((credential) => (
-                      <li
-                        key={credential}
-                        className="flex gap-4 text-[0.9375rem] leading-snug text-[var(--muted)]"
-                      >
-                        {/* A drawing-sheet tick rather than a bullet: this is a
-                            list of things that are the case, not a feature list. */}
-                        <span aria-hidden="true" className="mt-[0.4em] h-px w-4 flex-none bg-current" />
-                        {credential}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <ul className="mt-10 flex flex-wrap gap-8">
-                    {person.links.map((link) => (
-                      <li key={link.href}>
-                        <a
-                          href={link.href}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                          className="u-label u-tap hover:text-[var(--color-accent)]"
-                        >
-                          {link.label} ↗
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </article>
-              </Reveal>
-            ))}
-          </div>
-
-          <Reveal delay={200}>
-            <ul className="mt-20 flex flex-wrap gap-8 border-t border-[var(--hairline)] pt-10">
-              {site.social.map((s) => (
-                <li key={s.href}>
-                  <a
-                    href={s.href}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="u-label u-tap hover:text-[var(--color-accent)]"
-                  >
-                    {s.label} ↗
-                  </a>
-                </li>
-              ))}
-            </ul>
+          <Reveal className="flex justify-center border-y border-[var(--hairline)] py-24">
+            <Wordmark size="lg" withArabic />
           </Reveal>
         </div>
       </section>
