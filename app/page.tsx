@@ -30,28 +30,37 @@ const chapters = chaptersJson.chapters as Chapter[];
  *
  * A visitor arrives not knowing whether this studio is real, and every claim a
  * studio makes about itself is worth less than one other people make about it.
- * So the page earns the right to talk about itself before it does:
+ * So the page opens on other people and widens out before it narrows to a
+ * single unit:
  *
  *   1. Film           a promise, and a reason to keep scrolling
  *   2. Trusted by     other people's names first — Emaar and Majid Al Futtaim
  *                     let these people onto their sites. Borrowed credibility
  *                     before a single self-description.
- *   3. Selected work  the evidence for it. Photographs of finished units.
- *   4. Stats          the scale of what was just shown. Kept on the same ink
- *                     ground as the work deliberately: read directly under five
- *                     projects, "200+" is a caption, not a boast in isolation.
- *   5. The studio     only now — with attention earned — what makes it
+ *   3. The region     where that work happens, answering "can you do this
+ *                     where I am?" while the client wall is still in view.
+ *   4. Stats          the scale of it — territory, then the count inside the
+ *                     territory, which is the order those two facts support
+ *                     each other in.
+ *   5. Selected work  the payoff, and the proof. Photographs of finished
+ *                     units, arriving after the reach and the count have set
+ *                     the expectation they have to meet.
+ *   6. The studio     only now — with attention earned — what makes it
  *                     different, which is the part a stranger would discount.
- *   6. The region     "can you do this where I am?", the first real objection.
- *   7. Services       "what exactly would you do?", the second.
- *   8. Process        "how will this go?" — the fear behind both, answered by
+ *   7. Services       "what exactly would you do?"
+ *   8. Approach       "how will this go?" — the fear behind it, answered by
  *                     showing the sequence before anyone has to ask.
  *   9. Contact        an invitation that costs the visitor nothing, which is
  *                     the only close that does not undo the preceding eight.
  *
- * Claims about the studio sit downstream of evidence for them throughout. Any
- * reordering that puts a self-description above the client wall or the archive
- * hands a stranger an assertion before a reason to believe it.
+ * The run from 2 to 5 is a single movement from widest to narrowest: other
+ * people's names, then the map, then the count, then one photographed unit.
+ * Anything inserted into that run breaks the funnel. Self-description still
+ * sits downstream of all of it, which is the part that must not move.
+ *
+ * The guide's route in SiteGuide reads this order — reordering here means
+ * re-walking her `side`/`lift` cycle, and re-reading any line that refers to
+ * the section before or after it.
  */
 export default function HomePage() {
   const featured = getFeaturedProjects(5);
@@ -68,17 +77,17 @@ export default function HomePage() {
       <div data-guide="clients">
         <TrustedBy />
       </div>
-      <div data-guide="work">
-        <SelectedWork projects={featured} />
+      <div data-guide="region">
+        <GlobalExpertise />
       </div>
       <div data-guide="stats">
         <Stats />
       </div>
+      <div data-guide="work">
+        <SelectedWork projects={featured} />
+      </div>
       <div data-guide="studio">
         <StudioIntro />
-      </div>
-      <div data-guide="region">
-        <GlobalExpertise />
       </div>
       <div data-guide="services">
         <ServicesPreview />

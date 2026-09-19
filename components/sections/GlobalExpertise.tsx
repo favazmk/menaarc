@@ -53,8 +53,10 @@ function Legend({ built, reach }: { built: string[]; reach: string[] }) {
  * Laid out as a hero rather than as a column pair: the map is the full bleed of
  * the section and the copy sits over it behind a gradient, which is the shape
  * the reference for this section uses. It earns that treatment because the map
- * is now something you do rather than something you look at — drag it, zoom it,
- * open a marker and get the projects in that city.
+ * carries the argument: the pins land as you arrive, the filled ones are places
+ * with a finished project, and opening one gives you the projects in that city.
+ * It is a drawing that responds, not a map you navigate — see MenaMap for why
+ * panning and zooming were taken out.
  *
  * Below md the overlay is dropped and the two stack. Text over a map on a
  * 390px screen leaves neither the text readable nor the markers reachable, and

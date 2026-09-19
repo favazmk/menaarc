@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import Link from 'next/link';
 
 import { MENA_CITIES, MENA_COUNTRIES, MENA_VIEWBOX } from '@/lib/mena-map';
+import { usePrefersReducedMotion } from '@/lib/use-media-query';
 
 /**
  * The region — a real map you can move around in, drawn rather than tiled.
@@ -13,13 +14,19 @@ import { MENA_CITIES, MENA_COUNTRIES, MENA_VIEWBOX } from '@/lib/mena-map';
  * same projection. That is the point of not using an illustrated map: a marker
  * cannot end up in the sea, and the Gulf is the shape the Gulf actually is.
  *
- * WHY NOT LEAFLET AND A TILE LAYER. The reference this is modelled on uses a
- * slippy map behind a gradient, and this matches its behaviour — drag to pan,
- * zoom, markers that open. What it does not do is pull raster tiles from a
- * third party: this site ships static, has no third-party request on the
- * critical path, and every other drawing on it is linework. Satellite tiles
- * would be the one photographic surface on the site and would carry someone
- * else's cartography and attribution through the middle of it.
+ * WHY NOT LEAFLET AND A TILE LAYER. It does not pull raster tiles from a third
+ * party: this site ships static, has no third-party request on the critical
+ * path, and every other drawing on it is linework. Satellite tiles would be the
+ * one photographic surface on the site and would carry someone else's
+ * cartography and attribution through the middle of it.
+ *
+ * IT IS A DRAWING, NOT A SLIPPY MAP. An earlier version panned, pinched and
+ * zoomed. It is gone, and the affordance was the whole problem: a grab cursor
+ * over a surface that shifts a little promises a map you can go anywhere in,
+ * and then the pan runs into a clamp and the zoom has nowhere useful to go. The
+ * map spent its entire interaction budget advertising something it could not
+ * pay out. What people came for is the markers, so the markers are now the only
+ * thing that responds, and the cursor no longer claims otherwise.
  *
  * HOW THE COORDINATES WORK. One piece of state — `view`, a rectangle in map
  * units — drives both the SVG's viewBox and the HTML markers. The rectangle is
@@ -28,9 +35,10 @@ import { MENA_CITIES, MENA_COUNTRIES, MENA_VIEWBOX } from '@/lib/mena-map';
  * map of its map coordinate. Anything else means two transforms that have to
  * agree, and they stop agreeing the first time the container changes shape.
  *
- * WHEEL IS DEACTIVATED ON PURPOSE. A map that zooms on wheel inside a scrolling
- * page traps the scroll, which is the single most complained-about behaviour in
- * embedded maps. Zoom is on the buttons, on double-click, and on pinch.
+ * THE MARKERS DROP IN. They arrive with the section, staggered north to south,
+ * because a map that is already fully marked when you reach it reads as a
+ * background image — the drop is what says these were placed, and that there is
+ * something here to open. Under reduced motion they are simply already there.
  */
 
 const [, , VB_W, VB_H] = MENA_VIEWBOX.split(' ').map(Number);
@@ -50,11 +58,8 @@ const DISPLACE: Record<string, { dx: number; dy: number }> = {
   Sharjah: { dx: 30, dy: -30 },
 };
 
-const MIN_ZOOM = 1;
-const MAX_ZOOM = 6;
-
 /**
- * Where the map opens, and what "reset" goes back to.
+ * How the map is framed. There is only one framing — see the header.
  *
  * The centre of the marked places, not the centre of the data. At zoom 1 the
  * view fills the frame, which on a wide desktop section means cropping top and
@@ -96,8 +101,6 @@ function graticule() {
 
 const GRATICULE = graticule();
 
-const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
-
 type Stage = { w: number; h: number };
 type View = { cx: number; cy: number; z: number };
 
@@ -126,29 +129,20 @@ function rect(view: View, stage: Stage) {
   return { x: view.cx - w / 2, y: view.cy - h / 2, w, h };
 }
 
-/** Keeps the view centre inside the data, so the map cannot be dragged into empty space. */
-function clampView(view: View, stage: Stage): View {
-  const r = rect({ ...view, cx: VB_W / 2, cy: VB_H / 2 }, stage);
-  const halfW = r.w / 2;
-  const halfH = r.h / 2;
-  // Where the visible rectangle is bigger than the data on an axis, the centre
-  // is pinned; otherwise it may travel to the data's edge.
-  const cx = halfW >= VB_W / 2 ? VB_W / 2 : clamp(view.cx, halfW, VB_W - halfW);
-  const cy = halfH >= VB_H / 2 ? VB_H / 2 : clamp(view.cy, halfH, VB_H - halfH);
-  return { ...view, cx, cy };
-}
+/** The one view there is. Fixed, so nothing downstream has to track a camera. */
+const BASE_VIEW: View = { ...FOCUS, z: 1 };
+
+/** How long between one pin landing and the next. */
+const PIN_STAGGER_MS = 65;
 
 export function MenaMap({ built }: { built: CityProjects[] }) {
   const [active, setActive] = useState<string | null>(null);
   const [stage, setStage] = useState<Stage>({ w: 0, h: 0 });
-  const [view, setView] = useState<View>({ ...FOCUS, z: 1 });
-  const [dragging, setDragging] = useState(false);
+  const [scrolledTo, setScrolledTo] = useState(false);
 
   const stageRef = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ id: number; x: number; y: number } | null>(null);
-  const pinch = useRef<Map<number, { x: number; y: number }>>(new Map());
-  const pinchStart = useRef<{ dist: number; z: number } | null>(null);
   const baseId = useId();
+  const reduced = usePrefersReducedMotion();
 
   useEffect(() => {
     const el = stageRef.current;
@@ -161,7 +155,36 @@ export function MenaMap({ built }: { built: CityProjects[] }) {
     return () => ro.disconnect();
   }, []);
 
-  const r = rect(view, stage);
+  /**
+   * Drop the pins once, when the map has actually been scrolled to.
+   *
+   * Disconnected on the first hit rather than left listening: this is an
+   * arrival, not a state the map goes in and out of, and a marker that re-drops
+   * every time it crosses the viewport edge turns into a twitch on the way back
+   * up the page.
+   */
+  useEffect(() => {
+    if (reduced) return;
+    const el = stageRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries, obs) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        setScrolledTo(true);
+        obs.disconnect();
+      },
+      { threshold: 0.2 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced]);
+
+  // Derived rather than an effect that sets state: under reduced motion the
+  // pins are simply already down, which is a fact about the render, not a
+  // transition the map has to be walked through.
+  const dropped = reduced || scrolledTo;
+
+  const r = rect(BASE_VIEW, stage);
 
   /** Map units -> stage pixels. The one conversion everything else goes through. */
   const toPx = useCallback(
@@ -171,69 +194,6 @@ export function MenaMap({ built }: { built: CityProjects[] }) {
     }),
     [r.x, r.y, r.w, r.h, stage.w, stage.h],
   );
-
-  const zoomBy = useCallback(
-    (factor: number) =>
-      setView((v) => clampView({ ...v, z: clamp(v.z * factor, MIN_ZOOM, MAX_ZOOM) }, stage)),
-    [stage],
-  );
-
-  const reset = useCallback(() => {
-    setView({ ...FOCUS, z: 1 });
-    setActive(null);
-  }, []);
-
-  const onPointerDown = (e: React.PointerEvent) => {
-    // Never start a drag from a marker or a card — those are controls.
-    if ((e.target as HTMLElement).closest('.mena-marker')) return;
-    pinch.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pinch.current.size === 2) {
-      const [a, b] = [...pinch.current.values()];
-      pinchStart.current = { dist: Math.hypot(a.x - b.x, a.y - b.y), z: view.z };
-      drag.current = null;
-      setDragging(false);
-      return;
-    }
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY };
-    setDragging(true);
-  };
-
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (pinch.current.has(e.pointerId)) {
-      pinch.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    }
-
-    if (pinch.current.size === 2 && pinchStart.current) {
-      const [a, b] = [...pinch.current.values()];
-      const dist = Math.hypot(a.x - b.x, a.y - b.y);
-      const next = clamp(
-        (pinchStart.current.z * dist) / pinchStart.current.dist,
-        MIN_ZOOM,
-        MAX_ZOOM,
-      );
-      setView((v) => clampView({ ...v, z: next }, stage));
-      return;
-    }
-
-    const d = drag.current;
-    if (!d || d.id !== e.pointerId) return;
-    // Pixels dragged translate to map units through the current rectangle, so
-    // the map tracks the finger exactly at every zoom.
-    const dxUnits = ((e.clientX - d.x) / stage.w) * r.w;
-    const dyUnits = ((e.clientY - d.y) / stage.h) * r.h;
-    drag.current = { ...d, x: e.clientX, y: e.clientY };
-    setView((v) => clampView({ ...v, cx: v.cx - dxUnits, cy: v.cy - dyUnits }, stage));
-  };
-
-  const endPointer = (e: React.PointerEvent) => {
-    pinch.current.delete(e.pointerId);
-    if (pinch.current.size < 2) pinchStart.current = null;
-    if (drag.current?.id === e.pointerId) {
-      drag.current = null;
-      setDragging(false);
-    }
-  };
 
   const byCity = new Map(built.map((b) => [b.city, b.projects]));
 
@@ -260,18 +220,19 @@ export function MenaMap({ built }: { built: CityProjects[] }) {
     };
   });
 
+  // Pins land north to south. Ranking by drawn position rather than by the
+  // data's order means the stagger still reads correctly at any stage shape,
+  // and a displaced marker drops with where it is shown, not where it belongs.
+  const dropOrder = new Map(
+    [...markers].sort((a, b) => a.top - b.top).map((m, i) => [m.name, i]),
+  );
+
   const openMarker = markers.find((m) => m.name === active && !m.outside) ?? null;
 
   return (
     <div className="mena-stage" ref={stageRef}>
       <div
         className="mena-surface"
-        data-dragging={dragging || undefined}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endPointer}
-        onPointerCancel={endPointer}
-        onDoubleClick={() => zoomBy(1.6)}
         onKeyDown={(e) => {
           if (e.key === 'Escape') setActive(null);
         }}
@@ -324,9 +285,16 @@ export function MenaMap({ built }: { built: CityProjects[] }) {
               key={m.name}
               className="mena-marker"
               data-built={m.projects.length > 0 || undefined}
+              data-dropped={dropped || undefined}
               data-open={isOpen || undefined}
               data-side={m.side}
-              style={{ left: `${m.left}px`, top: `${m.top}px` }}
+              style={
+                {
+                  left: `${m.left}px`,
+                  top: `${m.top}px`,
+                  '--pin-delay': `${(dropOrder.get(m.name) ?? 0) * PIN_STAGGER_MS}ms`,
+                } as React.CSSProperties
+              }
             >
               <button
                 type="button"
@@ -385,21 +353,6 @@ export function MenaMap({ built }: { built: CityProjects[] }) {
             )}
           </div>
         ) : null}
-      </div>
-
-      <div className="mena-controls">
-        <button type="button" onClick={() => zoomBy(1.5)} disabled={view.z >= MAX_ZOOM}>
-          <span aria-hidden="true">+</span>
-          <span className="sr-only">Zoom in</span>
-        </button>
-        <button type="button" onClick={() => zoomBy(1 / 1.5)} disabled={view.z <= MIN_ZOOM}>
-          <span aria-hidden="true">−</span>
-          <span className="sr-only">Zoom out</span>
-        </button>
-        <button type="button" onClick={reset} disabled={view.z === 1}>
-          <span aria-hidden="true">⤾</span>
-          <span className="sr-only">Reset the map</span>
-        </button>
       </div>
     </div>
   );
