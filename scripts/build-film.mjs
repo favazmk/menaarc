@@ -9,9 +9,9 @@
  * Re-run this against a new master and nothing in the app changes — the runtime
  * reads public/film/manifest.json.
  *
- *   node scripts/build-film.mjs --in assets/masters/villa.mp4 --tier desktop \
+ *   node scripts/build-film.mjs --in assets/masters/desktop-home.mp4 --tier desktop \
  *        --frames 240 --width 1280
- *   node scripts/build-film.mjs --in assets/masters/villa.mp4 --tier mobile \
+ *   node scripts/build-film.mjs --in assets/masters/mobile-home.mp4 --tier mobile \
  *        --frames 160 --width 828 --crop 9:16
  */
 import { execFile } from 'node:child_process';
@@ -123,7 +123,7 @@ async function encodeTier({ input, tier, targetFrames, targetWidth, crop, delogo
   // put it there. What it buys is that the browser's own upscale, which is
   // bilinear and soft, starts from a crisper image. Measured on this master it
   // sharpens ceiling tracks, door frames and window mullions, with no haloing
-  // on the high-contrast sky behind the Burj.
+  // on the high-contrast waterfall behind the cantilever.
   //
   // Deliberately paired with native output rather than an offline upscale.
   // Enlarging the frames to 1.5x looked only marginally better than this and
@@ -198,7 +198,7 @@ async function encodeTier({ input, tier, targetFrames, targetWidth, crop, delogo
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
-  const input = args.in ?? 'assets/masters/villa-journey-16x9.mp4';
+  const input = args.in ?? 'assets/masters/desktop-home.mp4';
   const tier = args.tier ?? 'desktop';
   const crop = typeof args.crop === 'string' ? args.crop : null;
   const delogo = typeof args.delogo === 'string' ? args.delogo : null;

@@ -47,11 +47,12 @@ The home page hero is a **canvas frame sequence**, not a scrubbed `<video>`.
 `video.currentTime` seeking stutters badly on iOS Safari and low-end Android;
 frames always paint.
 
-**Both masters are placeholders** — 10-second clips generated on Gemini's free
-tier, one landscape and one vertical, carrying the same narrative (villa
-exterior → living volume → corridor → terrace → Burj Khalifa). The landscape
-master is 720p and looks soft on a large display; a 4K version exists and can
-replace it. No paid generation credits have been spent on this project.
+**Both masters are placeholders** — 10-second clips, one landscape
+(`desktop-home.mp4`) and one vertical (`mobile-home.mp4`), carrying the same
+narrative (cantilevered exterior above a waterfall → threshold → living volume
+→ dining → oak passage and stair). Both are 720p on their long edge and look
+soft on a large display. Chapter copy in `content/film-chapters.json` is written
+against these frames — re-read it against any new master.
 
 ### Replacing it
 
@@ -78,6 +79,23 @@ mobile tier falls back to the strip layout on its own.
 | Narrow / low-memory / save-data | 9:16 master, 160 frames @ 720px, full-bleed, type anchored low |
 | Landscape master in a portrait viewport | Cinematic strip, type stacked beneath — the fallback when no vertical master exists |
 | `prefers-reduced-motion` | Static poster, no pin, all chapter copy as normal text |
+
+### The chapter type
+
+Each chapter is a drawing title block, not a paragraph: eyebrow and rule,
+uppercase headline, sub-label, then annotation lines hung off a callout rule,
+with a sheet reference in the opposite corner. `content/film-chapters.json`
+carries the words; it renders uppercase, so it is written uppercase.
+
+Chapters travel on the Z axis through a perspective on their parent — in from
+behind the screen plane, a hold at rest, then forward past the camera — so the
+scale is geometry rather than a keyframe. Opacity lags the travel, which is
+what keeps a title readable while it is enlarging.
+
+The master ends mid-move, so the last stretch of scroll drives cloud in off the
+cliff (`FOG_FROM` in `ScrollFilm`) until it settles on paper — the same ground
+the client wall below is on, so the pin releases into it instead of cutting.
+Any retimed chapter must clear before that closes over it.
 
 Chapter copy and its scroll positions live in `content/film-chapters.json`.
 Re-check the `from`/`to` ranges if you change the master.

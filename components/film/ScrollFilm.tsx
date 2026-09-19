@@ -17,6 +17,22 @@ type Props = {
   scrollLength?: number;
 };
 
+/**
+ * Where the closing weather starts, as film progress.
+ *
+ * The master ends mid-move, on an interior frame that resolves nothing — held
+ * at the last frame it reads as a stall, as though the video buffered. Rather
+ * than re-cut the master, the last stretch of scroll drives cloud in off the
+ * cliff until it has taken the screen.
+ *
+ * That gives the pin an ending it did not have, and it lands somewhere useful:
+ * the fog settles on very near paper, which is the exact ground the client wall
+ * below is on, so the unpinning reads as the weather clearing into the next
+ * section instead of a cut. The final chapter must have flown past the camera
+ * before this closes over it — see the ranges in film-chapters.json.
+ */
+const FOG_FROM = 0.9;
+
 /** Picks the tier before any frame is requested, so we never load both. */
 function chooseTier(manifest: FilmManifest): { key: string; spec: TierSpec } {
   const tiers = manifest.tiers;
@@ -65,7 +81,7 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
   /**
    * A landscape master in a portrait viewport cannot fill the frame without
    * throwing most of each shot away — a 16:9 source cropped to 9:16 loses about
-   * two thirds of its width, and the Burj reveal with it.
+   * two thirds of its width, and the cantilever reveal with it.
    *
    * So when the shapes are far apart the film becomes a cinematic strip at the
    * top of the viewport and the chapter type sits beneath it on solid ink.
@@ -83,6 +99,11 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
   // Full-bleed on a phone puts the frame edge to edge, so centred type would
   // land in the middle of the picture. Anchor it low instead.
   const layout = strip ? 'stacked' : narrow ? 'bottom' : 'overlay';
+
+  // Eased so the cloud gathers slowly and then takes the frame quickly, which
+  // is how weather actually arrives — a linear ramp reads as a dissolve.
+  const fogT = Math.min(1, Math.max(0, (progress - FOG_FROM) / (1 - FOG_FROM)));
+  const fog = fogT ** 1.7;
 
   /**
    * Paint one frame, cropped to fill the canvas it is given.
@@ -194,7 +215,7 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
             <source srcSet="/film/poster-desktop.avif" type="image/avif" />
             <img
               src="/film/poster-desktop.webp"
-              alt="A contemporary Dubai villa, seen from the entrance approach."
+              alt="A concrete house cantilevered over a cliff face, seen from the approach."
               className="h-full w-full object-cover"
             />
           </picture>
@@ -206,8 +227,20 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
                 <p className="u-label">
                   {c.index} — {c.label}
                 </p>
-                <h2 className="u-headline mt-4 whitespace-pre-line">{c.headline}</h2>
-                <p className="u-lede mt-4">{c.body}</p>
+                <h2
+                  className="mt-4 font-[family-name:var(--font-display)] uppercase leading-[0.94]"
+                  style={{ fontSize: 'var(--text-headline)', fontWeight: 300, letterSpacing: '0.045em' }}
+                >
+                  {c.headline}
+                </h2>
+                <p className="u-label mt-4">{c.sub}</p>
+                <ul className="mt-4 border-l border-[var(--hairline)] pl-4">
+                  {c.specs.map((spec) => (
+                    <li key={spec} className="u-label py-[0.3rem]" style={{ fontSize: '0.625rem' }}>
+                      {spec}
+                    </li>
+                  ))}
+                </ul>
               </li>
             ))}
           </ol>
@@ -228,9 +261,9 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
           before the chapter h2s in reading order. */}
       <h1 className="sr-only">MENAARC — architectural consultants in Dubai</h1>
       <p className="sr-only">
-        A continuous camera move through a contemporary Dubai villa — from the entrance
-        approach, through the living volume and a travertine corridor, out to a terrace
-        overlooking the Dubai skyline and the Burj Khalifa.
+        A continuous camera move through a concrete house built into a cliff face — from
+        the cantilevered exterior above a waterfall, in across the threshold, through the
+        living volume and dining room, to an oak-lined passage and open stair.
       </p>
 
       {/* In strip mode the canvas carries the master's own aspect ratio and
@@ -262,7 +295,7 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
               layout === 'stacked'
                 ? 'linear-gradient(to bottom, rgb(10 10 10 / 0.35) 0%, transparent 22%, transparent 100%)'
                 : layout === 'bottom'
-                  ? 'linear-gradient(to bottom, rgb(10 10 10 / 0.5) 0%, transparent 20%, transparent 42%, rgb(10 10 10 / 0.72) 78%, rgb(10 10 10 / 0.9) 100%)'
+                  ? 'linear-gradient(to bottom, rgb(10 10 10 / 0.5) 0%, transparent 20%, transparent 34%, rgb(10 10 10 / 0.58) 56%, rgb(10 10 10 / 0.86) 76%, rgb(10 10 10 / 0.95) 100%)'
                   : 'linear-gradient(to right, rgb(10 10 10 / 0.78) 0%, rgb(10 10 10 / 0.45) 34%, rgb(10 10 10 / 0.05) 66%, transparent 100%),' +
                     'linear-gradient(to bottom, rgb(10 10 10 / 0.6) 0%, rgb(10 10 10 / 0.1) 28%, rgb(10 10 10 / 0.14) 64%, rgb(10 10 10 / 0.72) 100%)',
           }}
@@ -276,11 +309,46 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
         bandBottom={strip ? `calc(20svh + 100vw / ${strip.aspect})` : '0px'}
       />
 
+      {/* The closing weather. Three offset radial banks rather than one flat
+          wash, so the cloud has a near edge and a far one and reads as volume;
+          they drift apart and swell as the scroll drives them in, which is the
+          parallax that stops it looking like a dip to white.
+
+          Kept to transform and opacity — no filters — because this rides the
+          same scroll frames as the canvas repaint, and a blur here would cost
+          more than the whole frame decode. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+        style={{ opacity: fog, visibility: fog <= 0.001 ? 'hidden' : 'visible' }}
+      >
+        <div
+          className="absolute inset-[-25%]"
+          style={{
+            transform: `scale(${(1.35 - 0.35 * fog).toFixed(3)}) translate3d(${(-9 * (1 - fog)).toFixed(2)}%, ${(7 * (1 - fog)).toFixed(2)}%, 0)`,
+            background:
+              'radial-gradient(60% 52% at 22% 68%, rgb(232 233 236 / 0.95) 0%, rgb(232 233 236 / 0) 68%),' +
+              'radial-gradient(56% 46% at 74% 40%, rgb(244 245 247 / 0.9) 0%, rgb(244 245 247 / 0) 66%),' +
+              'radial-gradient(80% 70% at 48% 88%, rgb(222 224 228 / 0.92) 0%, rgb(222 224 228 / 0) 72%)',
+            willChange: 'transform',
+          }}
+        />
+        {/* The last of it: a flat settle onto the paper the next section is on,
+            so the pin releases into that ground rather than cutting to it. */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'var(--color-paper)',
+            opacity: Math.max(0, (fog - 0.55) / 0.45) ** 1.4,
+          }}
+        />
+      </div>
+
       {!primed ? <FilmLoader progress={loadProgress} failed={failed} /> : null}
 
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-6 left-0 right-0 flex justify-center"
+        className="pointer-events-none absolute bottom-[3.5rem] left-0 right-0 flex justify-center"
         style={{ opacity: progress > 0.04 ? 0 : 1, transition: 'opacity 400ms' }}
       >
         <span className="u-label text-[var(--color-paper)]/70">Scroll</span>

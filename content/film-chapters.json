@@ -1,30 +1,48 @@
 {
-  "$comment": "Progress ranges are 0-1 across the pinned scroll distance. Copy is written against the actual frames of the current master; re-check the ranges if the master changes.",
+  "$comment": "Progress ranges are 0-1 across the pinned scroll distance. Copy is a drawing title block, not prose: everything renders uppercase, so write it uppercase. Written against the actual frames of the current master; re-check the ranges if the master changes. The last chapter must clear before the fog closes (see FOG_FROM in ScrollFilm).",
   "chapters": [
     {
       "id": "arrival",
       "index": "01",
       "label": "Arrival",
-      "headline": "Every building begins\nbefore the door.",
-      "body": "Approach, threshold, orientation. We design the sequence a person moves through, not the elevation they photograph.",
+      "marker": "Elev 01",
+      "headline": "Before the door",
+      "sub": "Approach sequence",
+      "specs": [
+        "Approach / threshold / orientation",
+        "The sequence a person moves through",
+        "Not the elevation they photograph"
+      ],
       "from": 0.0,
-      "to": 0.16
+      "to": 0.17
     },
     {
       "id": "volume",
       "index": "02",
       "label": "Volume",
-      "headline": "Space is the\nonly material\nthat is free.",
-      "body": "Ceiling height, sightline, the distance between two walls. Proportion does more for a room than any finish specified into it.",
-      "from": 0.22,
+      "marker": "Vol 02",
+      "headline": "Space is free",
+      "sub": "Living volume",
+      "specs": [
+        "Ceiling height / sightline / span",
+        "Proportion before finish",
+        "No specification buys a room back"
+      ],
+      "from": 0.24,
       "to": 0.44
     },
     {
       "id": "material",
       "index": "03",
       "label": "Material",
-      "headline": "Travertine,\noak, light.",
-      "body": "A restrained palette, detailed properly. Fewer materials, held to a tighter tolerance, read as more expensive than more materials held loosely.",
+      "marker": "Mat 03",
+      "headline": "Concrete, oak, light",
+      "sub": "Material schedule",
+      "specs": [
+        "Board-marked concrete / in situ",
+        "Oak and walnut joinery",
+        "Fewer materials, tighter tolerance"
+      ],
       "from": 0.5,
       "to": 0.68
     },
@@ -32,19 +50,31 @@
       "id": "passage",
       "index": "04",
       "label": "Passage",
-      "headline": "The corridor\nis not\nleftover space.",
-      "body": "Circulation is where a building either earns its calm or loses it. We draw it first, not last.",
+      "marker": "Cir 04",
+      "headline": "Not leftover space",
+      "sub": "Circulation core",
+      "specs": [
+        "Corridor drawn first, not last",
+        "Stair / vertical link",
+        "Where calm is earned or lost"
+      ],
       "from": 0.72,
-      "to": 0.86
+      "to": 0.85
     },
     {
-      "id": "dubai",
+      "id": "practice",
       "index": "05",
-      "label": "Dubai",
-      "headline": "Built for\nthis skyline.",
-      "body": "Design and project management for retail, hospitality and residential across the UAE.",
-      "from": 0.9,
-      "to": 1.0
+      "label": "Practice",
+      "marker": "MENAARC",
+      "headline": "Drawn in Dubai",
+      "sub": "Design + project management",
+      "specs": [
+        "Retail / hospitality / residential",
+        "The UAE and the wider GCC",
+        "200+ projects completed"
+      ],
+      "from": 0.855,
+      "to": 0.95
     }
   ]
 }
