@@ -13,11 +13,11 @@ type Stop = {
 const STOPS: Stop[] = [
   { id: 'clients', says: 'Mall operators let us on site. Brands let us draw their units. In this business you need both.', side: 'left' },
   { id: 'region', says: 'The filled markers are places with a finished project in them — somewhere you could go and stand.', side: 'right' },
-  { id: 'stats', says: 'Six years, and that many projects, out of one office. What it looks like is the next thing down.', side: 'right' },
-  { id: 'work', says: 'Every photograph here is a finished unit. There is not one render on this page.', side: 'left' },
-  { id: 'studio', says: 'Everything from the first sketch to the site walk happens in this office. Nothing gets handed over.', side: 'right' },
-  { id: 'services', says: 'Concept, detailed drawings, authority approvals, MEP, project management. Five things, one roof.', side: 'left' },
-  { id: 'process', says: 'A mall lease date does not move. So the programme is the first thing we draw, before the plan.', side: 'right' },
+  { id: 'stats', says: 'Six years, and that many projects, out of one office. What it looks like is the next thing down.', side: 'left' },
+  { id: 'work', says: 'Every photograph here is a finished unit. There is not one render on this page.', side: 'right' },
+  { id: 'studio', says: 'Everything from the first sketch to the site walk happens in this office. Nothing gets handed over.', side: 'left' },
+  { id: 'services', says: 'Concept, detailed drawings, authority approvals, MEP, project management. Five things, one roof.', side: 'right' },
+  { id: 'process', says: 'A mall lease date does not move. So the programme is the first thing we draw, before the plan.', side: 'left' },
   { id: 'contact', says: 'Send a message and you reach the studio, not a form queue. Usually the same day.', side: 'left' },
 ];
 
@@ -291,13 +291,6 @@ export function SiteGuide() {
     >
       <p className="site-guide__bubble" role="status">
         {activeStop?.says}
-        <button
-          type="button"
-          className="site-guide__dismiss"
-          onClick={() => setOpenFor(null)}
-        >
-          Hide the guide
-        </button>
       </p>
 
       <button
