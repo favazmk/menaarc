@@ -83,11 +83,24 @@ export function Footer() {
 
         <div className="flex flex-col items-center gap-8 md:flex-row md:justify-between">
           <Wordmark size="md" withArabic />
-          <p className="u-label text-center md:text-right">
-            {site.region}
-            <span className="mx-3 opacity-40">·</span>
-            &copy; {new Date().getFullYear()} {site.legalName}
-          </p>
+          <div className="flex flex-col items-center gap-2 md:items-end">
+            <p className="u-label text-center md:text-right">
+              {site.region}
+              <span className="mx-3 opacity-40">·</span>
+              &copy; {new Date().getFullYear()} {site.legalName}
+            </p>
+            <p className="u-label text-center md:text-right opacity-60">
+              Website by{' '}
+              <a 
+                href="https://webbranding.ae" 
+                target="_blank" 
+                rel="noreferrer noopener" 
+                className="transition-colors hover:text-purple-500"
+              >
+                Web Branding
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>
