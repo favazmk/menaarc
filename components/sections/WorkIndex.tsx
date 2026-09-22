@@ -19,7 +19,7 @@ export function WorkIndex({ projects, sectors }: { projects: Project[]; sectors:
   );
 
   return (
-    <section data-theme="light" className="relative isolate bg-[var(--ground)] text-[var(--figure)]">
+    <section data-theme="dark" className="relative isolate bg-[var(--ground)] text-[var(--figure)]">
       <DraftingGrid plan="core" />
       <div className="u-shell relative pb-72 pt-40 md:pb-32 md:pt-52">
         <header>

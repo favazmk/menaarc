@@ -6,8 +6,10 @@ import { TrustedBy } from '@/components/sections/TrustedBy';
 import { SelectedWork } from '@/components/sections/SelectedWork';
 import { GlobalExpertise } from '@/components/sections/GlobalExpertise';
 import { Stats } from '@/components/sections/Stats';
+import { SectorGallery } from '@/components/sections/SectorGallery';
 import { ServicesPreview } from '@/components/sections/ServicesPreview';
 import { ProcessPreview } from '@/components/sections/ProcessPreview';
+import { IntegratedDelivery } from '@/components/sections/IntegratedDelivery';
 import { ContactCta } from '@/components/sections/ContactCta';
 import { SiteGuide } from '@/components/ui/SiteGuide';
 import { getFeaturedProjects } from '@/lib/projects';
@@ -74,6 +76,7 @@ export default function HomePage() {
           marker, which is what keeps it off the film. Plain wrappers rather than a
           prop on each section, because the route belongs to this page — most of
           these sections also appear on pages the guide never visits. */}
+      <IntegratedDelivery />
       <div data-guide="clients">
         <TrustedBy />
       </div>
@@ -83,6 +86,7 @@ export default function HomePage() {
       <div data-guide="stats">
         <Stats />
       </div>
+      <SectorGallery />
       <div data-guide="work">
         <SelectedWork projects={featured} />
       </div>

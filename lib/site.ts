@@ -43,8 +43,8 @@ export const site = {
   founder: {
     name: 'Ar. Rashid Ahamed',
     role: 'Founder & CEO',
-    instagram: 'https://www.instagram.com/ar.rashid.ahamed',
-    instagramHandle: '@ar.rashid.ahamed',
+    linkedin: 'https://www.linkedin.com/in/ar-rashid-ahamed-b7a8a59a/?skipRedirect=true',
+    linkedinLabel: 'LinkedIn',
   },
 
   /**
@@ -59,20 +59,20 @@ export const site = {
     {
       name: 'Ar. Rashid Ahamed',
       role: 'Founder & CEO',
-      bio: 'Rashid founded MENAARC to run architecture and delivery under one roof, after years of watching the two get separated — and watching projects pay for it in variation orders and lost programme.',
+      bio: 'Rashid brings over a decade of experience in the UAE, leading design and delivery for global retail and hospitality brands. He founded MENAARC to keep architecture and execution under one roof, ensuring that thoughtful design is always met with rigorous project management and cost control.',
       credentials: [
-        'Architecture and delivery under one roof',
-        'Retail, F&B and hospitality fit-out across the UAE',
+        'Over a decade of experience in Dubai and the GCC',
+        'Led design and delivery for global brands (Tim Hortons, Tommy Hilfiger, Levi\'s)',
+        'Expertise in architectural design, cost control, and MEP coordination',
+        'Former Lead Architect at Tim Hortons and Maristo Hospitality',
       ],
       links: [
-        { label: '@ar.rashid.ahamed', href: 'https://www.instagram.com/ar.rashid.ahamed' },
+        { label: 'LinkedIn', href: 'https://www.linkedin.com/in/ar-rashid-ahamed-b7a8a59a/?skipRedirect=true' },
       ],
     },
     {
       name: 'Benazir Noor Mohamed',
-      // TODO(client): confirm the title she should carry at MENAARC. This is a
-      // description of what she does, not a position she has published.
-      role: 'Design & Building Performance',
+      role: 'Cofounder',
       bio: 'Benazir brings over a decade in the built environment — design, execution and the performance of a building once it is occupied. Her work joins design intent to operational rigour, so that wellbeing-driven decisions are measurable rather than asserted.',
       credentials: [
         'Over a decade in the built environment',

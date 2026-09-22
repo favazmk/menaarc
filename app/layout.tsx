@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Archivo, Bricolage_Grotesque, Noto_Kufi_Arabic } from 'next/font/google';
 
 import { SmoothScroll } from '@/components/layout/SmoothScroll';
+import { ClientEnhancements } from '@/components/layout/ClientEnhancements';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Cursor } from '@/components/ui/Cursor';
@@ -83,8 +84,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${archivo.variable} ${bricolage.variable} ${kufiArabic.variable}`}>
-      <body>
+    <html lang="en" suppressHydrationWarning className={`${archivo.variable} ${bricolage.variable} ${kufiArabic.variable}`}>
+      <body suppressHydrationWarning>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-[var(--figure)] focus:px-4 focus:py-2 focus:text-[var(--ground)]"
@@ -93,6 +94,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <StructuredData />
         <SmoothScroll />
+        <ClientEnhancements />
         <Cursor />
         <Header />
         <main id="main">{children}</main>
