@@ -49,3 +49,5 @@ yarn-error.log*
 # Source videos and keyframes for the scroll film. Local only; the site
 # ships the frame sequences in public/film, never these.
 /assets/masters/
+
+__pycache__/
