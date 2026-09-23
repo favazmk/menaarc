@@ -599,11 +599,10 @@ html.lenis body {
 
 .mena-hero__map {
   position: relative;
-  /* Phones: the map gets its own band above the copy, at the data's own
-     proportions. At zoom 1 the view fills the frame, so a band of any other
-     shape crops the region — a 62vh band on a phone is portrait, and it cut
-     Cairo and Muscat off the sides before anyone had touched anything. */
-  aspect-ratio: 1000 / 650;
+  /* Phones: the map gets its own band above the copy. The map fits each
+     region's locations to whatever box it is given, so this only sets how
+     much height the band takes. */
+  aspect-ratio: 4 / 3;
   min-height: 14rem;
 }
 
@@ -623,13 +622,20 @@ html.lenis body {
     grid-area: 1 / 1;
   }
 
+  /* The map covers the whole section, however tall the copy makes it. Left
+     in the grid, its own aspect ratio set the row height and the copy ran
+     off the bottom of the map. */
   .mena-hero__map {
-    height: auto;
-    max-height: none;
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+    min-height: 0;
   }
 
   .mena-hero__scrim {
     display: block;
+    /* Positioned so it stacks above the absolutely positioned map. */
+    position: relative;
     pointer-events: none;
     background: linear-gradient(
       90deg,
@@ -1230,4 +1236,110 @@ html.lenis body {
   stroke-width: 0.8;
   stroke-dasharray: 4;
   vector-effect: non-scaling-stroke;
+}
+
+/* ---- MapLibre Custom Markers ---- */
+
+.mena-map-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.marker-core {
+  border-radius: 50%;
+  background-color: var(--ground);
+  border: 1px solid var(--muted);
+  width: 8px;
+  height: 8px;
+  z-index: 2;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.mena-map-marker:hover .marker-core {
+  transform: scale(1.5);
+}
+
+.marker-label {
+  position: absolute;
+  left: 100%;
+  margin-left: 12px;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--figure);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* Primary (Dubai) */
+.mena-map-marker--primary .marker-core {
+  width: 12px;
+  height: 12px;
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 10px rgba(41, 171, 226, 0.4);
+}
+
+.marker-pulse {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background-color: rgba(41, 171, 226, 0.15);
+  border-radius: 50%;
+  z-index: 1;
+  animation: markerPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes markerPulse {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.marker-label--primary {
+  font-weight: 600;
+  /* White, not accent: accent blue vanishes against the light-blue water.
+     The accent dot and pulse still mark the hub. */
+  color: var(--color-paper);
+  opacity: 1;
+}
+
+/* Secondary (Emirates) */
+.mena-map-marker--secondary .marker-core {
+  width: 6px;
+  height: 6px;
+  background-color: var(--color-paper);
+}
+
+/* International */
+.mena-map-marker--intl .marker-core {
+  width: 10px;
+  height: 10px;
+  background-color: transparent;
+  border: 1.5px solid var(--muted);
+}
+
+.mena-map-marker--built .marker-core {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+
+.marker-label--left {
+  left: auto;
+  right: 100%;
+  margin-left: 0;
+  margin-right: 12px;
+}
+
+/* Labels cross both the dark land and the light water; the shadow keeps
+   them legible on either. */
+.marker-label {
+  text-shadow: 0 0 3px rgb(10 10 10 / 0.9), 0 0 8px rgb(10 10 10 / 0.6);
 }

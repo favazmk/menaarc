@@ -10,8 +10,12 @@ import { Wordmark } from '@/components/brand/Wordmark';
 export function FilmLoader({ progress, failed }: { progress: number; failed: boolean }) {
   return (
     <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[var(--color-ink)] text-[var(--color-paper)]">
-      <Wordmark size="lg" withArabic className="opacity-90" />
-
+      <div className="flex flex-col items-center">
+        <Wordmark size="lg" withArabic className="opacity-90" />
+        <p className="u-label mt-6 text-[var(--color-paper)]/70">
+          Design and Project Management
+        </p>
+      </div>
       <div className="mt-12 w-[min(22rem,60vw)]">
         <div className="h-px w-full bg-[var(--color-paper)]/20">
           <div

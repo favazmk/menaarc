@@ -42,3 +42,10 @@ yarn-error.log*
 # Trial build artefacts
 /dist
 /.trial-stash
+
+# Copied from node_modules by the postinstall script
+/public/maplibre/
+
+# Source videos and keyframes for the scroll film. Local only; the site
+# ships the frame sequences in public/film, never these.
+/assets/masters/

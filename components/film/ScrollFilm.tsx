@@ -75,14 +75,22 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
   const mounted = useIsClient();
   const narrow = useMediaQuery('(max-width: 900px)');
 
-  // Tier selection reads the device, so it cannot run during SSR.
+  // Tier selection reads the device, so it cannot run during SSR. `narrow` is a
+  // dependency so crossing the breakpoint (window resize, rotation) swaps to
+  // the other master instead of stretching the one picked at load.
   const tier = useMemo(
     () => (mounted && !reduced ? chooseTier(manifest) : null),
-    [mounted, reduced, manifest],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [mounted, reduced, manifest, narrow],
   );
 
   const spec = tier?.spec ?? null;
   const { primed, complete, failed, progress: loadProgress, getFrame } = useFrameLoader(spec);
+
+  // Strip mode kicks in when the master is far wider than the viewport. As a
+  // media query it re-evaluates on every resize, not just on mount.
+  const specAspect = spec ? (spec.aspect ?? spec.width / spec.height) : 1;
+  const tooWide = useMediaQuery(`(max-aspect-ratio: ${Math.round((specAspect / 1.45) * 1000)}/1000)`);
 
   /**
    * A landscape master in a portrait viewport cannot fill the frame without
@@ -94,13 +102,10 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
    * Cropping stays off; the letterbox is deliberate framing rather than dead
    * space. A true 9:16 master makes this branch simply stop triggering.
    */
-  const strip = useMemo(() => {
-    if (!spec || !mounted) return null;
-    const aspect = spec.aspect ?? spec.width / spec.height;
-    const viewport = window.innerWidth / window.innerHeight;
-    if (aspect / viewport <= 1.45) return null;
-    return { aspect };
-  }, [spec, mounted]);
+  const strip = useMemo(
+    () => (spec && mounted && tooWide ? { aspect: specAspect } : null),
+    [spec, mounted, tooWide, specAspect],
+  );
 
   // Full-bleed on a phone puts the frame edge to edge, so centred type would
   // land in the middle of the picture. Anchor it low instead.
@@ -148,6 +153,11 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
       // answer.
       const ctx = (ctxRef.current ??= canvas.getContext('2d', { alpha: false }));
       if (!ctx) return;
+
+      // The frame is almost always scaled up to the canvas. The default
+      // smoothing is bilinear and soft; 'high' gets the browser's better
+      // resampler. Set per draw because resizing the canvas resets it.
+      ctx.imageSmoothingQuality = 'high';
 
       const img = getFrame(frameIndex);
       if (!img) return;
@@ -262,6 +272,8 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
         <h1 className="sr-only">MENAARC — architectural consultants in Dubai</h1>
         <div className="relative h-[70svh] w-full overflow-hidden">
           <picture>
+            <source media="(max-width: 900px)" srcSet="/film/poster-mobile.avif" type="image/avif" />
+            <source media="(max-width: 900px)" srcSet="/film/poster-mobile.webp" type="image/webp" />
             <source srcSet="/film/poster-desktop.avif" type="image/avif" />
             <img
               src="/film/poster-desktop.webp"

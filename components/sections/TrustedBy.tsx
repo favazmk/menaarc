@@ -7,7 +7,7 @@ const MAX_H = 34;
 
 type Client = (typeof site.clients)[number];
 
-function Cell({ client, index }: { client: Client; index: number }) {
+function Cell({ client }: { client: Client }) {
   const { name, file, w } = client;
   const aspect = w / 120;
   const height = Math.min(MAX_H, Math.max(MIN_H, Math.sqrt(AREA / aspect)));
@@ -33,20 +33,22 @@ function Cell({ client, index }: { client: Client; index: number }) {
   );
 }
 
-export function TrustedBy() {
-  const row1 = site.clients.slice(0, 5);
-  const row2 = site.clients.slice(5, 10);
-  const row3 = site.clients.slice(10, 15);
-
-  const MarqueeRow = ({ clients, reverse = false }: { clients: Client[], reverse?: boolean }) => (
+function MarqueeRow({ clients, reverse = false }: { clients: Client[]; reverse?: boolean }) {
+  return (
     <div className="flex overflow-hidden">
       <ul className={`flex w-max shrink-0 gap-8 sm:gap-16 pr-8 sm:pr-16 ${reverse ? 'animate-marquee-reverse' : 'animate-marquee'} hover:[animation-play-state:paused]`}>
         {[...clients, ...clients, ...clients, ...clients].map((client, i) => (
-          <Cell key={`${client.name}-${i}`} client={client} index={i} />
+          <Cell key={`${client.name}-${i}`} client={client} />
         ))}
       </ul>
     </div>
   );
+}
+
+export function TrustedBy() {
+  const row1 = site.clients.slice(0, 5);
+  const row2 = site.clients.slice(5, 10);
+  const row3 = site.clients.slice(10, 15);
 
   return (
     <section
