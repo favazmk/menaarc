@@ -16,8 +16,8 @@ import { useEffect, useId, useRef } from 'react';
  * and the arm pivots on the elbow. Every coordinate below is in the render's
  * pixel space, so the vector parts line up with the raster exactly.
  *
- * The sheet's other three views are the flight poses: left.webp, right.webp and
- * back.webp. SiteGuide sets `data-pose` from the direction of travel and the
+ * The sheet's side views are the flight poses: left.webp and right.webp.
+ * SiteGuide sets `data-pose` from the direction of travel and the
  * CSS cross-fades to the matching view. Only the front pose is rigged, which is
  * enough: the guide is only ever still, and so only ever looked at, facing you.
  */
@@ -38,13 +38,6 @@ const JETS = {
     ],
     angle: 40,
   },
-  back: {
-    soles: [
-      [143, 485],
-      [253, 483],
-    ],
-    angle: 0,
-  },
   left: {
     soles: [
       [232, 480],
@@ -57,7 +50,6 @@ const JETS = {
 /** Where each flight view sits in the tile, as cropped by the export. */
 const VIEWS = {
   right: [31, 43, 330, 452],
-  back: [29, 42, 318, 455],
   left: [11, 41, 331, 460],
 } as const;
 

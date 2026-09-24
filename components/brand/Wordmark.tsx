@@ -30,7 +30,7 @@ import { site } from '@/lib/site';
  * would leave the mark spelling nothing.
  */
 
-type Size = 'sm' | 'md' | 'lg';
+type Size = 'sm' | 'md' | 'lg' | 'xl';
 
 /**
  * Cap heights, not font sizes — the mark is artwork now.
@@ -42,6 +42,8 @@ const SIZES: Record<Size, string> = {
   sm: '0.62rem',
   md: '0.93rem',
   lg: 'clamp(1.2rem, 3.77vw, 2.91rem)',
+  /** The brand statement under the home film. */
+  xl: 'clamp(2.1rem, 8vw, 5.5rem)',
 };
 
 const CAP = 100;

@@ -60,9 +60,9 @@ const chapters = chaptersJson.chapters as Chapter[];
  * Anything inserted into that run breaks the funnel. Self-description still
  * sits downstream of all of it, which is the part that must not move.
  *
- * The guide's route in SiteGuide reads this order — reordering here means
- * re-walking its `side`/`lift` cycle, and re-reading any line that refers to
- * the section before or after it.
+ * The guide perches on whichever section heading is in view, so reordering
+ * needs no change to SiteGuide beyond re-reading any line it says that refers
+ * to the section before or after it.
  */
 export default function HomePage() {
   const featured = getFeaturedProjects(5);
@@ -76,31 +76,35 @@ export default function HomePage() {
           marker, which is what keeps it off the film. Plain wrappers rather than a
           prop on each section, because the route belongs to this page — most of
           these sections also appear on pages the guide never visits. */}
-      <IntegratedDelivery />
-      <div data-guide="clients">
-        <TrustedBy />
-      </div>
-      <div data-guide="region">
-        <GlobalExpertise />
-      </div>
-      <div data-guide="stats">
-        <Stats />
-      </div>
-      <SectorGallery />
-      <div data-guide="work">
-        <SelectedWork projects={featured} />
-      </div>
-      <div data-guide="studio">
-        <StudioIntro />
-      </div>
-      <div data-guide="services">
-        <ServicesPreview />
-      </div>
-      <div data-guide="process">
-        <ProcessPreview />
-      </div>
-      <div data-guide="contact">
-        <ContactCta variant="home" />
+      {/* The guide's route: it perches on the h2 headings inside, and never on
+          the film's own titles above. */}
+      <div data-guide-route>
+        <IntegratedDelivery />
+        <div data-guide="clients">
+          <TrustedBy />
+        </div>
+        <div data-guide="region">
+          <GlobalExpertise />
+        </div>
+        <div data-guide="stats">
+          <Stats />
+        </div>
+        <SectorGallery />
+        <div data-guide="work">
+          <SelectedWork projects={featured} />
+        </div>
+        <div data-guide="studio">
+          <StudioIntro />
+        </div>
+        <div data-guide="services">
+          <ServicesPreview />
+        </div>
+        <div data-guide="process">
+          <ProcessPreview />
+        </div>
+        <div data-guide="contact">
+          <ContactCta variant="home" />
+        </div>
       </div>
 
       <SiteGuide />
