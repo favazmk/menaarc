@@ -114,9 +114,9 @@ export function SiteGuide() {
    */
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const ease = reduced ? 1 : 0.045;
-    /** Top speed in px per frame, about 330px a second. */
-    const maxStep = reduced ? Infinity : 5.5;
+    const ease = reduced ? 1 : 0.03;
+    /** Top speed in px per frame, about 180px a second. */
+    const maxStep = reduced ? Infinity : 3;
     const lerpTilt = 0.08;
     const range = document.createRange();
 
@@ -175,7 +175,11 @@ export function SiteGuide() {
         : CORNER_INSET + figW / 2;
       // The boots sit a fifth of the figure above its bottom edge, the jet
       // flames filling the rest; drop by that much so the boots are what land.
-      const ty = (target ? target.y : height - CORNER_INSET) + figH * BOOT_LIFT;
+      // Riding a heading up the screen, it stops short of the header rather
+      // than sliding underneath it and vanishing while the heading still shows.
+      const ty = target
+        ? Math.max(target.y + figH * BOOT_LIFT, HEADER_CLEARANCE + figH)
+        : height - CORNER_INSET + figH * BOOT_LIFT;
 
       if (first) {
         currX = tx;
@@ -220,7 +224,11 @@ export function SiteGuide() {
       if (el.dataset.side !== side) el.dataset.side = side;
 
       // Face the way it flies across; a mostly vertical flight stays front-on.
-      const pose = flying && Math.abs(vx) > Math.abs(vy) * 0.7 ? (vx > 0 ? 'right' : 'left') : 'front';
+      // Turning needs a clearer sideways heading than staying turned does, so
+      // a diagonal flight does not flick between views.
+      const sideways = el.dataset.pose === 'front' ? 0.9 : 0.4;
+      const pose =
+        flying && Math.abs(vx) > Math.abs(vy) * sideways ? (vx > 0 ? 'right' : 'left') : 'front';
       if (el.dataset.pose !== pose) el.dataset.pose = pose;
     };
 

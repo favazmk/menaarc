@@ -361,7 +361,8 @@ html.lenis body {
  * instead — the same job done by the opposite means. */
 .site-guide__shadow {
   position: absolute;
-  bottom: 0.1rem;
+  /* At the boots, not the bottom of the figure, which is the flame tips. */
+  bottom: 18%;
   left: 50%;
   width: 2.6rem;
   height: 0.5rem;
@@ -420,10 +421,26 @@ html.lenis body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* Bobbing lives on the figure, not the wrapper, so it cannot fight the
-     transition that carries it between sections. */
+  /* Perched, it sways from the boots; in flight it bobs. Both live on the
+     figure, not the wrapper, so they cannot fight the transform that carries
+     it between headings. The origin is the boot soles, a fifth of the way up. */
   .site-guide__figure {
+    transform-origin: 50% 81%;
+    animation: guide-sway 4.2s ease-in-out infinite;
+  }
+
+  .site-guide.is-traveling .site-guide__figure {
     animation: guide-bob 3.4s ease-in-out infinite;
+  }
+
+  @keyframes guide-sway {
+    0%,
+    100% {
+      transform: rotate(-3deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
   }
 
   /* The shadow breathes against the bob rather than with it: tight and dark
