@@ -1,31 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 export function ClientEnhancements() {
   const pathname = usePathname();
-  const router = useRouter();
   const [showWa, setShowWa] = useState(false);
-
-  useEffect(() => {
-    // Force scroll to top on page load, or redirect to home if it's a reload
-    if (typeof window !== 'undefined') {
-      window.history.scrollRestoration = 'manual';
-      
-      const navEntries = performance.getEntriesByType('navigation');
-      const isReload = navEntries.length > 0 && (navEntries[0] as PerformanceNavigationTiming).type === 'reload';
-      
-      if (isReload && window.location.pathname !== '/') {
-        router.replace('/');
-      } else {
-        // Need to wait for GSAP to calculate heights and Lenis to initialize
-        setTimeout(() => {
-          window.scrollTo(0, 0);
-        }, 500);
-      }
-    }
-  }, [router]);
 
   useEffect(() => {
     // WhatsApp button visibility

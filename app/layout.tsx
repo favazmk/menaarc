@@ -82,9 +82,31 @@ export const viewport: Viewport = {
   colorScheme: 'light',
 };
 
+const RELOAD_TO_TOP = `try {
+  var nav = performance.getEntriesByType('navigation')[0];
+  if (sessionStorage.getItem('menaarc:reset')) {
+    sessionStorage.removeItem('menaarc:reset');
+  } else if (nav && nav.type === 'reload') {
+    // Reload again as a plain navigation, even on the home page: the browser
+    // does not restore a scroll position into a navigation, whereas turning
+    // restoration off during a reload proved unreliable. The flag stops a
+    // same-URL replace that the browser also counts as a reload from looping.
+    history.scrollRestoration = 'manual';
+    sessionStorage.setItem('menaarc:reset', '1');
+    location.replace('/');
+  }
+} catch (e) {}`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${archivo.variable} ${bricolage.variable} ${kufiArabic.variable}`}>
+      <head>
+        {/* A refresh always starts over from the top of the home page, as a
+            first visit would. Inline and in <head> so it runs while the HTML is
+            still parsing: before the browser restores the old scroll position,
+            and before the page being left has painted. */}
+        <script dangerouslySetInnerHTML={{ __html: RELOAD_TO_TOP }} />
+      </head>
       <body suppressHydrationWarning>
         <a
           href="#main"
