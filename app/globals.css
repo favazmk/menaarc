@@ -306,34 +306,18 @@ html.lenis body {
 
 
 
-/* The mascot's palette.
- *
- * Every fill in the SVG reads one of these, which is the whole reason it is
- * drawn rather than dropped in as a picture. The body and the screen sit within
- * a few percent of the ink ground, so on the dark sections they are lifted just
- * far enough to hold a silhouette — dark against the grey shell still, but no
- * longer merged into the page behind them. The shell itself barely moves: it is
- * already light enough to carry the figure on either ground.
- *
- * The eyes are the one colour that never changes. They are the only warm thing
- * in the drawing and they read on paper and on ink equally, which is what lets
- * the rest of it shift underneath them without the character changing. */
-.site-guide {
-  --gm-shell-hi: #9ba0a7;
-  --gm-shell: #7c8189;
-  --gm-shell-lo: #5f646c;
-  --gm-screen: #121215;
-  --gm-screen-hi: #23242a;
-  --gm-body: #2c2d31;
-  --gm-body-hi: #3b3d42;
-  --gm-glow: #f5d84e;
+/* Flight poses. The view shown follows the direction of travel, set by
+   SiteGuide as data-pose; only the front view is rigged. */
+.gm-pose {
+  opacity: 0;
+  transition: opacity 160ms ease;
 }
 
-.site-guide[data-theme='dark'] {
-  --gm-screen: #1d1e24;
-  --gm-screen-hi: #2e3038;
-  --gm-body: #43454c;
-  --gm-body-hi: #53555d;
+.site-guide[data-pose='front'] .gm-pose--front,
+.site-guide[data-pose='left'] .gm-pose--left,
+.site-guide[data-pose='right'] .gm-pose--right,
+.site-guide[data-pose='back'] .gm-pose--back {
+  opacity: 1;
 }
 
 /* No disc. She is a drawing on the page, not an icon in a chip — a circle
@@ -360,7 +344,7 @@ html.lenis body {
 }
 
 .site-guide__figure {
-  height: 6rem;
+  height: 7rem;
   width: auto;
   display: block;
   transition: transform 400ms var(--ease-out-expo);
@@ -389,7 +373,7 @@ html.lenis body {
 }
 
 .site-guide[data-theme='dark'] .site-guide__shadow {
-  background: rgb(245 216 78 / 0.13);
+  background: rgb(34 211 238 / 0.16);
 }
 
 /* The bubble is a drawing note: a hairline box with one clipped corner,
@@ -458,10 +442,9 @@ html.lenis body {
     animation: guide-land 900ms var(--ease-out-expo);
   }
 
-  /* And waves once it has landed, which is the moment it has something to say.
-     Idle waving stays as it was, so it still has a life between sections. */
-  .site-guide[data-arriving] .gm-wave {
-    animation: gm-wave-hello 1.25s ease-in-out 220ms;
+  /* Tapped: a touch screen has no hover, so this is its way to say hello. */
+  .site-guide[data-waving] .gm-wave {
+    animation: gm-wave-hello 1.25s ease-in-out;
   }
 
   @keyframes guide-shadow {
@@ -489,13 +472,13 @@ html.lenis body {
       transform: rotate(0deg);
     }
     20% {
-      transform: rotate(-22deg);
+      transform: rotate(14deg);
     }
     45% {
-      transform: rotate(4deg);
+      transform: rotate(-6deg);
     }
     70% {
-      transform: rotate(-16deg);
+      transform: rotate(11deg);
     }
   }
 
@@ -517,11 +500,36 @@ html.lenis body {
    * The right eye runs on a slightly different cycle so the two are not
    * mechanically in step, which is the difference between a character and a
    * pair of indicator lights. */
-  /* The face glows. On the reference the eyes carry a bloom, and without it a
-     flat yellow disc on a dark screen reads as a sticker rather than as
-     something lit from behind. Applied to the group so the mouth gets it too. */
-  .gm-gaze {
-    filter: drop-shadow(0 0 2.5px rgb(245 216 78 / 0.55));
+  /* The jets. Scaled from the sole, so they lengthen rather than swell;
+     travelling between sections opens them up. */
+  .gm-flame {
+    transform-origin: 0 0;
+    animation: gm-flicker 0.16s ease-in-out infinite alternate;
+  }
+
+  .site-guide.is-traveling .gm-flame {
+    scale: 1.35;
+  }
+
+  @keyframes gm-flicker {
+    from {
+      transform: scaleY(0.86) scaleX(0.94);
+      opacity: 0.85;
+    }
+    to {
+      transform: scaleY(1.06) scaleX(1.02);
+      opacity: 1;
+    }
+  }
+
+  .gm-core {
+    animation: gm-core 2.6s ease-in-out infinite;
+  }
+
+  @keyframes gm-core {
+    50% {
+      opacity: 0.08;
+    }
   }
 
   .gm-eye {
@@ -546,34 +554,29 @@ html.lenis body {
     }
   }
 
-  /* The wave. Idle it fires now and then; hovering the guide asks for one on
-     demand and it comes back faster. The origin is the shoulder, set on the
-     element in GuideMascot so it travels with the artwork rather than living
-     here in a second place that has to agree with it. */
-  .gm-wave {
-    animation: gm-wave 7.2s ease-in-out infinite;
-  }
-
+  /* The wave. Only while the pointer is on the guide, the one moment it is
+     being addressed. The origin is the elbow, set on the element in
+     GuideMascot so it travels with the artwork. */
   .site-guide__button:hover .gm-wave {
-    animation-duration: 1.4s;
+    animation: gm-wave 1.4s ease-in-out infinite;
   }
 
   @keyframes gm-wave {
     0%,
-    72%,
     100% {
       transform: rotate(0deg);
     }
-    78% {
-      transform: rotate(-17deg);
+    25% {
+      transform: rotate(13deg);
     }
-    84% {
-      transform: rotate(6deg);
+    50% {
+      transform: rotate(-4deg);
     }
-    90% {
-      transform: rotate(-12deg);
+    75% {
+      transform: rotate(10deg);
     }
   }
+
 
   /* The gaze is written from JS, so it only needs smoothing — without this the
      pupils teleport on a fast pointer sweep instead of following it. */

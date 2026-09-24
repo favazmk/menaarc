@@ -259,6 +259,22 @@ export function SiteGuide() {
         if (el.classList.contains('is-traveling')) el.classList.remove('is-traveling');
       }
 
+      // 5. Face the way it flies: side views across, the back view going up.
+      // A higher bar to leave the front pose than to return to it, so a speed
+      // hovering at the threshold does not flick between views.
+      const velocityY = dy * lerpPos;
+      const flying = speed > (el.dataset.pose === 'front' ? 0.6 : 0.25);
+      const pose = !flying
+        ? 'front'
+        : Math.abs(velocityX) > Math.abs(velocityY) * 0.7
+          ? velocityX > 0
+            ? 'right'
+            : 'left'
+          : velocityY < 0
+            ? 'back'
+            : 'front';
+      if (el.dataset.pose !== pose) el.dataset.pose = pose;
+
       rafId = requestAnimationFrame(loop);
     };
 
@@ -287,6 +303,7 @@ export function SiteGuide() {
       data-side={activeStop?.side ?? 'left'}
       data-open={open || undefined}
       data-waving={isWaving || undefined}
+      data-pose="front"
       style={{ opacity: 0, visibility: 'hidden', pointerEvents: 'none' }}
     >
       <p className="site-guide__bubble" role="status">
