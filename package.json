@@ -11,14 +11,15 @@
     "ingest": "node scripts/ingest-projects.mjs",
     "typecheck": "tsc --noEmit",
     "film:desktop": "node scripts/build-film.mjs --in assets/masters/desktop-hatta-clean.mp4 --tier desktop --frames 240 --width 1280 --crf 20 --sharpen 1.4",
-    "film:mobile": "node scripts/build-film.mjs --in assets/masters/mobile-hatta.mp4 --tier mobile --frames 160 --width 720 --crop 9:16 --crf 24 --sharpen 1.0",
+    "film:mobile": "node scripts/build-film.mjs --in assets/masters/mobile-hatta-clean.mp4 --tier mobile --frames 160 --width 720 --crop 9:16 --crf 24 --sharpen 1.4",
     "check:content": "node scripts/check-content.mjs",
     "optimize:images": "node scripts/optimize-images.mjs",
     "prebuild": "node scripts/check-content.mjs",
     "audit": "echo \"Run scripts/audit.mjs through the Playwright MCP (browser_run_code_unsafe with { filename }) against a running dev server.\"",
     "build:trial": "node scripts/build-trial.mjs",
     "postinstall": "node -e \"for (const f of ['maplibre-gl-worker.mjs','maplibre-gl-shared.mjs']) require('fs').cpSync('node_modules/maplibre-gl/dist/'+f,'public/maplibre/'+f)\"",
-    "film:clean": "python scripts/clean-desktop-master.py assets/masters/desktop-hatta.mp4 assets/masters/desktop-hatta-clean.mp4"
+    "film:clean": "python scripts/clean-desktop-master.py assets/masters/desktop-hatta.mp4 assets/masters/desktop-hatta-clean.mp4",
+    "film:clean:mobile": "python scripts/clean-desktop-master.py assets/masters/mobile-hatta.mp4 assets/masters/mobile-hatta-clean.mp4 --wm 550,1100,100,100"
   },
   "dependencies": {
     "gsap": "^3.15.0",

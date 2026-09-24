@@ -149,7 +149,9 @@ def borrow(n, crops, greys, wm_mask):
     patch = crops[m][iy:iy + h, ix:ix + w].astype(np.float32)
     # Match exposure: the two frames can differ slightly in grade.
     patch += here[ring].mean(0) - patch[ring].mean(0)
-    return err, patch
+    # Busy texture (rock, foliage) mismatches more even when the patch is
+    # right, and hides a small mismatch better than a blur; loosen the limit.
+    return err / max(1.0, here[ring].std() / 18), patch
 
 
 def clean(frame, n, wm_mask, crops, greys):
@@ -179,15 +181,26 @@ def clean(frame, n, wm_mask, crops, greys):
 
 
 def main():
-    src, dst = sys.argv[1], sys.argv[2]
-    preview = sys.argv[4] if len(sys.argv) > 4 and sys.argv[3] == '--preview' else None
+    global WM_BOX, MATCH, BOXES
+    src, dst, *rest = sys.argv[1:]
+    opts = dict(zip(rest[::2], rest[1::2]))
+    preview = opts.get('--preview')
+    if '--wm' in opts:
+        WM_BOX = tuple(int(v) for v in opts['--wm'].split(','))
+        BOXES = []
 
-    wm_mask = watermark_mask(src)
-    crops, greys = neighbours(src, wm_mask)
     cap = cv2.VideoCapture(src)
     fps = cap.get(cv2.CAP_PROP_FPS)
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    if '--wm' in opts:
+        # Alignment neighbourhood: the watermark box grown 150px, inside the frame.
+        x, y, bw, bh = WM_BOX
+        x0, y0 = max(0, x - 150), max(0, y - 150)
+        MATCH = (x0, y0, min(w, x + bw + 150) - x0, min(h, y + bh + 150) - y0)
+
+    wm_mask = watermark_mask(src)
+    crops, greys = neighbours(src, wm_mask)
 
     # Near-lossless so the film build re-encodes from clean pixels.
     enc = subprocess.Popen([
@@ -205,7 +218,8 @@ def main():
         frame = clean(frame, n, wm_mask, crops, greys)
         enc.stdin.write(frame.tobytes())
         if preview and n % 20 == 0:
-            tiles.append(cv2.resize(frame[520:680, 1040:1260], None, fx=2, fy=2))
+            x, y, bw, bh = WM_BOX
+            tiles.append(cv2.resize(frame[max(0, y - 60):y + bh + 60, max(0, x - 60):x + bw + 60], None, fx=2, fy=2))
         n += 1
 
     enc.stdin.close()
