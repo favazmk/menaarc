@@ -82,13 +82,11 @@ export function GuideMascot({ className }: { className?: string }) {
    */
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    // A coarse pointer has no hovering position to track — on a phone the gaze
-    // would freeze wherever the last tap landed, which reads as broken.
-    if (!window.matchMedia('(pointer: fine)').matches) return;
 
     let frame = 0;
     let px = 0;
     let py = 0;
+    let rest = 0;
 
     const apply = () => {
       frame = 0;
@@ -109,23 +107,55 @@ export function GuideMascot({ className }: { className?: string }) {
       // Direction at full strength, magnitude easing off with distance: a
       // pointer just outside the mascot should not look the same as one across
       // the room.
-      const reach = Math.min(1, dist / GAZE_FALLOFF);
+      // On a phone the whole screen is closer than the desktop falloff.
+      const reach = Math.min(1, dist / Math.min(GAZE_FALLOFF, window.innerWidth * 0.5));
       const ox = (dx / dist) * reach * GAZE_RANGE;
       const oy = (dy / dist) * reach * GAZE_RANGE * 0.62;
 
       gaze.style.transform = `translate(${ox.toFixed(2)}px, ${oy.toFixed(2)}px)`;
     };
 
-    const onMove = (e: PointerEvent) => {
-      px = e.clientX;
-      py = e.clientY;
+    const look = (x: number, y: number) => {
+      px = x;
+      py = y;
       if (!frame) frame = requestAnimationFrame(apply);
     };
 
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse' || e.pointerType === 'pen') look(e.clientX, e.clientY);
+    };
+
+    // Touch has no hovering position, so the eyes follow the finger while it
+    // is down, scrolls included (pointer events stop once a scroll takes over;
+    // touch events keep coming). After it lifts they drift back to centre
+    // rather than staring at wherever the last tap landed.
+    const onTouch = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!t) return;
+      clearTimeout(rest);
+      look(t.clientX, t.clientY);
+    };
+    const onTouchEnd = () => {
+      clearTimeout(rest);
+      rest = window.setTimeout(() => {
+        const gaze = gazeRef.current;
+        if (gaze) gaze.style.transform = '';
+      }, 900);
+    };
+
     window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('touchstart', onTouch, { passive: true });
+    window.addEventListener('touchmove', onTouch, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
+    window.addEventListener('touchcancel', onTouchEnd, { passive: true });
     return () => {
       window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('touchstart', onTouch);
+      window.removeEventListener('touchmove', onTouch);
+      window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('touchcancel', onTouchEnd);
       if (frame) cancelAnimationFrame(frame);
+      clearTimeout(rest);
     };
   }, []);
 
