@@ -3,22 +3,22 @@ export type MapLocation = {
   name: string;
   /** [longitude, latitude] */
   coordinates: [number, number];
-  type: 'emirate' | 'city' | 'country';
+  type: 'emirate' | 'city';
   /** Which side of the dot the label sits; defaults to right. */
   labelSide?: 'left' | 'right';
 };
 
 export const UAE_EMIRATES: MapLocation[] = [
   {
-    id: 'abu-dhabi',
-    name: 'ABU DHABI',
-    coordinates: [54.3773, 24.4539],
-    type: 'emirate'
-  },
-  {
     id: 'dubai',
     name: 'DUBAI',
     coordinates: [55.2708, 25.2048],
+    type: 'emirate'
+  },
+  {
+    id: 'abu-dhabi',
+    name: 'ABU DHABI',
+    coordinates: [54.3773, 24.4539],
     type: 'emirate'
   },
   {
@@ -57,17 +57,12 @@ export const UAE_EMIRATES: MapLocation[] = [
 
 export const LOCATIONS: MapLocation[] = [
   ...UAE_EMIRATES,
-  { id: 'doha', name: 'DOHA', coordinates: [51.5310, 25.2854], type: 'city' },
-  { id: 'manama', name: 'MANAMA', coordinates: [50.5860, 26.2235], type: 'city', labelSide: 'left' },
-  { id: 'kuwait-city', name: 'KUWAIT CITY', coordinates: [47.9774, 29.3759], type: 'city' },
   { id: 'riyadh', name: 'RIYADH', coordinates: [46.6753, 24.7136], type: 'city' },
   { id: 'jeddah', name: 'JEDDAH', coordinates: [39.1925, 21.4858], type: 'city' },
-  { id: 'muscat', name: 'MUSCAT', coordinates: [58.4059, 23.5880], type: 'city' },
-  { id: 'amman', name: 'AMMAN', coordinates: [35.9106, 31.9539], type: 'city' },
-  { id: 'cairo', name: 'CAIRO', coordinates: [31.2357, 30.0444], type: 'city' },
-  // Country markers sit on the geographic centre, not on any one city.
-  { id: 'india', name: 'INDIA', coordinates: [78.9629, 20.5937], type: 'country' },
-  { id: 'malaysia', name: 'MALAYSIA', coordinates: [101.9758, 4.2105], type: 'country' }
+  { id: 'kuwait-city', name: 'KUWAIT CITY', coordinates: [47.9774, 29.3759], type: 'city' },
+  { id: 'muscat', name: 'MUSCAT', coordinates: [58.4059, 23.588], type: 'city' },
+  { id: 'bengaluru', name: 'BENGALURU', coordinates: [77.5946, 12.9716], type: 'city' },
+  { id: 'singapore', name: 'SINGAPORE', coordinates: [103.8198, 1.3521], type: 'city' },
 ];
 
 const DUBAI = LOCATIONS.find((l) => l.id === 'dubai')!.coordinates;

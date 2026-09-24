@@ -3,24 +3,26 @@
 import { useState } from 'react';
 import { Reveal } from '@/components/ui/Reveal';
 import { SectionLink } from '@/components/ui/SectionLink';
-import { MenaGlobalMap, type CityProjects } from '@/components/ui/MenaGlobalMap';
+import { ALL_PLACES, MenaGlobalMap, type CityProjects } from '@/components/ui/MenaGlobalMap';
+import { LOCATIONS } from '@/lib/map-data';
 
-const REGIONS = ['GLOBAL HUB', 'UAE', 'GCC', 'MENA', 'INDIA', 'MALAYSIA'];
+/** An overview first, then one button per place on the map. */
+const PLACES = [{ id: ALL_PLACES, name: 'ALL LOCATIONS' }, ...LOCATIONS];
 
 export function GlobalExpertiseClient({ built }: { built: CityProjects[] }) {
-  const [activeRegion, setActiveRegion] = useState('GLOBAL HUB');
+  const [activePlace, setActivePlace] = useState(ALL_PLACES);
 
   const chips = (
     <div className="flex flex-wrap gap-2">
-      {REGIONS.map((region) => (
+      {PLACES.map(({ id, name }) => (
         <button
-          key={region}
+          key={id}
           type="button"
-          aria-pressed={activeRegion === region}
-          onClick={() => setActiveRegion(region)}
-          className={`px-4 py-2 border rounded-full text-[0.8125rem] tracking-wider transition-colors ${activeRegion === region ? 'border-[var(--color-accent)] text-[var(--color-accent)]' : 'border-[var(--hairline)] hover:border-[var(--figure)]'}`}
+          aria-pressed={activePlace === id}
+          onClick={() => setActivePlace(id)}
+          className={`px-3.5 py-1.5 border rounded-full text-[0.75rem] tracking-wider transition-colors ${activePlace === id ? 'border-[var(--color-accent)] text-[var(--color-accent)]' : 'border-[var(--hairline)] hover:border-[var(--figure)]'}`}
         >
-          {region}
+          {name}
         </button>
       ))}
     </div>
@@ -38,14 +40,14 @@ export function GlobalExpertiseClient({ built }: { built: CityProjects[] }) {
           <Reveal>
             <p className="u-label">Global expertise</p>
             <h2 className="u-headline mt-6 max-w-[16ch]">
-              Shaping spaces across the UAE, India, Malaysia and the wider MENA region.
+              Shaping spaces across the UAE, Saudi Arabia, Kuwait, Oman, India and Singapore.
             </h2>
           </Reveal>
         </div>
       </div>
 
       <div className="mena-hero__map">
-        <MenaGlobalMap built={built} activeRegion={activeRegion} />
+        <MenaGlobalMap built={built} activePlace={activePlace} />
       </div>
 
       {/* Phones stack the copy under the map, which put these a screen away
@@ -63,7 +65,7 @@ export function GlobalExpertiseClient({ built }: { built: CityProjects[] }) {
                 { term: 'ESTABLISHED', value: '2019' },
                 { term: 'EXPERIENCE', value: '40+ years of combined expertise across the leadership team' },
                 { term: 'SPECIALISATION', value: 'F&B, Retail, Hospitality, Corporate and Residential' },
-                { term: 'REACH', value: 'The UAE, wider GCC, MENA, India and Malaysia' },
+                { term: 'REACH', value: 'All seven emirates, Saudi Arabia, Kuwait, Oman, India and Singapore' },
                 { term: 'APPROACH', value: 'End-to-end in-house capability — from concept to completion' }
               ].map(({ term, value }) => (
                 <div

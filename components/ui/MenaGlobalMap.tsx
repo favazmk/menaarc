@@ -19,13 +19,11 @@ export type CityProjects = {
 };
 
 /**
- * Each region is framed by the locations it contains, not by a fixed zoom, so
- * the same view fits a phone band and a full-width desktop map alike. Single
- * points (India, Malaysia) get a box around them.
+ * The overview frames every location; each place gets its own view, a box
+ * around it sized so a single emirate reads at street-grid scale and a city
+ * abroad shows enough of its surroundings to be placed.
  */
-const ids = (...list: string[]) => LOCATIONS.filter((l) => list.includes(l.id));
-const UAE = LOCATIONS.filter((l) => l.type === 'emirate');
-const GCC = [...UAE, ...ids('doha', 'manama', 'kuwait-city', 'riyadh', 'jeddah', 'muscat')];
+export const ALL_PLACES = 'all';
 
 const around = ([lng, lat]: number[], d: number): LngLatBoundsLike => [
   [lng - d, lat - d],
@@ -41,16 +39,11 @@ function boundsOf(points: { coordinates: number[] }[]): LngLatBoundsLike {
   ];
 }
 
-const MENA = [...GCC, ...ids('amman', 'cairo')];
-
-const REGION_BOUNDS: Record<string, LngLatBoundsLike> = {
-  // Malaysia has its own view; including it here zooms out to half the globe.
-  'GLOBAL HUB': boundsOf([...MENA, ...ids('india')]),
-  UAE: boundsOf(UAE),
-  GCC: boundsOf(GCC),
-  MENA: boundsOf(MENA),
-  INDIA: around(ids('india')[0].coordinates, 9),
-  MALAYSIA: around(ids('malaysia')[0].coordinates, 5),
+const VIEWS: Record<string, LngLatBoundsLike> = {
+  [ALL_PLACES]: boundsOf(LOCATIONS),
+  ...Object.fromEntries(
+    LOCATIONS.map((l) => [l.id, around(l.coordinates, l.type === 'emirate' ? 0.35 : 2)]),
+  ),
 };
 
 /**
@@ -64,11 +57,11 @@ function fitPadding(el: HTMLElement) {
     : { top: 28, bottom: 28, left: 28, right: 110 };
 }
 
-export function MenaGlobalMap({ built, activeRegion }: { built: CityProjects[], activeRegion: string }) {
+export function MenaGlobalMap({ built, activePlace }: { built: CityProjects[]; activePlace: string }) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MaplibreMap | null>(null);
   const markersRef = useRef<Marker[]>([]);
-  const regionRef = useRef(activeRegion);
+  const placeRef = useRef(activePlace);
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -77,7 +70,7 @@ export function MenaGlobalMap({ built, activeRegion }: { built: CityProjects[], 
     const map = new MaplibreMap({
       container: mapContainerRef.current,
       style: CUSTOM_DARK_STYLE,
-      bounds: REGION_BOUNDS[regionRef.current],
+      bounds: VIEWS[placeRef.current],
       fitBoundsOptions: { padding: fitPadding(mapContainerRef.current) },
       attributionControl: false,
       dragPan: true,
@@ -120,9 +113,9 @@ export function MenaGlobalMap({ built, activeRegion }: { built: CityProjects[], 
     };
     map.on('moveend', declutter);
 
-    // Keep the active region framed when the container changes size.
+    // Keep the active place framed when the container changes size.
     map.on('resize', () => {
-      map.fitBounds(REGION_BOUNDS[regionRef.current], { padding: fitPadding(map.getContainer()), animate: false });
+      map.fitBounds(VIEWS[placeRef.current], { padding: fitPadding(map.getContainer()), animate: false });
     });
 
     map.on('load', () => {
@@ -201,6 +194,8 @@ export function MenaGlobalMap({ built, activeRegion }: { built: CityProjects[], 
         if (hasProjects(loc.name) && loc.id !== 'dubai') {
           el.classList.add('mena-map-marker--built');
         }
+        el.dataset.place = loc.id;
+        el.classList.toggle('mena-map-marker--active', loc.id === placeRef.current);
         if (loc.labelSide === 'left') {
           el.querySelector('.marker-label')!.classList.add('marker-label--left');
         }
@@ -222,14 +217,19 @@ export function MenaGlobalMap({ built, activeRegion }: { built: CityProjects[], 
     };
   }, [built]);
 
-  // Handle activeRegion changes
+  // Fly to the chosen place and mark it, so the one that was picked is
+  // obvious even among the tightly packed emirates.
   useEffect(() => {
-    regionRef.current = activeRegion;
-    const bounds = REGION_BOUNDS[activeRegion];
+    placeRef.current = activePlace;
+    const bounds = VIEWS[activePlace];
     if (!mapRef.current || !bounds) return;
     const map = mapRef.current;
+    for (const m of markersRef.current) {
+      const el = m.getElement();
+      el.classList.toggle('mena-map-marker--active', el.dataset.place === activePlace);
+    }
     map.fitBounds(bounds, { padding: fitPadding(map.getContainer()), duration: 1400, essential: true });
-  }, [activeRegion]);
+  }, [activePlace]);
 
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-auto" style={{ zIndex: 0 }}>
