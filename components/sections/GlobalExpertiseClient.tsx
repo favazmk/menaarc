@@ -10,26 +10,53 @@ const REGIONS = ['GLOBAL HUB', 'UAE', 'GCC', 'MENA', 'INDIA', 'MALAYSIA'];
 export function GlobalExpertiseClient({ built }: { built: CityProjects[] }) {
   const [activeRegion, setActiveRegion] = useState('GLOBAL HUB');
 
+  const chips = (
+    <div className="flex flex-wrap gap-2">
+      {REGIONS.map((region) => (
+        <button
+          key={region}
+          type="button"
+          aria-pressed={activeRegion === region}
+          onClick={() => setActiveRegion(region)}
+          className={`px-4 py-2 border rounded-full text-[0.8125rem] tracking-wider transition-colors ${activeRegion === region ? 'border-[var(--color-accent)] text-[var(--color-accent)]' : 'border-[var(--hairline)] hover:border-[var(--figure)]'}`}
+        >
+          {region}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <section
       data-theme="dark"
       className="mena-hero relative isolate bg-[var(--ground)] text-[var(--figure)]"
     >
-      <div className="mena-hero__map">
-        <MenaGlobalMap built={built} activeRegion={activeRegion} />
-      </div>
-
-      <div aria-hidden="true" className="mena-hero__scrim" />
-
-      <div className="mena-hero__content u-shell">
-        <div className="max-w-[34rem] py-16 md:py-32">
+      {/* The heading is its own block so phones can put the map between it and
+          the details; from md up both sit in one column over the map. */}
+      <div className="mena-hero__intro u-shell">
+        <div className="max-w-[34rem] pt-16 md:pt-32">
           <Reveal>
             <p className="u-label">Global expertise</p>
             <h2 className="u-headline mt-6 max-w-[16ch]">
               Shaping spaces across the UAE, India, Malaysia and the wider MENA region.
             </h2>
           </Reveal>
+        </div>
+      </div>
 
+      <div className="mena-hero__map">
+        <MenaGlobalMap built={built} activeRegion={activeRegion} />
+      </div>
+
+      {/* Phones stack the copy under the map, which put these a screen away
+          from what they change. Here they sit right under it; from md up the
+          map fills the section, so they stay in the copy. */}
+      <div className="u-shell pt-5 md:hidden">{chips}</div>
+
+      <div aria-hidden="true" className="mena-hero__scrim" />
+
+      <div className="mena-hero__content u-shell">
+        <div className="max-w-[34rem] pb-16 md:pb-32">
           <Reveal delay={90}>
             <dl className="mt-10 border-t border-[var(--hairline)]">
               {[
@@ -50,20 +77,10 @@ export function GlobalExpertiseClient({ built }: { built: CityProjects[] }) {
             </dl>
           </Reveal>
 
-          <Reveal delay={140} className="mt-10">
+          <Reveal delay={140} className="mt-10 hidden md:block">
              <div className="border-t border-[var(--hairline)] pt-6">
                 <p className="u-label mb-4">GLOBAL NETWORK</p>
-                <div className="flex flex-wrap gap-2">
-                   {REGIONS.map(region => (
-                     <button
-                       key={region}
-                       onClick={() => setActiveRegion(region)}
-                       className={`px-4 py-2 border rounded-full text-[0.8125rem] tracking-wider transition-colors ${activeRegion === region ? 'border-[var(--color-accent)] text-[var(--color-accent)]' : 'border-[var(--hairline)] hover:border-[var(--figure)]'}`}
-                     >
-                       {region}
-                     </button>
-                   ))}
-                </div>
+                {chips}
              </div>
           </Reveal>
 

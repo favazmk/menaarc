@@ -602,11 +602,12 @@ html.lenis body {
 
 .mena-hero__map {
   position: relative;
-  /* Phones: the map gets its own band above the copy. The map fits each
-     region's locations to whatever box it is given, so this only sets how
-     much height the band takes. */
+  /* Phones: the map gets its own band between the heading and the details.
+     The map fits each region's locations to whatever box it is given, so this
+     only sets how much height the band takes. */
   aspect-ratio: 4 / 3;
   min-height: 14rem;
+  margin-top: 2.5rem;
 }
 
 .mena-hero__scrim {
@@ -618,11 +619,22 @@ html.lenis body {
     display: grid;
   }
 
-  /* One cell, three layers: map, scrim, copy. */
+  /* One column, three layers: map, scrim, and the copy in two rows (heading,
+     then details). The scrim spans both rows. */
   .mena-hero__map,
-  .mena-hero__scrim,
-  .mena-hero__content {
+  .mena-hero__scrim {
+    grid-area: 1 / 1 / 3 / 2;
+  }
+
+  .mena-hero__intro {
     grid-area: 1 / 1;
+    position: relative;
+    pointer-events: none;
+    width: 100%;
+  }
+
+  .mena-hero__content {
+    grid-area: 2 / 1;
   }
 
   /* The map covers the whole section, however tall the copy makes it. Left
@@ -633,6 +645,7 @@ html.lenis body {
     inset: 0;
     aspect-ratio: auto;
     min-height: 0;
+    margin-top: 0;
   }
 
   .mena-hero__scrim {
@@ -651,7 +664,6 @@ html.lenis body {
 
   .mena-hero__content {
     position: relative;
-    align-self: center;
     pointer-events: none;
     /* u-shell carries `margin-inline: auto`, and an auto margin beats a grid
        item's default `stretch` — so without this the copy shrink-to-fits and
