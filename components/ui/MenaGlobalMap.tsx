@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Map as MaplibreMap, Marker, setWorkerUrl, type LngLatBoundsLike } from 'maplibre-gl';
+import { Map as MaplibreMap, Marker, NavigationControl, setWorkerUrl, type LngLatBoundsLike } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { LOCATIONS, ROUTES_GEOJSON } from '@/lib/map-data';
 
@@ -73,10 +73,15 @@ export function MenaGlobalMap({ built, activePlace }: { built: CityProjects[]; a
       bounds: VIEWS[placeRef.current],
       fitBoundsOptions: { padding: fitPadding(mapContainerRef.current) },
       attributionControl: false,
+      // Zoom and pan without trapping the page: a plain wheel or one-finger
+      // swipe still scrolls the page, while a trackpad pinch (which arrives as
+      // ctrl + wheel), ctrl/cmd + wheel, or a two-finger pinch on a phone
+      // moves the map. MapLibre shows a hint when a gesture is passed through.
+      cooperativeGestures: true,
       dragPan: true,
-      // Off: wheel-zoom would trap the page scroll as it passes over the map.
-      scrollZoom: false,
+      scrollZoom: true,
       touchZoomRotate: true,
+      minZoom: 1,
       doubleClickZoom: true,
       boxZoom: false,
       dragRotate: false,
@@ -84,6 +89,7 @@ export function MenaGlobalMap({ built, activePlace }: { built: CityProjects[]; a
     });
 
     mapRef.current = map;
+    map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
 
     // Zoomed out, nearby labels pile into one smudge. After each move, walk
     // the markers in priority order and hide any label that would collide
@@ -119,32 +125,7 @@ export function MenaGlobalMap({ built, activePlace }: { built: CityProjects[]; a
     });
 
     map.on('load', () => {
-      // 1. UAE Emirates Fill
-      map.addSource('uae-emirates', {
-        type: 'geojson',
-        data: '/geo/uae-emirates.geojson'
-      });
-
-      map.addLayer({
-        id: 'uae-emirates-fill',
-        type: 'fill',
-        source: 'uae-emirates',
-        paint: {
-          'fill-color': 'rgba(255, 255, 255, 0.05)'
-        }
-      });
-
-      map.addLayer({
-        id: 'uae-emirates-outline',
-        type: 'line',
-        source: 'uae-emirates',
-        paint: {
-          'line-color': 'rgba(255, 255, 255, 0.1)',
-          'line-width': 1
-        }
-      });
-
-      // 2. Add Routes (Network lines)
+      // Routes (network lines)
       map.addSource('routes', {
         type: 'geojson',
         data: ROUTES_GEOJSON

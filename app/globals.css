@@ -702,6 +702,22 @@ html.lenis body {
   }
 }
 
+/* Zoom buttons, restyled from MapLibre's white default to sit on the dark map. */
+.mena-hero .maplibregl-ctrl-group {
+  margin: 1rem;
+  border: 1px solid var(--hairline);
+  background: rgb(10 10 10 / 0.85);
+  box-shadow: none;
+}
+
+.mena-hero .maplibregl-ctrl-group button + button {
+  border-top-color: var(--hairline);
+}
+
+.mena-hero .maplibregl-ctrl-icon {
+  filter: invert(1);
+}
+
 .mena-stage {
   position: absolute;
   inset: 0;
@@ -1342,7 +1358,7 @@ html.lenis body {
 
 .marker-label--primary {
   font-weight: 600;
-  /* White, not accent: accent blue vanishes against the light-blue water.
+  /* White, not accent: accent blue sinks into the navy water.
      The accent dot and pulse still mark the hub. */
   color: var(--color-paper);
   opacity: 1;
@@ -1391,8 +1407,8 @@ html.lenis body {
   margin-right: 12px;
 }
 
-/* Labels cross both the dark land and the light water; the shadow keeps
-   them legible on either. */
+/* Labels cross both land and water; the shadow keeps them legible on
+   either. */
 .marker-label {
   text-shadow: 0 0 3px rgb(10 10 10 / 0.9), 0 0 8px rgb(10 10 10 / 0.6);
 }

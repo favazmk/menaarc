@@ -2,6 +2,10 @@ import type { StyleSpecification } from 'maplibre-gl';
 
 // Dark basemap reduced to land, water and borders: no labels, roads or
 // railways, so the only names on the map are our own markers.
+//
+// Water is darker than land. It used to be the reverse (light-blue sea,
+// near-black land), and a light sea reads as land: the Gulf of Oman looked
+// like a landmass, putting Fujairah on its "west coast", facing Iran.
 export const CUSTOM_DARK_STYLE: StyleSpecification = {
   "version": 8,
   "sources": {
@@ -15,7 +19,7 @@ export const CUSTOM_DARK_STYLE: StyleSpecification = {
       "id": "background",
       "type": "background",
       "paint": {
-        "background-color": "#121212"
+        "background-color": "#2c2e32"
       }
     },
     {
@@ -48,7 +52,7 @@ export const CUSTOM_DARK_STYLE: StyleSpecification = {
       ],
       "paint": {
         "fill-antialias": true,
-        "fill-color": "#b7d3e6"
+        "fill-color": "#0b1824"
       }
     },
     {
@@ -81,7 +85,7 @@ export const CUSTOM_DARK_STYLE: StyleSpecification = {
         ]
       ],
       "paint": {
-        "fill-color": "#121212",
+        "fill-color": "#2c2e32",
         "fill-opacity": 0.7
       }
     },
@@ -115,7 +119,7 @@ export const CUSTOM_DARK_STYLE: StyleSpecification = {
         ]
       ],
       "paint": {
-        "fill-color": "#121212",
+        "fill-color": "#2c2e32",
         "fill-opacity": [
           "interpolate",
           [
@@ -161,7 +165,7 @@ export const CUSTOM_DARK_STYLE: StyleSpecification = {
         ]
       ],
       "paint": {
-        "fill-color": "#121212",
+        "fill-color": "#2c2e32",
         "fill-opacity": [
           "interpolate",
           [
@@ -208,7 +212,7 @@ export const CUSTOM_DARK_STYLE: StyleSpecification = {
         ]
       ],
       "paint": {
-        "fill-color": "#121212",
+        "fill-color": "#2c2e32",
         "fill-opacity": [
           "interpolate",
           [
@@ -242,7 +246,7 @@ export const CUSTOM_DARK_STYLE: StyleSpecification = {
         false
       ],
       "paint": {
-        "line-color": "#b7d3e6"
+        "line-color": "#0b1824"
       }
     },
     {
@@ -294,7 +298,7 @@ export const CUSTOM_DARK_STYLE: StyleSpecification = {
         ]
       ],
       "paint": {
-        "line-color": "#333333",
+        "line-color": "#45474d",
         "line-dasharray": [
           1,
           1
@@ -358,7 +362,7 @@ export const CUSTOM_DARK_STYLE: StyleSpecification = {
         "line-join": "round"
       },
       "paint": {
-        "line-color": "#333333",
+        "line-color": "#45474d",
         "line-opacity": [
           "interpolate",
           [
@@ -414,7 +418,7 @@ export const CUSTOM_DARK_STYLE: StyleSpecification = {
         ]
       ],
       "paint": {
-        "line-color": "#333333",
+        "line-color": "#45474d",
         "line-dasharray": [
           1,
           2
