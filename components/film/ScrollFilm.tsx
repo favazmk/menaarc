@@ -175,10 +175,10 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
   /**
    * Size the backing store to the element, capped well under the display's DPR.
    *
-   * The master is 1280px on its long edge. On a retina laptop a 2x backing
-   * store is already 2880px wide, so better than half of every pixel drawn each
-   * scroll frame is invented by the browser's upscaler from detail that does
-   * not exist. It costs real fill-rate — a 2880x1720 canvas is 5M pixels to
+   * Desktop frames are 1920px on their long edge (mobile 720px). On a retina
+   * laptop a 2x backing store is already 2880px wide, so a third or more of
+   * every pixel drawn each scroll frame is invented by the browser's upscaler
+   * from detail that does not exist. It costs real fill-rate — a 2880x1720 canvas is 5M pixels to
    * cover per frame, on the same tick that has to blit a film frame — and buys
    * nothing the eye can find.
    *

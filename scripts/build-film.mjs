@@ -165,7 +165,11 @@ async function encodeTier({ input, tier, targetFrames, targetWidth, crop, delogo
         '-y', '-v', 'error',
         '-i', path.join(tmp, name),
         '-c:v', 'libaom-av1', '-still-picture', '1',
-        '-crf', String(crf), '-cpu-used', '6', '-pix_fmt', 'yuv420p',
+        // 4:4:4, not 4:2:0. Halving the chroma smears exactly what this film
+        // is made of — concrete grain, joinery edges, warm light on stone —
+        // and measured on a mid-sequence frame 4:4:4 at crf 22 kept more of
+        // the master (SSIM 0.946 vs 0.937) in a slightly smaller file.
+        '-crf', String(crf), '-cpu-used', '6', '-pix_fmt', 'yuv444p',
         path.join(dir, name.replace(/\.png$/, '.avif')),
       ], opts);
       done += 1;

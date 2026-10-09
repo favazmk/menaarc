@@ -3,8 +3,8 @@
   "tiers": {
     "desktop": {
       "frameCount": 240,
-      "width": 1280,
-      "height": 720,
+      "width": 1920,
+      "height": 1080,
       "aspect": 1.7778,
       "pattern": "/film/desktop/{n}.avif",
       "patternFallback": "/film/desktop/{n}.webp",
@@ -23,8 +23,8 @@
   "source": {
     "duration": 10,
     "fps": 24,
-    "width": 720,
-    "height": 1280
+    "width": 1080,
+    "height": 1920
   },
-  "generatedAt": "2026-09-24T06:43:27.034Z"
+  "generatedAt": "2026-10-09T12:32:34.983Z"
 }
