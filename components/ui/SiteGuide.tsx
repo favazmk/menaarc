@@ -10,13 +10,11 @@ type Stop = {
 };
 
 const STOPS: Stop[] = [
+  { id: 'intro', says: 'Drawings, approvals and the site walk all come out of one office here in Dubai.' },
   { id: 'clients', says: 'Mall operators let us on site. Brands let us draw their units. In this business you need both.' },
   { id: 'region', says: 'The filled markers are places with a finished project in them — somewhere you could go and stand.' },
   { id: 'stats', says: 'Six years, and that many projects, out of one office. What it looks like is the next thing down.' },
   { id: 'work', says: 'Every photograph here is a finished unit. There is not one render on this page.' },
-  { id: 'studio', says: 'Everything from the first sketch to the site walk happens in this office. Nothing gets handed over.' },
-  { id: 'services', says: 'Concept, detailed drawings, authority approvals, MEP, project management. Five things, one roof.' },
-  { id: 'process', says: 'A mall lease date does not move. So the programme is the first thing we draw, before the plan.' },
   { id: 'contact', says: 'Send a message and you reach the studio, not a form queue. Usually the same day.' },
 ];
 

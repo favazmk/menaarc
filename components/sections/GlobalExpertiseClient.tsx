@@ -6,7 +6,13 @@ import { SectionLink } from '@/components/ui/SectionLink';
 import { ALL_PLACES, MenaGlobalMap, type CityProjects } from '@/components/ui/MenaGlobalMap';
 import { LOCATIONS } from '@/lib/map-data';
 
-/** An overview first, then one button per place on the map. */
+/**
+ * The region in a single screen: heading, one button per place, and the map.
+ *
+ * The details list that used to sit here (established, experience, sectors)
+ * now lives in the introduction above, so this section only has to answer
+ * "where?" — and fits in one view on a laptop instead of scrolling past it.
+ */
 const PLACES = [{ id: ALL_PLACES, name: 'ALL LOCATIONS' }, ...LOCATIONS];
 
 export function GlobalExpertiseClient({ built }: { built: CityProjects[] }) {
@@ -31,15 +37,15 @@ export function GlobalExpertiseClient({ built }: { built: CityProjects[] }) {
   return (
     <section
       data-theme="dark"
-      className="mena-hero relative isolate bg-[var(--ground)] text-[var(--figure)]"
+      className="mena-hero relative isolate bg-[var(--ground)] text-[var(--figure)] md:min-h-[100svh]"
     >
       {/* The heading is its own block so phones can put the map between it and
           the details; from md up both sit in one column over the map. */}
       <div className="mena-hero__intro u-shell">
-        <div className="max-w-[34rem] pt-16 md:pt-32">
+        <div className="max-w-[36rem] pt-16 md:pt-24">
           <Reveal>
             <p className="u-label">Global expertise</p>
-            <h2 className="u-headline mt-6 max-w-[16ch]">
+            <h2 className="mt-6 max-w-[18ch] font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3.75rem)] leading-[0.98] tracking-[-0.025em]">
               Shaping spaces across the UAE, Saudi Arabia, Kuwait, Oman, India and Singapore.
             </h2>
           </Reveal>
@@ -58,32 +64,10 @@ export function GlobalExpertiseClient({ built }: { built: CityProjects[] }) {
       <div aria-hidden="true" className="mena-hero__scrim" />
 
       <div className="mena-hero__content u-shell">
-        <div className="max-w-[34rem] pb-16 md:pb-32">
-          <Reveal delay={90}>
-            <dl className="mt-10 border-t border-[var(--hairline)]">
-              {[
-                { term: 'ESTABLISHED', value: '2019' },
-                { term: 'EXPERIENCE', value: '40+ years of combined expertise across the leadership team' },
-                { term: 'SPECIALISATION', value: 'F&B, Retail, Hospitality, Corporate and Residential' },
-                { term: 'REACH', value: 'All seven emirates, Saudi Arabia, Kuwait, Oman, India and Singapore' },
-                { term: 'APPROACH', value: 'End-to-end in-house capability — from concept to completion' }
-              ].map(({ term, value }) => (
-                <div
-                  key={term}
-                  className="grid gap-1 border-b border-[var(--hairline)] py-4 sm:grid-cols-12 sm:gap-6"
-                >
-                  <dt className="u-label sm:col-span-4 sm:pt-1">{term}</dt>
-                  <dd className="text-[1.0625rem] leading-snug sm:col-span-8">{value}</dd>
-                </div>
-              ))}
-            </dl>
-          </Reveal>
-
-          <Reveal delay={140} className="mt-10 hidden md:block">
-             <div className="border-t border-[var(--hairline)] pt-6">
-                <p className="u-label mb-4">GLOBAL NETWORK</p>
-                {chips}
-             </div>
+        <div className="max-w-[36rem] pb-16 md:pb-24">
+          <Reveal delay={90} className="mt-10 hidden md:block">
+            <p className="u-label mb-4">Global network</p>
+            {chips}
           </Reveal>
 
           <Reveal delay={190} className="mt-10">

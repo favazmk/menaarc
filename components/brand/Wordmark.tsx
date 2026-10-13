@@ -30,7 +30,7 @@ import { site } from '@/lib/site';
  * would leave the mark spelling nothing.
  */
 
-type Size = 'sm' | 'md' | 'lg' | 'xl';
+type Size = 'sm' | 'md' | 'lg' | 'xl' | 'fluid';
 
 /**
  * Cap heights, not font sizes — the mark is artwork now.
@@ -43,7 +43,15 @@ const SIZES: Record<Size, string> = {
   md: '0.93rem',
   lg: 'clamp(1.2rem, 3.77vw, 2.91rem)',
   /** The brand statement under the home film. */
-  xl: 'clamp(2.1rem, 8vw, 5.5rem)',
+  // 6.5vw, not 8: the mark is 11.8 caps wide, so 8vw ran it ~94vw wide
+  // and off both edges of a phone once the gutters were added.
+  xl: 'clamp(1.25rem, 6.5vw, 5.5rem)',
+  /**
+   * As wide as its container, edge to edge — the footer's closing mark. The
+   * container must set `container-type: inline-size`; 11.8 is the mark's own
+   * aspect (ASPECT below), which a const declared later cannot supply here.
+   */
+  fluid: 'calc(100cqw / 11.8)',
 };
 
 const CAP = 100;

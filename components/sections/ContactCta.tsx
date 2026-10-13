@@ -73,7 +73,7 @@ export function ContactCta({
   return (
     <section data-theme="light" className="relative isolate bg-[var(--ground)] text-[var(--figure)]">
       <DraftingGrid />
-      <div className="u-shell relative py-32 md:py-48">
+      <div className="u-shell relative py-24 md:py-36">
         <Reveal className="flex flex-col items-center text-center">
           <p className="u-label">{pitch.label}</p>
           <h2 className="u-display mt-8 max-w-[15ch]">{pitch.heading}</h2>

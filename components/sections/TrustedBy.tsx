@@ -57,7 +57,7 @@ export function TrustedBy() {
     >
       <div className="u-shell py-16 md:py-20">
         <Reveal className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3">
-          <p className="u-label">Design & Project Managed</p>
+          <p className="u-label">Trusted by</p>
           <p className="text-[0.8125rem] text-[var(--muted)]">
             For landlords, operators and brands, from design intent to site delivery.
           </p>

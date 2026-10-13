@@ -1,15 +1,11 @@
 import { ScrollFilm } from '@/components/film/ScrollFilm';
 import type { FilmManifest } from '@/components/film/useFrameLoader';
 import type { Chapter } from '@/components/film/FilmChapters';
-import { StudioIntro } from '@/components/sections/StudioIntro';
+import { HomeIntro } from '@/components/sections/HomeIntro';
 import { TrustedBy } from '@/components/sections/TrustedBy';
-import { SelectedWork } from '@/components/sections/SelectedWork';
 import { GlobalExpertise } from '@/components/sections/GlobalExpertise';
 import { Stats } from '@/components/sections/Stats';
-import { SectorGallery } from '@/components/sections/SectorGallery';
-import { ServicesPreview } from '@/components/sections/ServicesPreview';
-import { ProcessPreview } from '@/components/sections/ProcessPreview';
-import { IntegratedDelivery } from '@/components/sections/IntegratedDelivery';
+import { SelectedWork } from '@/components/sections/SelectedWork';
 import { ContactCta } from '@/components/sections/ContactCta';
 import { SiteGuide } from '@/components/ui/SiteGuide';
 import { getFeaturedProjects } from '@/lib/projects';
@@ -21,51 +17,35 @@ const manifest = manifestJson as unknown as FilmManifest;
 const chapters = chaptersJson.chapters as Chapter[];
 
 /**
- * The home page is an index of the other pages, not a copy of them.
- *
- * Each section below is the short form of a page that carries the full
- * version, and ends in a link to it. Nothing here is the only place a thing
- * is said, and nothing here says all of it — which is what stops /services
- * and /studio reading as pages the visitor has already scrolled past.
+ * The home page is a curated introduction to the studio, not a condensed copy
+ * of every other page. The studio, its five services and the design process
+ * each have a page of their own; here they get at most a line.
  *
  * THE ORDER IS THE ARGUMENT.
  *
- * A visitor arrives not knowing whether this studio is real, and every claim a
- * studio makes about itself is worth less than one other people make about it.
- * So the page opens on other people and widens out before it narrows to a
- * single unit:
- *
  *   1. Film           a promise, and a reason to keep scrolling
- *   2. Trusted by     other people's names first — Emaar and Majid Al Futtaim
- *                     let these people onto their sites. Borrowed credibility
- *                     before a single self-description.
- *   3. The region     where that work happens, answering "can you do this
- *                     where I am?" while the client wall is still in view.
- *   4. Stats          the scale of it — territory, then the count inside the
- *                     territory, which is the order those two facts support
- *                     each other in.
- *   5. Selected work  the payoff, and the proof. Photographs of finished
- *                     units, arriving after the reach and the count have set
- *                     the expectation they have to meet.
- *   6. The studio     only now — with attention earned — what makes it
- *                     different, which is the part a stranger would discount.
- *   7. Services       "what exactly would you do?"
- *   8. Approach       "how will this go?" — the fear behind it, answered by
- *                     showing the sequence before anyone has to ask.
- *   9. Contact        an invitation that costs the visitor nothing, which is
- *                     the only close that does not undo the preceding eight.
- *
- * The run from 2 to 5 is a single movement from widest to narrowest: other
- * people's names, then the map, then the count, then one photographed unit.
- * Anything inserted into that run breaks the funnel. Self-description still
- * sits downstream of all of it, which is the part that must not move.
+ *   2. Introduction   who MENAARC is, in one paragraph — the sectors and the
+ *                     in-house disciplines folded in as single lines
+ *   3. Trusted by     other people's names: borrowed credibility before any
+ *                     more self-description
+ *   4. The region     where that work happens, in a single screen
+ *   5. Stats          the scale of it
+ *   6. Selected work  the centrepiece: photographs of finished units, as a
+ *                     slideshow
+ *   7. Contact        an invitation that costs the visitor nothing
  *
  * The guide perches on whichever section heading is in view, so reordering
  * needs no change to SiteGuide beyond re-reading any line it says that refers
  * to the section before or after it.
  */
 export default function HomePage() {
-  const featured = getFeaturedProjects(5);
+  const featured = getFeaturedProjects(8).map(({ slug, title, location, sector, images }) => ({
+    slug,
+    title,
+    location,
+    sector,
+    images,
+  }));
 
   return (
     <>
@@ -79,7 +59,9 @@ export default function HomePage() {
       {/* The guide's route: it perches on the h2 headings inside, and never on
           the film's own titles above. */}
       <div data-guide-route>
-        <IntegratedDelivery />
+        <div data-guide="intro">
+          <HomeIntro />
+        </div>
         <div data-guide="clients">
           <TrustedBy />
         </div>
@@ -89,18 +71,8 @@ export default function HomePage() {
         <div data-guide="stats">
           <Stats />
         </div>
-        <SectorGallery />
         <div data-guide="work">
           <SelectedWork projects={featured} />
-        </div>
-        <div data-guide="studio">
-          <StudioIntro />
-        </div>
-        <div data-guide="services">
-          <ServicesPreview />
-        </div>
-        <div data-guide="process">
-          <ProcessPreview />
         </div>
         <div data-guide="contact">
           <ContactCta variant="home" />
