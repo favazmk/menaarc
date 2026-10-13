@@ -189,7 +189,9 @@ export function FilmChapters({
                   }}
                   // Chapters occupy one position, not a sequence, so the travel
                   // never reflows the layout mid-scroll.
-                  className={`absolute inset-x-0 text-[var(--color-paper)] ${low ? 'bottom-0' : 'top-0'}`}
+                  // A soft shadow carries the type now the scrim is light
+                  // enough that bright sky can sit behind the small lines.
+                  className={`absolute inset-x-0 text-[var(--color-paper)] [text-shadow:0_1px_14px_rgb(10_10_10/0.55)] ${low ? 'bottom-0' : 'top-0'}`}
                   style={{
                     opacity: o,
                     transform: `translate3d(0, 0, ${z.toFixed(1)}px)`,
@@ -199,7 +201,7 @@ export function FilmChapters({
                   }}
                 >
                   {/* Eyebrow, over the rule it hangs from. */}
-                  <p className="u-label flex items-center gap-3 text-[var(--color-paper)]/55">
+                  <p className="u-label flex items-center gap-3 text-[var(--color-paper)]/75">
                     <span className="text-[var(--color-accent)]">{c.index}</span>
                     <span className="opacity-40">/</span>
                     <span>{c.label}</span>
@@ -219,14 +221,14 @@ export function FilmChapters({
                     {c.headline}
                   </h2>
 
-                  <p className="u-label mt-5 text-[var(--color-paper)]/70">{c.sub}</p>
+                  <p className="u-label mt-5 text-[var(--color-paper)]/85">{c.sub}</p>
 
                   {/* The callout rule, and the annotations hung off it. */}
                   <ul className="mt-5 border-l border-[var(--color-paper)]/25 pl-4">
                     {c.specs.map((s) => (
                       <li
                         key={s}
-                        className="u-label py-[0.3rem] text-[var(--color-paper)]/55"
+                        className="u-label py-[0.3rem] text-[var(--color-paper)]/80"
                         style={{ fontSize: '0.625rem', letterSpacing: '0.24em' }}
                       >
                         {s}
@@ -252,7 +254,7 @@ export function FilmChapters({
                   ref={(el) => {
                     markers.current[i] = el;
                   }}
-                  className="u-label absolute right-0 top-[16svh] whitespace-nowrap text-[var(--color-paper)]/45"
+                  className="u-label absolute right-0 top-[16svh] whitespace-nowrap text-[var(--color-paper)]/70"
                   style={{ opacity: o, visibility: o <= 0.01 ? 'hidden' : 'visible' }}
                 >
                   {c.marker}

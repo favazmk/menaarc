@@ -345,7 +345,9 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
           style={{ opacity: primed ? 1 : 0 }}
         />
 
-        {/* Legibility scrim, shaped to wherever the type actually sits.
+        {/* Legibility scrim, shaped to wherever the type actually sits — and no
+            heavier than the type needs: the client read the full-strength
+            version as the whole film being too dark on a laptop.
             A left-weighted grade under centred desktop copy; a bottom-weighted
             one under low-anchored phone copy; barely anything over a strip,
             where the type is already on ink. */}
@@ -357,9 +359,9 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
               layout === 'stacked'
                 ? 'linear-gradient(to bottom, rgb(10 10 10 / 0.35) 0%, transparent 22%, transparent 100%)'
                 : layout === 'bottom'
-                  ? 'linear-gradient(to bottom, rgb(10 10 10 / 0.5) 0%, transparent 20%, transparent 34%, rgb(10 10 10 / 0.58) 56%, rgb(10 10 10 / 0.86) 76%, rgb(10 10 10 / 0.95) 100%)'
-                  : 'linear-gradient(to right, rgb(10 10 10 / 0.78) 0%, rgb(10 10 10 / 0.45) 34%, rgb(10 10 10 / 0.05) 66%, transparent 100%),' +
-                    'linear-gradient(to bottom, rgb(10 10 10 / 0.6) 0%, rgb(10 10 10 / 0.1) 28%, rgb(10 10 10 / 0.14) 64%, rgb(10 10 10 / 0.72) 100%)',
+                  ? 'linear-gradient(to bottom, rgb(10 10 10 / 0.35) 0%, transparent 18%, transparent 40%, rgb(10 10 10 / 0.45) 60%, rgb(10 10 10 / 0.72) 80%, rgb(10 10 10 / 0.85) 100%)'
+                  : 'linear-gradient(to right, rgb(10 10 10 / 0.55) 0%, rgb(10 10 10 / 0.22) 34%, transparent 58%),' +
+                    'linear-gradient(to bottom, rgb(10 10 10 / 0.4) 0%, transparent 20%, transparent 70%, rgb(10 10 10 / 0.4) 100%)',
           }}
         />
       </div>

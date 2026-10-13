@@ -77,7 +77,7 @@ function cropBox(src, crop) {
   return { w: w - (w % 2), h: h - (h % 2) };
 }
 
-async function encodeTier({ input, tier, targetFrames, targetWidth, crop, delogo, sharpen, crf, src }) {
+async function encodeTier({ input, tier, targetFrames, targetWidth, crop, delogo, sharpen, curves, crf, src }) {
   const dir = path.join(OUT_ROOT, tier);
   const tmp = path.join(OUT_ROOT, `.tmp-${tier}`);
   await fs.rm(dir, { recursive: true, force: true });
@@ -132,6 +132,15 @@ async function encodeTier({ input, tier, targetFrames, targetWidth, crop, delogo
   // and it is effectively free.
   if (sharpen > 0) {
     filters.push(`unsharp=5:5:${sharpen}:5:5:0.0`);
+  }
+
+  // A tone curve, as ffmpeg `curves` points ("0/0 0.15/0.2 0.5/0.56 1/1").
+  // The masters are graded for a dark room; on a laptop panel the shadows
+  // read as black. A curve lifts them without clipping the sunset the way a
+  // flat brightness gain would, and it is baked in, so it costs nothing at
+  // scroll time.
+  if (curves) {
+    filters.push(`curves=all='${curves}'`);
   }
 
   const common = ['-y', '-v', 'error', '-i', input, '-vf', filters.join(','), '-fps_mode', 'passthrough'];
@@ -249,7 +258,8 @@ async function main() {
       `, crf ${crf}`,
   );
 
-  const result = await encodeTier({ input, tier, targetFrames, targetWidth, crop, delogo, sharpen, crf, src });
+  const curves = typeof args.curves === 'string' ? args.curves : null;
+  const result = await encodeTier({ input, tier, targetFrames, targetWidth, crop, delogo, sharpen, curves, crf, src });
 
   let manifest = { version: 1, tiers: {} };
   try {
