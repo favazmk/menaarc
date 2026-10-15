@@ -9,18 +9,16 @@
   "area": "",
   "scope": [],
   "photographer": "",
-  "summary": "We curate contemporary retail spaces that reflect understated confidence, enhancing flow, display, and the overall shopping experience.",
+  "summary": "A contemporary retail space for Reiss in Abu Dhabi, designed around understated confidence. Layout, display and lighting work together to improve flow through the store and keep the focus on the collection.",
   "body": [],
   "images": [
+    "/projects/reiss-abu-dhabi/05.webp",
     "/projects/reiss-abu-dhabi/01.webp",
     "/projects/reiss-abu-dhabi/02.webp",
-    "/projects/reiss-abu-dhabi/03.webp",
-    "/projects/reiss-abu-dhabi/04.webp",
-    "/projects/reiss-abu-dhabi/05.webp",
-    "/projects/reiss-abu-dhabi/06.webp",
     "/projects/reiss-abu-dhabi/07.webp",
-    "/projects/reiss-abu-dhabi/08.webp"
+    "/projects/reiss-abu-dhabi/04.webp"
   ],
+  "cover": "/projects/reiss-abu-dhabi/01.webp",
   "featured": false,
   "status": "approved",
   "source": {

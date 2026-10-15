@@ -9,16 +9,14 @@
   "area": "",
   "scope": [],
   "photographer": "",
-  "summary": "Transforming Peet’s Coffee into a warm, inviting space that blends comfort, style, and an exceptional coffee experience.",
-  "body": [
-    "From detailed coordination to final finishes, the project reflects precision, quality craftsmanship, and alignment with the brand’s rich coffee heritage. A rewarding project that brought together design intent and on-site excellence."
-  ],
+  "summary": "A coffee shop at Ajman City Center designed to be warm, inviting and comfortable to stay in. Detailed coordination through to final finishes brought the design intent and the brand’s coffee heritage together on site.",
+  "body": [],
   "images": [
     "/projects/peets-coffee-ajman-city-center/01.webp",
     "/projects/peets-coffee-ajman-city-center/02.webp",
-    "/projects/peets-coffee-ajman-city-center/03.webp",
     "/projects/peets-coffee-ajman-city-center/04.webp"
   ],
+  "cover": "/projects/peets-coffee-ajman-city-center/01.webp",
   "featured": false,
   "status": "approved",
   "source": {

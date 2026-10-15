@@ -86,3 +86,8 @@ export const services: Service[] = [
 
 /** Sectors the portfolio actually covers. Drives the contact form's chooser. */
 export const sectors = ['Retail', 'F&B', 'Hospitality', 'Corporate', 'Residential'] as const;
+
+/** How a sector reads on the page: the archive files restaurants as "F&B". */
+export function sectorName(sector: string): string {
+  return sector === 'F&B' ? 'Food & Beverage' : sector;
+}

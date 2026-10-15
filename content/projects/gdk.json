@@ -9,16 +9,16 @@
   "area": "",
   "scope": [],
   "photographer": "",
-  "summary": "We deliver energetic food service environments designed for speed, durability, and consistency across high-traffic customer settings.",
+  "summary": "A quick-service restaurant for GDK, designed for speed, durability and consistency in a high-traffic setting. The work brings the service counter, menu display, seating and the brand’s bold palette together into one clear, hard-wearing interior.",
   "body": [],
   "images": [
     "/projects/gdk/01.webp",
-    "/projects/gdk/02.webp",
     "/projects/gdk/03.webp",
-    "/projects/gdk/04.webp",
-    "/projects/gdk/05.webp",
-    "/projects/gdk/06.webp"
+    "/projects/gdk/06.webp",
+    "/projects/gdk/02.webp",
+    "/projects/gdk/04.webp"
   ],
+  "cover": "/projects/gdk/01.webp",
   "featured": false,
   "status": "approved",
   "source": {

@@ -6,7 +6,7 @@
       "index": "01",
       "label": "Arrival",
       "marker": "Elev 01",
-      "headline": "Before the door",
+      "headline": "Every space begins with an idea",
       "sub": "Approach sequence",
       "specs": [
         "Approach / threshold / orientation",
@@ -19,9 +19,9 @@
     {
       "id": "volume",
       "index": "02",
-      "label": "Volume",
+      "label": "Space",
       "marker": "Vol 02",
-      "headline": "Space is free",
+      "headline": "Form follows purpose",
       "sub": "Living volume",
       "specs": [
         "Ceiling height / sightline / span",
@@ -34,9 +34,9 @@
     {
       "id": "material",
       "index": "03",
-      "label": "Material",
+      "label": "Detail",
       "marker": "Mat 03",
-      "headline": "Concrete, oak, light",
+      "headline": "Every detail matters",
       "sub": "Material schedule",
       "specs": [
         "Board-marked concrete / in situ",
@@ -51,7 +51,7 @@
       "index": "04",
       "label": "Passage",
       "marker": "Cir 04",
-      "headline": "Not leftover space",
+      "headline": "A journey through space",
       "sub": "Circulation core",
       "specs": [
         "Corridor drawn first, not last",
@@ -64,9 +64,9 @@
     {
       "id": "practice",
       "index": "05",
-      "label": "Practice",
+      "label": "MENAARC",
       "marker": "MENAARC",
-      "headline": "Drawn in Dubai",
+      "headline": "Designed with intent. Delivered with precision.",
       "sub": "Design + project management",
       "specs": [
         "Retail / hospitality / residential",

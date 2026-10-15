@@ -39,12 +39,13 @@ const chapters = chaptersJson.chapters as Chapter[];
  * to the section before or after it.
  */
 export default function HomePage() {
-  const featured = getFeaturedProjects(8).map(({ slug, title, location, sector, images }) => ({
+  const featured = getFeaturedProjects(8).map(({ slug, title, location, sector, images, cover }) => ({
     slug,
     title,
     location,
     sector,
     images,
+    cover,
   }));
 
   return (

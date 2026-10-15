@@ -45,7 +45,7 @@ export function GlobalExpertiseClient({ built }: { built: CityProjects[] }) {
         <div className="max-w-[36rem] pt-16 md:pt-24">
           <Reveal>
             <p className="u-label">Global expertise</p>
-            <h2 className="mt-6 max-w-[18ch] font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3.75rem)] leading-[0.98] tracking-[-0.025em]">
+            <h2 className="mt-6 max-w-[18ch] font-[family-name:var(--font-display)] text-[length:var(--text-headline)] leading-[1.06] tracking-[-0.025em]">
               Shaping spaces across the UAE, Saudi Arabia, Kuwait, Oman, India and Singapore.
             </h2>
           </Reveal>

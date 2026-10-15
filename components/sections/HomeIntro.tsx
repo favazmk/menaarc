@@ -16,9 +16,8 @@ import { isTrial } from '@/lib/trial';
  * releases into this ground without a cut.
  */
 const FACTS = [
-  { term: 'Sectors', value: 'F&B, Retail, Hospitality, Corporate and Residential' },
-  { term: 'In-house', value: 'Concept, detailed drawings, authority approvals, MEP and project management' },
-  { term: 'Based', value: 'Dubai, since 2019' },
+  { term: 'Sectors', value: 'Hospitality, F&B, Retail, Workplace & Residential' },
+  { term: 'Expertise', value: 'Architecture, Interior Design, Technical Design & Project Delivery' },
 ];
 
 function Stop() {
@@ -38,15 +37,16 @@ export function HomeIntro() {
 
         <div className="mt-20 grid gap-10 border-t border-[var(--hairline)] pt-12 md:mt-28 md:grid-cols-12 md:gap-10 md:pt-16">
           <Reveal className="md:col-span-6">
-            <p className="u-label">About MENAARC</p>
-            <h2 className="u-headline mt-6 max-w-[14ch]">One studio, from first sketch to handover.</h2>
+            <p className="u-label">The practice</p>
+            <h2 className="u-headline mt-6 max-w-[14ch]">From design vision to built reality.</h2>
           </Reveal>
 
           <Reveal delay={100} className="md:col-span-6 md:pt-14">
             <p className="u-lede">
-              MENAARC is an architectural consultancy in Dubai. We design spaces for everyday use,
-              not just opening day — then carry them through drawings, approvals and site, with one
-              team accountable from concept to completion.
+              MENAARC is a Dubai-based architectural consultancy specialising in architecture,
+              interiors and project delivery. We bring creative vision and technical expertise
+              together to deliver thoughtfully designed spaces, from initial concept through to
+              completion.
             </p>
 
             <dl className="mt-10 border-t border-[var(--hairline)]">
@@ -63,8 +63,7 @@ export function HomeIntro() {
 
             {isTrial ? null : (
               <div className="mt-10 flex flex-wrap gap-3">
-                <SectionLink href="/studio">The studio</SectionLink>
-                <SectionLink href="/services">Services</SectionLink>
+                <SectionLink href="/studio">Explore the studio</SectionLink>
               </div>
             )}
           </Reveal>

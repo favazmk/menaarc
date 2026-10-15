@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Archivo, Bricolage_Grotesque, Noto_Kufi_Arabic } from 'next/font/google';
+import { Inter, Inter_Tight, Noto_Kufi_Arabic } from 'next/font/google';
 
 import { SmoothScroll } from '@/components/layout/SmoothScroll';
 import { ClientEnhancements } from '@/components/layout/ClientEnhancements';
@@ -13,18 +13,20 @@ import './globals.css';
 
 // next/font downloads these at build time and serves them from our own origin,
 // so there is no third-party request on the critical path.
-const archivo = Archivo({
+//
+// The client asked for Neue Haas Grotesk, which needs a paid web licence. Inter
+// and its tighter-set display cut are the nearest free match: the same neutral
+// Swiss grotesk, Inter for reading and Inter Tight for headings.
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-archivo',
+  variable: '--font-inter',
   display: 'swap',
-  weight: ['300', '400', '500', '600'],
 });
 
-const bricolage = Bricolage_Grotesque({
+const interTight = Inter_Tight({
   subsets: ['latin'],
-  variable: '--font-bricolage',
+  variable: '--font-inter-tight',
   display: 'swap',
-  axes: ['opsz'],
 });
 
 // The Arabic half of the lockup. Measured against the supplied artwork glyph by
@@ -99,7 +101,7 @@ const RELOAD_TO_TOP = `try {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${archivo.variable} ${bricolage.variable} ${kufiArabic.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${interTight.variable} ${kufiArabic.variable}`}>
       <head>
         {/* A refresh always starts over from the top of the home page, as a
             first visit would. Inline and in <head> so it runs while the HTML is

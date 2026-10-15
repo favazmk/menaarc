@@ -9,13 +9,13 @@
   "area": "",
   "scope": [],
   "photographer": "",
-  "summary": "We design compact, expressive kiosks that elevate product presentation while supporting efficient service and a premium customer experience.",
+  "summary": "A compact retail kiosk for Bateel, planned around product presentation and efficient service. Joinery, display detailing and lighting give a premium brand a clear presence on a busy mall concourse.",
   "body": [],
   "images": [
     "/projects/bateel-kiosk/01.webp",
-    "/projects/bateel-kiosk/02.webp",
     "/projects/bateel-kiosk/03.webp"
   ],
+  "cover": "/projects/bateel-kiosk/01.webp",
   "featured": false,
   "status": "approved",
   "source": {

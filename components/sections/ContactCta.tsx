@@ -43,9 +43,9 @@ const PITCHES = {
   work: {
     whatsapp: openers.work as string,
     label: 'Your project',
-    heading: 'Yours would be next.',
-    lede: 'Most of these started as a lease, a deadline and a plan that did not quite work yet. If that sounds familiar, send it over.',
-    action: 'Start a conversation',
+    heading: 'Have a project in mind?',
+    lede: 'We collaborate with brands, developers and businesses to create thoughtful, functional spaces. Let’s discuss yours.',
+    action: 'Get in touch',
   },
   // A case study: the message names the project, passed in by the page.
   project: {
@@ -76,7 +76,7 @@ export function ContactCta({
       <div className="u-shell relative py-24 md:py-36">
         <Reveal className="flex flex-col items-center text-center">
           <p className="u-label">{pitch.label}</p>
-          <h2 className="u-display mt-8 max-w-[15ch]">{pitch.heading}</h2>
+          <h2 className="u-display mt-8 max-w-[24ch] text-balance">{pitch.heading}</h2>
           <p className="u-lede mt-8 max-w-[46ch] text-center">{pitch.lede}</p>
 
           <div className="mt-14 flex flex-wrap items-center justify-center gap-5">

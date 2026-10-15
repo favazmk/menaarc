@@ -17,7 +17,10 @@ export type Project = {
   photographer: string;
   summary: string;
   body: string[];
+  /** Photographs in the order the case study shows them; the first is its hero. At most five. */
   images: string[];
+  /** The photograph on the index card, when the hero is the wrong shape for a portrait crop. */
+  cover?: string;
   featured: boolean;
   status: ProjectStatus;
   source: { url: string; ingestedAt: string };
@@ -26,11 +29,28 @@ export type Project = {
 const CONTENT_DIR = path.join(process.cwd(), 'content', 'projects');
 
 /**
+ * The projects that open the index and the home slideshow, in the client's
+ * order. Everything else follows, sorted by how much photography it has.
+ */
+const LEAD = [
+  'rosas-thai-dubai-hills-mall',
+  'sushi-art-jbr',
+  'sacoor-brothers-deira-city',
+  'paul-shark',
+];
+
+const rank = (slug: string) => {
+  const i = LEAD.indexOf(slug);
+  return i === -1 ? LEAD.length : i;
+};
+
+/**
  * Reads every project record from disk.
  *
- * Runs at build time only. Records are sorted by image count so the projects
- * with real photography lead the index — the archive is uneven, and a case
- * study with one surviving image should not open the page.
+ * Runs at build time only. The client's lead projects come first; the rest
+ * are sorted by image count so the projects with real photography lead — the
+ * archive is uneven, and a case study with one surviving image should not
+ * open the page.
  */
 export function getAllProjects(): Project[] {
   if (!fs.existsSync(CONTENT_DIR)) return [];
@@ -41,6 +61,7 @@ export function getAllProjects(): Project[] {
     .map((f) => JSON.parse(fs.readFileSync(path.join(CONTENT_DIR, f), 'utf8')) as Project)
     .filter((p) => p.images.length > 0)
     .sort((a, b) => {
+      if (rank(a.slug) !== rank(b.slug)) return rank(a.slug) - rank(b.slug);
       if (a.featured !== b.featured) return a.featured ? -1 : 1;
       return b.images.length - a.images.length;
     });
@@ -95,6 +116,23 @@ const CITY_BY_LOCATION: Record<string, string> = {
   'Abu Dhabi': 'Abu Dhabi',
   'Yas Mall, Abu Dhabi': 'Abu Dhabi',
 };
+
+/** The city a project's recorded location sits in, if the archive knows it. */
+export function getCity(project: Project): string | undefined {
+  return CITY_BY_LOCATION[project.location];
+}
+
+/**
+ * Pixel size of a published photograph, read from the file at build time.
+ *
+ * The case-study gallery pairs photographs by shape, so it has to know which
+ * are portrait — the archive mixes phone verticals with landscape shoots.
+ */
+export async function getImageSize(src: string): Promise<{ width: number; height: number }> {
+  const { default: sharp } = await import('sharp');
+  const { width = 4, height = 3 } = await sharp(path.join(process.cwd(), 'public', src)).metadata();
+  return { width, height };
+}
 
 /**
  * Published projects grouped by city, biggest first.

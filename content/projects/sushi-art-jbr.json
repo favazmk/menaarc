@@ -9,17 +9,16 @@
   "area": "",
   "scope": [],
   "photographer": "",
-  "summary": "We shape vibrant dining environments that balance visual appeal with operational clarity, supporting both brand expression and everyday service demands.",
+  "summary": "A restaurant at JBR that balances visual character with operational clarity. The work brings together interior and terrace seating, display joinery, lighting and detailed coordination to support both the brand’s expression and the demands of everyday service.",
   "body": [],
   "images": [
+    "/projects/sushi-art-jbr/07.webp",
     "/projects/sushi-art-jbr/01.webp",
-    "/projects/sushi-art-jbr/02.webp",
-    "/projects/sushi-art-jbr/03.webp",
-    "/projects/sushi-art-jbr/04.webp",
-    "/projects/sushi-art-jbr/05.webp",
     "/projects/sushi-art-jbr/06.webp",
-    "/projects/sushi-art-jbr/07.webp"
+    "/projects/sushi-art-jbr/03.webp",
+    "/projects/sushi-art-jbr/04.webp"
   ],
+  "cover": "/projects/sushi-art-jbr/01.webp",
   "featured": false,
   "status": "approved",
   "source": {

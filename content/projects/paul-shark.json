@@ -9,17 +9,16 @@
   "area": "",
   "scope": [],
   "photographer": "",
-  "summary": "We create bold retail settings that mirror the brand’s confidence, using structure, lighting, and proportion to strengthen product storytelling.",
+  "summary": "A retail project that expresses the brand’s confidence through structure, lighting and proportion. Timber, stone and soft furnishings are arranged to strengthen product storytelling and give the collection room to be seen.",
   "body": [],
   "images": [
-    "/projects/paul-shark/01.webp",
-    "/projects/paul-shark/02.webp",
     "/projects/paul-shark/03.webp",
-    "/projects/paul-shark/04.webp",
     "/projects/paul-shark/05.webp",
-    "/projects/paul-shark/06.webp",
+    "/projects/paul-shark/04.webp",
+    "/projects/paul-shark/01.webp",
     "/projects/paul-shark/07.webp"
   ],
+  "cover": "/projects/paul-shark/01.webp",
   "featured": false,
   "status": "approved",
   "source": {

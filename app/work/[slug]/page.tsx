@@ -5,11 +5,46 @@ import { notFound } from 'next/navigation';
 
 import { Reveal } from '@/components/ui/Reveal';
 import { ContactCta } from '@/components/sections/ContactCta';
-import { getAllProjects, getNextProject, getProject } from '@/lib/projects';
+import { getAllProjects, getCity, getImageSize, getNextProject, getProject } from '@/lib/projects';
+import { sectorName } from '@/lib/services';
 import { site } from '@/lib/site';
 import { projectOpener } from '@/lib/whatsapp';
 
 type Params = { params: Promise<{ slug: string }> };
+
+type Photo = { src: string; width: number; height: number };
+type Row = { kind: 'full' | 'pair' | 'half'; images: Photo[]; aspect: string };
+
+const isPortrait = (p: Photo) => p.height > p.width;
+
+/**
+ * Lays the photographs out by shape, so nothing is cropped against its grain.
+ *
+ * A landscape hero runs full width; the rest go in pairs, and a pair takes the
+ * shape its two photographs share — two verticals stand tall, two landscapes
+ * sit wide, a mixed pair meets in the middle at a square. A landscape left
+ * over at the end runs full width; a vertical left over keeps its half.
+ */
+function galleryRows(photos: Photo[]): Row[] {
+  const rows: Row[] = [];
+  const rest = [...photos];
+  const full = (p: Photo): Row => ({
+    kind: 'full',
+    images: [p],
+    aspect: String(Math.min(Math.max(p.width / p.height, 4 / 3), 16 / 9)),
+  });
+
+  if (rest[0] && !isPortrait(rest[0])) rows.push(full(rest.shift()!));
+
+  while (rest.length > 1) {
+    const pair = rest.splice(0, 2);
+    const tall = pair.filter(isPortrait).length;
+    rows.push({ kind: 'pair', images: pair, aspect: tall === 2 ? '4 / 5' : tall === 0 ? '4 / 3' : '1 / 1' });
+  }
+
+  if (rest[0]) rows.push(isPortrait(rest[0]) ? { kind: 'half', images: rest, aspect: '4 / 5' } : full(rest[0]));
+  return rows;
+}
 
 export function generateStaticParams() {
   return getAllProjects().map((p) => ({ slug: p.slug }));
@@ -35,15 +70,27 @@ export default async function ProjectPage({ params }: Params) {
 
   const next = getNextProject(slug);
 
+  const city = getCity(project);
+  const where =
+    city && !project.location.endsWith(city) ? `${project.location}, ${city}` : project.location;
+  const sector = sectorName(project.sector);
+
   // Only render facts the client has actually supplied. An empty row would
   // advertise that we do not know, which is worse than a shorter table.
   const facts = [
-    ['Client', project.client],
-    ['Location', project.location],
-    ['Sector', project.sector],
+    ['Project', project.title],
+    ['Location', where],
+    ['Sector', sector],
     ['Year', project.year],
     ['Area', project.area],
+    ['Scope', project.scope.join(' / ')],
+    ['Status', 'Completed'],
   ].filter(([, value]) => Boolean(value));
+
+  const rows = galleryRows(
+    await Promise.all(project.images.map(async (src) => ({ src, ...(await getImageSize(src)) }))),
+  );
+  const alt = `${project.title}${project.location ? `, ${project.location}` : ''}`;
 
   return (
     <>
@@ -54,85 +101,61 @@ export default async function ProjectPage({ params }: Params) {
           </Link>
 
           <header className="mt-10 grid gap-10 md:grid-cols-12">
-            <h1 className="u-display md:col-span-7">{project.title}</h1>
-            <div className="md:col-span-5 md:pt-4">
+            <div className="md:col-span-5">
+              <h1 className="u-display">{project.title}</h1>
+              <p className="mt-5 text-[var(--muted)]">
+                {[where, sector].filter(Boolean).join(' | ')}
+              </p>
+            </div>
+
+            <div className="md:col-span-7 md:col-start-6 lg:col-span-6 lg:col-start-7">
               {project.summary ? <p className="u-lede">{project.summary}</p> : null}
+
+              <Reveal>
+                <dl className="mt-10 border-t border-[var(--hairline)]">
+                  {facts.map(([term, value]) => (
+                    <div
+                      key={term}
+                      className="grid grid-cols-12 gap-4 border-b border-[var(--hairline)] py-3.5"
+                    >
+                      <dt className="u-label col-span-4 pt-1 sm:col-span-3">{term}</dt>
+                      <dd className="col-span-8 sm:col-span-9">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </Reveal>
             </div>
           </header>
         </div>
 
-        <div className="u-shell mt-16">
-          <div className="relative aspect-[16/9] overflow-hidden bg-[var(--hairline)]">
-            <Image
-              src={project.images[0]}
-              alt={`${project.title}${project.location ? `, ${project.location}` : ''}`}
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover"
-            />
-          </div>
-        </div>
-
-        {facts.length ? (
-          <div className="u-shell mt-16">
-            <Reveal>
-              <dl className="grid grid-cols-2 gap-8 border-t border-[var(--hairline)] pt-10 md:grid-cols-5">
-                {facts.map(([term, value]) => (
-                  <div key={term}>
-                    <dt className="u-label">{term}</dt>
-                    <dd className="u-title mt-3">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </Reveal>
-          </div>
-        ) : null}
-
-        {project.body.length ? (
-          <div className="u-shell mt-20">
-            <Reveal className="grid gap-8 md:grid-cols-12">
-              <div className="md:col-span-7 md:col-start-6">
-                {project.body.map((paragraph) => (
-                  <p key={paragraph.slice(0, 40)} className="u-lede mb-6">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            </Reveal>
-          </div>
-        ) : null}
-
-        {project.images.length > 1 ? (
-          <div className="u-shell mt-24">
-            <ul className="grid gap-6 md:grid-cols-2">
-              {project.images.slice(1).map((src, i) => (
+        <div className="u-shell mt-20 md:mt-24">
+          <ul className="grid gap-4 md:grid-cols-2 md:gap-6">
+            {rows.flatMap((row, r) =>
+              row.images.map((img, i) => (
                 <Reveal
                   as="li"
-                  key={src}
-                  delay={(i % 2) * 70}
-                  // Every third image runs full width, so a long gallery of
-                  // uneven phone photography still has a rhythm to it.
-                  className={i % 3 === 2 ? 'md:col-span-2' : ''}
+                  key={img.src}
+                  delay={i * 70}
+                  className={row.kind === 'full' ? 'md:col-span-2' : ''}
                 >
                   <div
-                    className="relative overflow-hidden bg-[var(--hairline)]"
-                    style={{ aspectRatio: i % 3 === 2 ? '16 / 9' : '4 / 3' }}
+                    className="relative overflow-hidden rounded-lg bg-[var(--hairline)]"
+                    style={{ aspectRatio: row.aspect }}
                   >
                     <Image
-                      src={src}
-                      alt=""
+                      src={img.src}
+                      alt={r === 0 && i === 0 ? alt : ''}
                       fill
-                      loading="lazy"
-                      sizes={i % 3 === 2 ? '100vw' : '(max-width: 768px) 100vw, 50vw'}
+                      priority={r === 0}
+                      sizes={row.kind === 'full' ? '100vw' : '(max-width: 768px) 100vw, 50vw'}
                       className="object-cover"
                     />
                   </div>
                 </Reveal>
-              ))}
-            </ul>
-          </div>
-        ) : null}
+              )),
+            )}
+          </ul>
+        </div>
 
         {next ? (
           <div className="u-shell mt-32 pb-32">

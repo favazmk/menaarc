@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Reveal } from '@/components/ui/Reveal';
 import { SectionLink } from '@/components/ui/SectionLink';
 import type { Project } from '@/lib/projects';
+import { sectorName } from '@/lib/services';
 import { isTrial } from '@/lib/trial';
 
 /**
@@ -25,7 +26,7 @@ const ADVANCE_MS = 5000;
 /** Lines the first card up with the shell's left edge, however wide the screen. */
 const BLEED = 'max(var(--gutter), calc((100vw - 108rem) / 2 + var(--gutter)))';
 
-type Card = Pick<Project, 'slug' | 'title' | 'location' | 'sector' | 'images'>;
+type Card = Pick<Project, 'slug' | 'title' | 'location' | 'sector' | 'images' | 'cover'>;
 
 function Frame({ trial, slug, title, children }: { trial: boolean; slug: string; title: string; children: React.ReactNode }) {
   const cls = 'group relative block aspect-[4/5] overflow-hidden rounded-md bg-white/5 md:aspect-[5/4]';
@@ -130,7 +131,7 @@ export function SelectedWork({ projects }: { projects: Card[] }) {
             >
               <Frame trial={isTrial} slug={project.slug} title={project.title}>
                 <Image
-                  src={project.images[0]}
+                  src={project.cover ?? project.images[0]}
                   alt={isTrial ? `${project.title}${project.location ? `, ${project.location}` : ''}` : ''}
                   fill
                   priority={i < 3}
@@ -145,7 +146,7 @@ export function SelectedWork({ projects }: { projects: Card[] }) {
                 <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 text-white md:p-6">
                   <span>
                     <span className="block text-[0.6875rem] font-medium uppercase tracking-[0.32em] text-white/70">
-                      {[project.sector, project.location].filter(Boolean).join(' · ')}
+                      {[sectorName(project.sector), project.location].filter(Boolean).join(' · ')}
                     </span>
                     <span className="u-title mt-2 block">{project.title}</span>
                   </span>
