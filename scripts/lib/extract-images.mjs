@@ -11,8 +11,12 @@
  * filter below is what keeps it from dragging in the logo and favicon.
  */
 
+// The extension must end the URL: phone uploads are named like
+// `IMG_6216.JPG-1-scaled.jpeg`, and stopping at the first `.JPG` produced a
+// truncated URL that 404s — which is how Jack & Jones lost four of its five
+// photographs.
 const UPLOAD_URL =
-  /https?:\/\/[^\s"'<>()\\]+\/wp-content\/uploads\/[^\s"'<>()\\]+?\.(?:jpe?g|png|webp|avif)/gi;
+  /https?:\/\/[^\s"'<>()\\]+\/wp-content\/uploads\/[^\s"'<>()\\]+?\.(?:jpe?g|png|webp|avif)(?=[\s"'<>()\\,?]|$)/gi;
 
 /** Site furniture that appears on every page and is never project work. */
 const CHROME = /logo|favicon|icon|avatar|placeholder|sprite|pattern|bg-\d|convert\.io/i;
