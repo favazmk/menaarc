@@ -28,7 +28,7 @@ export type Phase = {
 };
 
 export const processIntro = {
-  headline: 'From first sketch to buildable detail.',
+  headline: 'A clear path from design to delivery.',
   lede: 'A clear design journey, with decisions made at the right time and drawings developed for the people who will build them.',
 } as const;
 
@@ -40,44 +40,44 @@ export const design: Phase = {
   stages: [
     {
       n: '01',
-      title: 'Discovery & site',
+      title: 'Site Assessment',
       when: 'Week 1',
-      body: 'Brief, site visit and review of existing conditions.',
+      body: 'Site review, project briefing and existing conditions.',
       deliverable: 'Confirmed brief and site assessment.',
     },
     {
       n: '02',
-      title: 'Space planning',
+      title: 'Space Planning',
       when: 'Week 1',
-      body: 'Zoning, circulation, furniture and kitchen layouts.',
+      body: 'Functional zoning, circulation and layout development.',
       deliverable: 'Proposed plans for client approval.',
     },
     {
       n: '03',
-      title: 'Concept design',
+      title: 'Concept Design',
       when: 'Week 2',
-      body: 'Mood boards, finishes, furniture, lighting and initial 3D.',
+      body: 'Design direction, mood boards and initial 3D visuals.',
       deliverable: 'Concept presentation and 3D views.',
     },
     {
       n: '04',
-      title: 'Design development',
+      title: 'Design Development',
       when: 'Week 3',
-      body: 'Revised 3D, plans, elevations, sections, façade and RCP.',
+      body: 'Revised visuals and architectural concept drawings.',
       deliverable: 'Architectural concept drawing package.',
     },
     {
       n: '05',
-      title: 'Materials & details',
+      title: 'Materials & Detailing',
       when: 'Weeks 3–4',
-      body: 'Samples, finish selections, joinery and key details.',
+      body: 'Material selection, architectural details and finishes.',
       deliverable: 'Physical material board and detail drawings.',
     },
     {
       n: '06',
-      title: 'MEP technical drawings',
+      title: 'MEP Design & Coordination',
       when: 'Weeks 4–5',
-      body: 'Mechanical, electrical and plumbing design.',
+      body: 'Mechanical, electrical and plumbing design documentation.',
       deliverable: 'Coordinated MEP drawing package.',
     },
   ],
@@ -87,10 +87,10 @@ export const delivery: Phase = {
   n: '02',
   title: 'Project delivery',
   term: 'Separate',
-  intro: 'Appointed separately after design completion.',
+  intro: 'From approvals to successful delivery.',
   stages: [
-    { n: '01', title: 'BOQ & tendering', body: 'Quantities, contractor pricing and tender review.' },
-    { n: '02', title: 'Approvals', body: 'Authority, mall and landlord submissions.' },
-    { n: '03', title: 'Project management', body: 'Programme, contractor oversight, quality, cost and time.' },
+    { n: '01', title: 'Tendering & Procurement', body: 'Quantities, contractor pricing and tender review.' },
+    { n: '02', title: 'Landlord & Authority Approvals', body: 'Authority, mall and landlord submissions.' },
+    { n: '03', title: 'Project Management & Delivery', body: 'Programme, contractor oversight, quality, cost and time.' },
   ],
 };

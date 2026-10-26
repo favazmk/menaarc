@@ -27,7 +27,7 @@ function Stop() {
 export function HomeIntro() {
   return (
     <section data-theme="light" className="bg-[var(--ground)] text-[var(--figure)]">
-      <div className="u-shell py-24 md:py-36">
+      <div className="u-shell py-20 md:py-28">
         <Reveal className="flex flex-col items-center text-center">
           <Wordmark size="xl" withArabic />
           <p className="mt-12 text-[clamp(0.8rem,1.6vw,1.125rem)] font-medium uppercase tracking-[0.32em] text-[var(--muted)] md:mt-16">

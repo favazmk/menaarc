@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon';
-import { services, sectors } from '@/lib/services';
+import { sectors } from '@/lib/services';
 import { site } from '@/lib/site';
 import { whatsappHref } from '@/lib/whatsapp';
 
@@ -22,9 +22,6 @@ const FIELD =
 
 const SECTOR_OPTIONS = [...sectors, 'Other'];
 
-const CHIP =
-  'cursor-pointer rounded-full border border-[color-mix(in_srgb,var(--figure)_22%,transparent)] bg-[var(--ground)] px-5 py-2.5 transition-colors hover:border-[var(--figure)] has-[:checked]:border-[var(--figure)] has-[:checked]:bg-[var(--figure)] has-[:checked]:text-[var(--ground)] has-[:focus-visible]:shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-accent)_22%,transparent)]';
-
 /**
  * Turns the filled-in form into the first WhatsApp message the studio reads.
  *
@@ -32,7 +29,6 @@ const CHIP =
  *   fd.get('name')          — always present (required)
  *   fd.get('email')         — may be an empty string (optional)
  *   fd.get('sector')        — null if no project type was picked
- *   fd.getAll('services')   — string[], possibly empty
  *   fd.get('text')          — the brief, always present (required)
  */
 function composeMessage(fd: FormData): string {
@@ -42,19 +38,16 @@ function composeMessage(fd: FormData): string {
   const email = field('email');
   const sector = field('sector');
   const brief = field('text');
-  const needs = fd.getAll('services').map((s) => lowerTitle(String(s)));
 
   // Written as sentences rather than "Label: value" lines: this is the first
   // message the studio reads from a person, and a filled-in form pasted into a
   // chat reads like a ticket. Every sentence is only built from fields that
   // were actually given, so nothing reads "a  project" or "help with ." when
-  // a chip was left unpicked.
+  // a field was left empty.
   const sentences = [`Hi MENAARC, my name is ${name}.`];
 
   const project = sector && sector !== 'Other' ? `${article(sector)} ${sectorWord(sector)} project` : 'a project';
-  if (needs.length) {
-    sentences.push(`I'm planning ${project} and need help with ${listOf(needs)}.`);
-  } else if (sector) {
+  if (sector) {
     sentences.push(`I'm planning ${project}.`);
   }
 
@@ -63,14 +56,6 @@ function composeMessage(fd: FormData): string {
   // The brief goes last and on its own paragraph: it is the longest part, and
   // the one the studio will read twice.
   return `${sentences.join(' ')}\n\n${brief}`;
-}
-
-/** "Authority Approvals" → "authority approvals"; acronyms such as MEP stay as written. */
-function lowerTitle(title: string) {
-  return title
-    .split(' ')
-    .map((word) => (word === word.toUpperCase() ? word : word.toLowerCase()))
-    .join(' ');
 }
 
 /** Sectors read as adjectives mid-sentence: "a retail project", "an F&B project". */
@@ -86,12 +71,6 @@ function sectorWord(sector: string) {
 function article(sector: string) {
   const spokenVowel = sector === sector.toUpperCase() ? /^[AEFHILMNORSX]/ : /^[aeiou]/i;
   return spokenVowel.test(sector) ? 'an' : 'a';
-}
-
-/** "a", "a and b", "a, b and c" — no serial comma, matching the site's own copy. */
-function listOf(items: string[]) {
-  if (items.length < 2) return items.join('');
-  return `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
 }
 
 /**
@@ -131,14 +110,14 @@ export function ContactForm() {
     >
       <div>
         <label htmlFor="name" className="u-label">
-          Your name
+          Name
         </label>
         <input
           id="name"
           name="name"
           required
           autoComplete="name"
-          placeholder="Your full name"
+          placeholder="Your name"
           className={FIELD}
         />
       </div>
@@ -152,40 +131,28 @@ export function ContactForm() {
           name="email"
           type="email"
           autoComplete="email"
-          placeholder="you@company.com, if you'd like drawings sent there"
+          placeholder="you@company.com"
           className={FIELD}
         />
       </div>
 
-      <fieldset>
-        <legend className="u-label">Project type</legend>
-        <div className="mt-4 flex flex-wrap gap-2">
+      <div>
+        <label htmlFor="sector" className="u-label">
+          Project type
+        </label>
+        <select id="sector" name="sector" defaultValue="" className={`${FIELD} appearance-none`}>
+          <option value="">Select a project type</option>
           {SECTOR_OPTIONS.map((sector) => (
-            <label key={sector} className={CHIP}>
-              <input type="radio" name="sector" value={sector} className="sr-only" />
-              <span className="u-label text-current">{sector}</span>
-            </label>
+            <option key={sector} value={sector}>
+              {sector}
+            </option>
           ))}
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend className="u-label">What do you need?</legend>
-        {/* Checkboxes, not radios: enquiries routinely span concept, drawings
-            and approvals at once. */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          {services.map((service) => (
-            <label key={service.id} className={CHIP}>
-              <input type="checkbox" name="services" value={service.title} className="sr-only" />
-              <span className="u-label text-current">{service.title}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+        </select>
+      </div>
 
       <div>
         <label htmlFor="brief" className="u-label">
-          The brief, or the problem
+          Your message
         </label>
         <textarea
           id="brief"
@@ -194,7 +161,7 @@ export function ContactForm() {
           name="text"
           required
           rows={6}
-          placeholder="The unit, the mall, the opening date — or the one thing that isn't working yet."
+          placeholder="Tell us a little about your project…"
           className={`${FIELD} resize-y leading-relaxed`}
         />
       </div>

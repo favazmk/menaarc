@@ -1,11 +1,8 @@
 import type { Metadata } from 'next';
 
 import { DraftingGrid } from '@/components/ui/DraftingGrid';
-import { Illustration } from '@/components/ui/Illustration';
-import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon';
 import { ContactForm } from '@/components/sections/ContactForm';
 import { site } from '@/lib/site';
-import { openers, whatsappHref } from '@/lib/whatsapp';
 
 export const metadata: Metadata = {
   title: 'Contact',
@@ -17,96 +14,57 @@ export default function ContactPage() {
     <section data-theme="light" className="relative isolate bg-[var(--ground)] text-[var(--figure)]">
       <DraftingGrid plan="restaurant" mobilePlan={false} />
       <div className="u-shell relative pb-32 pt-40 md:pt-52">
-        <p className="u-label">Contact</p>
-        <h1 className="u-display mt-6 max-w-[13ch]">Start with the constraint.</h1>
+        <p className="u-label">Contact / MENAARC</p>
+        <h1 className="u-display mt-6 max-w-[20ch]">Let&rsquo;s talk about your project.</h1>
+        <p className="u-lede mt-6">
+          Whether you&rsquo;re planning a new development, launching a retail or hospitality
+          concept, or transforming an existing space, we&rsquo;d be pleased to hear from you.
+        </p>
 
-        <div className="mt-20 grid gap-16 md:grid-cols-12">
-          <div className="md:col-span-5">
-            <p className="u-lede">
-              The budget that will not stretch, the handover date that will not move, the landlord
-              condition nobody can solve. That is usually the most useful thing to open with.
-            </p>
-
-            <dl className="mt-14 space-y-8">
-              <div>
-                <dt className="u-label">Email</dt>
-                {/* An email address is a single unbreakable token, so it can
-                    only be as large as the space it actually has.
-
-                    Sized against this column (cqw), not the viewport. A
-                    viewport-relative size ignores that the column is 5 of 12
-                    grid tracks: at 768px the glyphs ran 224px past their own
-                    box and across the form beside them, while the box itself
-                    stayed within bounds and looked correct to any box-based
-                    check. */}
-                <dd className="mt-3" style={{ containerType: 'inline-size' }}>
+        <div className="mt-16 grid gap-16 border-t border-[var(--hairline)] pt-12 md:grid-cols-12">
+          <dl className="space-y-8 md:col-span-5">
+            <div>
+              <dt className="u-label">Email</dt>
+              <dd className="mt-2 text-base font-medium">
+                <a href={`mailto:${site.contact.email}`} className="break-all hover:text-[var(--color-accent)]">
+                  {site.contact.email}
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="u-label">Telephone</dt>
+              <dd className="mt-2 text-base font-medium">
+                <a href={`tel:${site.contact.phoneHref}`} className="hover:text-[var(--color-accent)]">
+                  {site.contact.phone}
+                </a>
+              </dd>
+            </div>
+            <div>
+              <dt className="u-label">Studio</dt>
+              <dd className="mt-2 text-base font-medium">{site.region}</dd>
+            </div>
+            <div>
+              <dt className="u-label">Social</dt>
+              <dd className="mt-2 flex flex-wrap gap-6 text-base font-medium">
+                {site.social.map((s) => (
                   <a
-                    href={`mailto:${site.contact.email}`}
-                    className="inline-block max-w-full py-1.5 font-medium leading-tight tracking-[-0.015em] hover:text-[var(--color-accent)]"
-                    style={{ fontSize: 'min(2.25rem, max(1rem, 6.5cqw))' }}
-                  >
-                    {site.contact.email}
-                  </a>
-                </dd>
-              </div>
-              <div>
-                <dt className="u-label">Phone</dt>
-                <dd className="u-title mt-3">
-                  <a
-                    href={`tel:${site.contact.phoneHref}`}
-                    className="inline-block py-1.5 hover:text-[var(--color-accent)]"
-                  >
-                    {site.contact.phone}
-                  </a>
-                </dd>
-              </div>
-              <div>
-                <dt className="u-label">WhatsApp</dt>
-                {/* The fast path, for anyone who would rather not fill in a form.
-                    Same number as the phone line; the form below it composes a
-                    fuller first message to the same chat. */}
-                <dd className="mt-4">
-                  <a
-                    href={whatsappHref(openers.contact)}
+                    key={s.href}
+                    href={s.href}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="inline-flex items-center gap-3 rounded-full border border-[var(--figure)] px-7 py-3.5 transition-colors hover:bg-[var(--figure)] hover:text-[var(--ground)]"
+                    className="hover:text-[var(--color-accent)]"
                   >
-                    <WhatsAppIcon />
-                    Message the studio
+                    {s.label} ↗
                   </a>
-                </dd>
-              </div>
-              <div>
-                <dt className="u-label">Studio</dt>
-                <dd className="u-title mt-3">{site.region}</dd>
-              </div>
-            </dl>
-
-            {/* The form beside this column runs far longer than the details
-                do; the sketch takes up that height instead of leaving it blank. */}
-            <Illustration
-              src="/illustrations/atrium-sketch.webp"
-              width={1400}
-              height={933}
-              delay={120}
-              sizes="(min-width: 768px) 40vw, 100vw"
-              className="mt-20 hidden md:block"
-            />
-          </div>
+                ))}
+              </dd>
+            </div>
+          </dl>
 
           <div className="md:col-span-6 md:col-start-7">
             <ContactForm />
           </div>
 
-          {/* Phones: after the form, so the details and the form come first. */}
-          <Illustration
-            src="/illustrations/atrium-sketch.webp"
-            width={1400}
-            height={933}
-            sizes="100vw"
-            className="md:hidden"
-          />
         </div>
       </div>
     </section>

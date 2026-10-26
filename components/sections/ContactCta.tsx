@@ -35,10 +35,10 @@ const PITCHES = {
   },
   studio: {
     whatsapp: openers.studio as string,
-    label: 'Work with us',
-    heading: 'Talk to the person who draws it.',
-    lede: 'There is no account manager to get past. Bring a brief, a lease condition or an early idea — a first conversation costs nothing and usually tells both of us whether this is a fit.',
-    action: 'Talk to the studio',
+    label: 'Work with MENAARC',
+    heading: 'Let’s discuss your next project.',
+    lede: 'We work with brands, developers and businesses to create considered spaces. Whether you have an early concept or an established brief, we’d be pleased to explore it with you.',
+    action: 'Start a conversation',
   },
   work: {
     whatsapp: openers.work as string,
@@ -71,9 +71,9 @@ export function ContactCta({
   const href = whatsappHref(message ?? pitch.whatsapp);
 
   return (
-    <section data-theme="light" className="relative isolate bg-[var(--ground)] text-[var(--figure)]">
+    <section data-theme="light" className="relative isolate border-t border-[var(--hairline)] bg-[var(--ground)] text-[var(--figure)]">
       <DraftingGrid />
-      <div className="u-shell relative py-24 md:py-36">
+      <div className="u-shell relative py-20 md:py-28">
         <Reveal className="flex flex-col items-center text-center">
           <p className="u-label">{pitch.label}</p>
           <h2 className="u-display mt-8 max-w-[24ch] text-balance">{pitch.heading}</h2>

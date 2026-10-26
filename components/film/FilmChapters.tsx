@@ -212,8 +212,8 @@ export function FilmChapters({
                     className="mt-5 font-[family-name:var(--font-display)] uppercase leading-[0.94]"
                     style={{
                       fontSize: compact
-                        ? 'clamp(1.375rem, 6vw, 2rem)'
-                        : 'clamp(1.75rem, 3.4vw, 3.25rem)',
+                        ? 'clamp(1.25rem, 5vw, 1.625rem)'
+                        : 'clamp(1.5rem, 2.2vw, 2.25rem)',
                       fontWeight: 300,
                       letterSpacing: '0.045em',
                     }}

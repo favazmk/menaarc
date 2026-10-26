@@ -57,14 +57,12 @@ export const site = {
    */
   leadership: [
     {
-      name: 'Ar. Rashid Ahamed',
+      name: 'Rashid Ahamed',
       role: 'Founder & CEO',
-      bio: 'Rashid brings over a decade of experience in the UAE, leading design and delivery for global retail and hospitality brands. He founded MENAARC to keep architecture and execution under one roof, ensuring that thoughtful design is always met with rigorous project management and cost control.',
-      credentials: [
-        'Over a decade of experience in Dubai and the GCC',
-        'Led design and delivery for global brands (Tim Hortons, Tommy Hilfiger, Levi\'s)',
-        'Expertise in architectural design, cost control, and MEP coordination',
-        'Former Lead Architect at Tim Hortons and Maristo Hospitality',
+      bio: [
+        'Rashid brings over a decade of experience in architecture, interior design and project delivery across the UAE and GCC, with a strong focus on commercial, retail and hospitality environments.',
+        "His experience includes leading the design and delivery of more than 55 Tim Hortons outlets, alongside projects for internationally recognised brands including Tommy Hilfiger, Levi's and other retail and F&B operators.",
+        'With a strong understanding of both creative design and commercial project requirements, Rashid founded MENAARC to bring architectural thinking, technical coordination and practical delivery knowledge into one integrated practice.',
       ],
       links: [
         { label: 'LinkedIn', href: 'https://www.linkedin.com/in/ar-rashid-ahamed-b7a8a59a/?skipRedirect=true' },
@@ -72,13 +70,11 @@ export const site = {
     },
     {
       name: 'Benazir Noor Mohamed',
-      role: 'Cofounder',
-      bio: 'Benazir brings over a decade in the built environment — design, execution and the performance of a building once it is occupied. Her work joins design intent to operational rigour, so that wellbeing-driven decisions are measurable rather than asserted.',
-      credentials: [
-        'Over a decade in the built environment',
-        'Mentored by Pritzker Laureate B. V. Doshi',
-        'Advisory board, International WELL Building Institute',
-        'Advanced studies, University College London',
+      role: 'Creative Director',
+      bio: [
+        'Benazir is an architect specialising in health, wellbeing and sustainability in the built environment, bringing over a decade of experience across architectural practice, research and advisory roles.',
+        'Her professional experience includes working with Pritzker Prize laureate Balkrishna V. Doshi, alongside advanced academic study at University College London. She serves on the Advisory Board of the International WELL Building Institute and is the Founder of WELL BUILT, a healthy building consultancy.',
+        'At MENAARC, she brings a human-centred and research-informed perspective to the design of spaces, connecting architectural quality with long-term performance and occupant wellbeing.',
       ],
       links: [
         {

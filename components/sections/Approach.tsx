@@ -24,7 +24,7 @@ export function Approach() {
   return (
     <section id="process" data-theme="dark" className="relative isolate scroll-mt-28 bg-[var(--ground)] text-[var(--figure)]">
       <DraftingGrid />
-      <div className="u-shell relative py-28 md:py-40">
+      <div className="u-shell relative py-20 md:py-28">
         <div className="grid gap-16 md:grid-cols-12">
           {/* Sticky on desktop so the heading holds while the stages pass it. */}
           <div className="md:col-span-4">

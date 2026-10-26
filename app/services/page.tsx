@@ -22,13 +22,13 @@ export default function ServicesPage() {
       <section data-theme="light" className="relative isolate bg-[var(--ground)] text-[var(--figure)]">
         <DraftingGrid plan="restaurant" />
         <div className="u-shell relative pb-72 pt-40 md:pb-12 md:pt-52">
-          <p className="u-label">Services</p>
-          <h1 className="u-display mt-6 max-w-[14ch]">
-            Drawn here. Approved here. Delivered here.
+          <p className="u-label">Our services</p>
+          <h1 className="u-display mt-6 max-w-[20ch]">
+            Design expertise. Technical precision. Project delivery.
           </h1>
           <p className="u-lede mt-8">
-            Concept creation, detailed drawing, authority approvals, MEP drawing and project
-            management — run by the same studio, on the same programme.
+            Integrated architectural consultancy, from concept design and technical documentation
+            to authority approvals and project delivery.
           </p>
         </div>
       </section>
