@@ -60,9 +60,9 @@ export const site = {
       name: 'Rashid Ahamed',
       role: 'Founder & CEO',
       bio: [
-        'Rashid brings over a decade of experience in architecture, interior design and project delivery across the UAE and GCC, with a strong focus on commercial, retail and hospitality environments.',
-        "His experience includes leading the design and delivery of more than 55 Tim Hortons outlets, alongside projects for internationally recognised brands including Tommy Hilfiger, Levi's and other retail and F&B operators.",
-        'With a strong understanding of both creative design and commercial project requirements, Rashid founded MENAARC to bring architectural thinking, technical coordination and practical delivery knowledge into one integrated practice.',
+        'Rashid brings over a decade of experience in architecture, interior design and project delivery, having completed more than 2,000 interior projects across the MENA region. His work spans over 100 retail and F&B brands, alongside commercial and hospitality environments.',
+        "His portfolio includes leading the design and delivery of more than 55 Tim Hortons outlets, as well as projects for internationally recognised brands such as Tommy Hilfiger and Levi's. He brings extensive knowledge of authority approvals and local regulations, supported by hands-on experience coordinating projects from concept through to completion.",
+        'Rashid founded MENAARC to bring architectural thinking, technical expertise and practical delivery experience into one integrated practice, creating spaces that meet both design ambitions and commercial requirements.',
       ],
       links: [
         { label: 'LinkedIn', href: 'https://www.linkedin.com/in/ar-rashid-ahamed-b7a8a59a/?skipRedirect=true' },
