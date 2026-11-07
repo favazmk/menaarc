@@ -13,7 +13,7 @@ export function FilmLoader({ progress, failed }: { progress: number; failed: boo
       <div className="flex flex-col items-center">
         <Wordmark size="lg" withArabic className="opacity-90" />
         <p className="u-label mt-6 text-[var(--color-paper)]/70">
-          Design and Project Management
+          Design. Project Management. Delivery.
         </p>
       </div>
       <div className="mt-12 w-[min(22rem,60vw)]">

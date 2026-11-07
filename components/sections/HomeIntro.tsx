@@ -31,7 +31,7 @@ export function HomeIntro() {
         <Reveal className="flex flex-col items-center text-center">
           <Wordmark size="xl" withArabic />
           <p className="mt-12 text-[clamp(0.8rem,1.6vw,1.125rem)] font-medium uppercase tracking-[0.32em] text-[var(--muted)] md:mt-16">
-            Architecture<Stop /> Design<Stop /> Delivery<Stop />
+            Design<Stop /> Project Management<Stop /> Delivery<Stop />
           </p>
         </Reveal>
 

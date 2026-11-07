@@ -167,10 +167,9 @@ export function SiteGuide() {
       }
       const target = spot ? perchOn(spot, range) : null;
 
-      const half = figW / 2 + 8;
-      const tx = target
-        ? Math.min(width - half, Math.max(half, target.x - figW * 0.3))
-        : CORNER_INSET + figW / 2;
+      // Pinned to the left edge: it only travels up and down beside the
+      // headings, never across the page.
+      const tx = CORNER_INSET + figW / 2;
       // The boots sit a fifth of the figure above its bottom edge, the jet
       // flames filling the rest; drop by that much so the boots are what land.
       // Riding a heading up the screen, it stops short of the header rather

@@ -121,8 +121,6 @@ export const site = {
     { name: 'Al Ghurair', file: 'al-ghurair.png', w: 243 },
     { name: 'BurJuman', file: 'burjuman.png', w: 564 },
     { name: 'Abu Dhabi Mall', file: 'abu-dhabi-mall.png', w: 182 },
-    { name: 'Sahara Centre', file: 'sahara-centre.png', w: 165 },
-    { name: 'Expo 2020 Dubai', file: 'expo-2020-dubai.png', w: 226 },
     { name: 'Jack & Jones', file: 'jack-and-jones.png', w: 1036 },
     { name: 'MAX&Co.', file: 'max-and-co.png', w: 720 },
     { name: 'Pandora', file: 'pandora.png', w: 584 },

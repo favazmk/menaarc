@@ -28,11 +28,11 @@ const BLEED = 'max(var(--gutter), calc((100vw - 108rem) / 2 + var(--gutter)))';
 
 type Card = Pick<Project, 'slug' | 'title' | 'location' | 'sector' | 'images' | 'cover'>;
 
-function Frame({ trial, slug, title, children }: { trial: boolean; slug: string; title: string; children: React.ReactNode }) {
+function Frame({ trial, title, children }: { trial: boolean; title: string; children: React.ReactNode }) {
   const cls = 'group relative block aspect-[4/5] overflow-hidden rounded-md bg-white/5 md:aspect-[5/4]';
   if (trial) return <div className={cls}>{children}</div>;
   return (
-    <Link href={`/work/${slug}`} data-cursor="View" aria-label={title} className={cls}>
+    <Link href="/work" data-cursor="View" aria-label={title} className={cls}>
       {children}
     </Link>
   );
@@ -129,7 +129,7 @@ export function SelectedWork({ projects }: { projects: Card[] }) {
               key={project.slug}
               className="shrink-0 basis-[82%] snap-start sm:basis-[calc((100%-1rem)/2)] lg:basis-[calc((100%-2rem)/3)]"
             >
-              <Frame trial={isTrial} slug={project.slug} title={project.title}>
+              <Frame trial={isTrial} title={project.title}>
                 <Image
                   src={project.cover ?? project.images[0]}
                   alt={isTrial ? `${project.title}${project.location ? `, ${project.location}` : ''}` : ''}
