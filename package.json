@@ -17,7 +17,7 @@
     "prebuild": "node scripts/check-content.mjs",
     "audit": "echo \"Run scripts/audit.mjs through the Playwright MCP (browser_run_code_unsafe with { filename }) against a running dev server.\"",
     "build:trial": "node scripts/build-trial.mjs",
-    "postinstall": "node -e \"for (const f of ['maplibre-gl-worker.mjs','maplibre-gl-shared.mjs']) require('fs').cpSync('node_modules/maplibre-gl/dist/'+f,'public/maplibre/'+f)\"",
+    "postinstall": "node -e \"const fs=require('fs');fs.mkdirSync('public/maplibre',{recursive:true});for (const f of ['worker','shared']) fs.writeFileSync('public/maplibre/maplibre-gl-'+f+'.js', fs.readFileSync('node_modules/maplibre-gl/dist/maplibre-gl-'+f+'.mjs','utf8').split('maplibre-gl-shared.mjs').join('maplibre-gl-shared.js'))\"",
     "film:clean": "python scripts/clean-desktop-master.py assets/masters/desktop-hatta.mp4 assets/masters/desktop-hatta-clean.mp4",
     "film:clean:mobile": "python scripts/clean-desktop-master.py assets/masters/mobile-hatta.mp4 assets/masters/mobile-hatta-clean.mp4 --wm 550,1100,100,100"
   },

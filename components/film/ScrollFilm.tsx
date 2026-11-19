@@ -85,7 +85,7 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
   );
 
   const spec = tier?.spec ?? null;
-  const { primed, complete, failed, progress: loadProgress, getFrame } = useFrameLoader(spec);
+  const { primed, complete, failed, progress: loadProgress, primeProgress, getFrame } =useFrameLoader(spec);
 
   // Strip mode kicks in when the master is far wider than the viewport. As a
   // media query it re-evaluates on every resize, not just on mount.
@@ -408,7 +408,7 @@ export function ScrollFilm({ manifest, chapters, scrollLength = 6 }: Props) {
         />
       </div>
 
-      {!primed ? <FilmLoader progress={loadProgress} failed={failed} /> : null}
+      {!primed ? <FilmLoader progress={primeProgress} failed={failed} /> : null}
 
       <div
         ref={hintRef}

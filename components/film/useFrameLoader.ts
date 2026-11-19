@@ -19,7 +19,7 @@ export type FilmManifest = {
 };
 
 /** How many frames must decode before we reveal the canvas. */
-const PRIME_COUNT = 24;
+const PRIME_COUNT = 12;
 /** Parallel requests. Too many and the browser queues them anyway; too few and
  *  scrolling outruns the loader. Six matches typical HTTP/2 scheduling. */
 const CONCURRENCY = 6;
@@ -45,6 +45,8 @@ function supportsAvif() {
 export type LoaderState = {
   /** 0-1 across all frames. */
   progress: number;
+  /** 0-1 towards the reveal — what the loading screen shows. */
+  primeProgress: number;
   /** True once PRIME_COUNT frames are decoded — safe to reveal the canvas. */
   primed: boolean;
   /** True once every frame is decoded. */
@@ -67,6 +69,7 @@ export function useFrameLoader(spec: TierSpec | null) {
   const loadedRef = useRef<boolean[]>([]);
   const [state, setState] = useState<LoaderState>({
     progress: 0,
+    primeProgress: 0,
     primed: false,
     complete: false,
     failed: false,
@@ -109,6 +112,7 @@ export function useFrameLoader(spec: TierSpec | null) {
           setState((s) => ({
             ...s,
             progress: decoded / frameCount,
+            primeProgress: Math.min(1, decoded / Math.min(PRIME_COUNT, frameCount)),
             primed: s.primed || decoded >= Math.min(PRIME_COUNT, frameCount),
             complete: decoded >= frameCount,
           }));
@@ -139,19 +143,12 @@ export function useFrameLoader(spec: TierSpec | null) {
       // Reset here rather than in the effect body: a synchronous setState there
       // costs an extra render on every mount. Nothing has loaded yet at this
       // point, so this is still before the first frame of a new sequence.
-      setState({ progress: 0, primed: false, complete: false, failed: false });
+      setState({ progress: 0, primeProgress: 0, primed: false, complete: false, failed: false });
 
-      // Prime the opening frames so the reveal is not gated on the whole film.
-      const primeEnd = Math.min(PRIME_COUNT, frameCount);
-      for (let i = 0; i < primeEnd; i += CONCURRENCY) {
-        if (cancelled) return;
-        await Promise.all(
-          Array.from({ length: Math.min(CONCURRENCY, primeEnd - i) }, (_, k) => load(i + k, ext)),
-        );
-      }
-
-      // Stream the remainder through a bounded queue.
-      let cursor = primeEnd;
+      // One bounded queue in frame order: the opening frames go first, so the
+      // reveal (PRIME_COUNT decoded) comes early, and no batch ever waits on
+      // its slowest frame before the next request starts.
+      let cursor = 0;
       const worker = async () => {
         while (!cancelled && cursor < frameCount) {
           const index = cursor;

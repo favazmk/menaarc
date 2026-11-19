@@ -26,6 +26,7 @@ export function ClientEnhancements() {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const autoRef = useRef(false);
   const id = useId();
 
   useEffect(() => {
@@ -38,12 +39,27 @@ export function ClientEnhancements() {
   }, [pathname]);
 
   useEffect(() => {
-    if (!visible) setOpen(false);
-  }, [visible]);
+    if (!visible) {
+      setOpen(false);
+      return;
+    }
+    // On the home page, open once per session when the visitor scrolls out of
+    // the hero film — the moment the pill would otherwise only appear.
+    if (pathname !== '/') return;
+    try {
+      if (sessionStorage.getItem('menaarc:quote-auto')) return;
+      sessionStorage.setItem('menaarc:quote-auto', '1');
+    } catch {}
+    autoRef.current = true;
+    setOpen(true);
+  }, [visible, pathname]);
 
   useEffect(() => {
     if (!open) return;
-    panelRef.current?.querySelector<HTMLInputElement>('input')?.focus();
+    // Focus only when the visitor opened it: focusing on auto-open would
+    // raise the phone keyboard mid-scroll.
+    if (!autoRef.current) panelRef.current?.querySelector<HTMLInputElement>('input')?.focus();
+    autoRef.current = false;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setOpen(false);

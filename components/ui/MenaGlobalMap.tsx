@@ -10,8 +10,10 @@ import { CUSTOM_DARK_STYLE } from '@/lib/custom-dark-style';
 // MapLibre resolves its worker relative to its own module URL, which the
 // bundler rewrites to a chunk path with no worker beside it — the request 404s
 // into an HTML page, the style never loads and the map stays blank. The
-// postinstall script copies the worker (and the chunk it imports) to public/.
-setWorkerUrl('/maplibre/maplibre-gl-worker.mjs');
+// postinstall script copies the worker (and the chunk it imports) to public/,
+// renamed .mjs -> .js: some hosts (Hostinger's CDN) serve .mjs as text/plain,
+// and a module worker with a non-JavaScript MIME type is refused outright.
+setWorkerUrl('/maplibre/maplibre-gl-worker.js');
 
 export type CityProjects = {
   city: string;
