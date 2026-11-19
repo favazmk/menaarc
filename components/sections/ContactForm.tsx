@@ -30,8 +30,11 @@ const SECTOR_OPTIONS = [...sectors, 'Other'];
  *   fd.get('email')         — may be an empty string (optional)
  *   fd.get('sector')        — null if no project type was picked
  *   fd.get('text')          — the brief, always present (required)
+ *
+ * `ask` is an optional sentence placed after the name, e.g. the quote pop-up's
+ * "I'd like a free quote."
  */
-function composeMessage(fd: FormData): string {
+export function composeMessage(fd: FormData, ask?: string): string {
   const field = (key: string) => String(fd.get(key) ?? '').trim();
 
   const name = field('name');
@@ -45,6 +48,7 @@ function composeMessage(fd: FormData): string {
   // were actually given, so nothing reads "a  project" or "help with ." when
   // a field was left empty.
   const sentences = [`Hi MENAARC, my name is ${name}.`];
+  if (ask) sentences.push(ask);
 
   const project = sector && sector !== 'Other' ? `${article(sector)} ${sectorWord(sector)} project` : 'a project';
   if (sector) {
